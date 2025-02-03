@@ -207,6 +207,51 @@ nav button {
     
 }
 
+.title__section {
+    background-color: rgba(0, 0, 0, 0.479);
+    align-items: center;
+    position: relative;
+    height: 60vh;
+    margin-bottom: 2rem;
+    top: 5rem;
+    padding: 3rem;
+
+}
+
+.title__container {
+    top: 5rem;
+    
+    display: grid;
+    grid-template-columns: 2fr 5fr;
+    padding: 1rem;
+    
+    text-align: center;
+    height: 40vh;
+}
+
+.title__logo {
+    display: flex;
+    justify-content: center;
+    height: 40vh;
+    align-items: center;
+    text-align: center;
+    
+}
+
+.title__logo img {
+    height: 13rem;
+    
+    
+
+}
+
+.title__name {
+    display: flex;
+    align-items: center;
+    text-align: left;
+
+}
+
 /*==============HEADER===================*/
 header{
     position: relative;
@@ -229,13 +274,81 @@ header{
 }
 
 
+/*============Start of Spotlight================*/
+
+.spotlight__section {
+    background-color: rgba(15, 26, 61, 0.87);
+    height: 80vh;
+}
+
+.spotlight__title {
+    padding: 1rem;
+    padding-bottom: 1rem;
+}
+
+.spotlight__container {
+    height: 80vh;
+    gap: 2rem;
+
+    
+    
+    
+}
+
+.spotlight__box {
+    display: flex;
+    gap: 5rem;
+    overflow: hidden;
+    overflow-x: scroll;
+    scrollbar-width: none;
+    height: 100%;
+    
+    
+    
+}
+
+
+
+.spotlight {
+    
+    text-align: center;
+    align-items: center;
+    border: 2px solid var(--color-white);
+    border-top-right-radius: 2rem;
+    padding: 0 2rem;
+    margin-bottom: 1rem;
+    height: 70vh;
+    transition: var(--transition);
+    
+}
+
+.spotlight:hover {
+    background: var(--color-white);
+    color: var(--color-bg);
+
+}
+
+.spotlight h3 {
+    margin: 1rem 0;
+}
+
+.spotlight-img {
+    height: 200px;
+    width: 200px;
+    border-radius: 50%;
+    padding: 1rem;
+}
+
+
+
+
 
 
 
 /*============== START OF PROGRAMS===================*/
 .programs {
     background-color: var(--color-bg1);
-    height: 19rem;
+    height: 21rem;
 
 }
 
@@ -432,72 +545,6 @@ header{
 
 
 
-
-
-/*============Start of Spotlight================*/
-
-.spotlight__section {
-    background-color: rgba(15, 26, 61, 0.87);
-    height: 80vh;
-}
-
-.spotlight__title {
-    padding: 2rem;
-    padding-bottom: 1rem;
-}
-
-.spotlight__container {
-    height: 80vh;
-    gap: 2rem;
-    
-    
-    
-}
-
-.spotlight__box {
-    display: flex;
-    
-    gap: 5rem;
-    overflow: hidden;
-    overflow-x: scroll;
-    scrollbar-width: none;
-    height: 100%;
-    
-    
-    
-}
-
-
-
-.spotlight {
-    
-    text-align: center;
-    align-items: center;
-    border: 2px solid var(--color-white);
-    border-top-right-radius: 2rem;
-    padding: 0 2rem;
-    margin-bottom: 1rem;
-    height: 70vh;
-    transition: var(--transition);
-    
-}
-
-.spotlight:hover {
-    background: var(--color-white);
-    color: var(--color-bg);
-
-}
-
-.spotlight h3 {
-    margin: 1rem 0;
-}
-
-.spotlight-img {
-    height: 200px;
-    width: 200px;
-    border-radius: 50%;
-    padding: 1rem;
-}
 
 
 

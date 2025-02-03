@@ -226,13 +226,13 @@ nav button {
     padding: 1rem;
     
     text-align: center;
-    height: 40vh;
+    height: 55vh;
 }
 
 .title__logo {
     display: flex;
     justify-content: center;
-    height: 40vh;
+    height: 55vh;
     align-items: center;
     text-align: center;
     

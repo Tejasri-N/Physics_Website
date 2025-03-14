@@ -1,0 +1,152 @@
+/* General Styles */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #abd3fa; /* Light blue background */
+    margin: 0;
+}
+
+/* Sticky Header */
+header {
+    position: sticky; /* Makes the header stick to the top while scrolling */
+    top: 0;
+    background-color: #005b96;
+    color: white;
+    padding: 20px;
+    text-align: center;
+    z-index: 1000; /* Ensures it stays above other content */
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.3); /* Adds a subtle shadow for visibility */
+}
+
+header h1 {
+    margin: 5px; /* Reduces spacing between header text */
+}
+
+/* Back to Home Button */
+.home-btn-container {
+    text-align: center; /* Centers the button container */
+}
+
+.home-button {
+    display: inline-block;
+    background-color: #ffffff;
+    color: #005b96;
+    text-decoration: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+}
+
+.home-button:hover {
+    background-color: #abd3fa; /* Darkens button color on hover */
+}
+
+/* Gallery Container */
+.gallery-container {
+    max-width: 1200px;
+    margin: auto;
+    padding-top: 60px; /* Adjusted to avoid overlap with sticky header */
+    padding-bottom: 60px;
+}
+
+/* Updated Gallery Styles for Collage Layout */
+.gallery {
+    display: grid; /* Use CSS Grid for a collage layout */
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); /* Responsive columns */
+    grid-gap: 15px; /* Spacing between items */
+}
+
+.gallery-item {
+    position: relative; /* For positioning descriptions if needed */
+}
+
+.gallery-item img, .gallery-item video {
+    width: 100%; /* Make all items fill their container */
+    height: 200px; /* Set a uniform height for all items in the gallery */
+    object-fit: cover; /* Crop images/videos to fit without distortion */
+    border-radius: 5px; /* Add rounded corners for aesthetics */
+}
+
+/* Description Styles */
+.description {
+    text-align: center;
+    background-color: #ffffff; /* White background for descriptions */
+}
+
+/* Modal Styles */
+.modal {
+    display: none; 
+    position: fixed; 
+    z-index: 1000; 
+    left: 0; 
+    top: 0; 
+    width: 100%; 
+    height: 100%; 
+    background-color: rgba(0, 0, 0, 0.8); /* Dark background overlay */
+    display: flex;
+    justify-content: center;
+    align-items: center; /* Center modal content vertically and horizontally */
+}
+
+.modal-content-container {
+    text-align: center; /* Centers content horizontally */
+}
+
+.modal-content {
+    width: auto; /* Maintain aspect ratio of images/videos */
+    height: 80vh; /* Set a uniform height within the viewport (80% of screen height) */
+}
+
+#caption {
+    color: rgb(0, 0, 0); /* Caption text color (black) */
+    background-color: rgb(255, 255, 255); /* White background for caption text */
+    font-size: 18px;
+    margin-top: 10px;
+}
+
+/* Navigation Buttons for Modal */
+.modal-nav-button {
+    position: absolute;
+    color: white;
+    border: none;
+    font-size: 30px;
+    background-color: rgba(0, 0, 0, 0.5);
+    padding: 10px;
+    cursor: pointer;
+    z-index: 1001;
+    border-radius: 50%; /* Makes the button circular */
+}
+
+#prev {
+    left: 10px; /* Position the Previous button on the left */
+    top: 50%; /* Center vertically */
+    transform: translateY(-50%);
+}
+
+#next {
+    right: 10px; /* Position the Next button on the right */
+    top: 50%; /* Center vertically */
+    transform: translateY(-50%);
+}
+
+.modal-nav-button:hover {
+    background-color: rgba(0, 0, 0, 0.8); /* Darkens button on hover */
+}
+
+
+/* Footer Styles */
+footer {
+    background-color: #005b96; /* Footer background color */
+    color: white; /* Footer text color */
+    text-align: center; /* Center-align text */
+    padding: 15px; /* Padding inside the footer */
+    bottom: 0; /* Position at the bottom of the viewport */
+    width: 100%; /* Ensures the footer spans the entire width of the page */
+    z-index: 1000; /* Keeps it above other elements if necessary */
+}
+
+/* Optional Responsive Adjustments for Footer */
+@media (max-width: 768px) {
+    footer {
+        font-size: 14px; /* Adjust font size for smaller screens */
+        padding: 10px; /* Reduce padding on smaller screens */
+    }
+}

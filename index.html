@@ -2,11 +2,10 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Home|Department of Physics IITH</title>
-    <link rel="stylesheet" href="style.css" />
-    <!--ICONSCOUT CDN-->
+    <title>Responsive Navbar Design</title>
+    <link rel="stylesheet" href="index.css" />
+    <link rel="stylesheet" href="home.css" />
     <link
       rel="stylesheet"
       href="https://unicons.iconscout.com/release/v4.0.8/css/line.css"
@@ -21,99 +20,177 @@
     />
   </head>
   <body>
-    <!--================START OF NAVBAR==================-->
-
-    <nav>
-      <div class="container nav__container">
-        <ul class="nav__menu">
-          <div class="dropdown-btn">
-            <a href="#" onclick="loadPage('home.html')">Home</a>
-          </div>
-          <div class="dropdown-btn">
-            <a>About us</a>
-            <li class="dropdown-content">
-              <a href="#" onclick="loadPage('about.html')"
-                >Physics at a glance</a
-              >
-              <a href="#" onclick="loadPage('home.html')">HoD Desk</a>
-              <a href="#" onclick="loadPage('home.html')"
-                >Physics Brochure</a
-              >
-              <a href="#" onclick="loadPage('home.html')">Physics Video</a>
-              <a href="#" onclick="loadPage('home.html')">Contact us</a>
-              <!-- <a href="#" onclick="loadPage('home.html')">Former Heads</a> -->
-            </li>
-          </div>
-
-          <div class="dropdown-btn">
-            <a>People</a>
-            <li class="dropdown-content">
-              <a href="#" onclick="loadPage('home.html')">Faculty</a>
-              <a href="#" onclick="loadPage('home.html')">Staffs</a>
-              <a href="#" onclick="loadPage('home.html')">Curent and former HODs</a>
-              <a href="#" onclick="loadPage('home.html')">Alumini</a>
-              <a href="#" onclick="loadPage('home.html')">Students</a>
-             
-            </li>
-          </div>
-
-          <div class="dropdown-btn">
-            <a>Research</a>
-            <li class="dropdown-content">
-              <a href="#" onclick="loadPage('home.html')">Research Areas</a>
-              <a href="#" onclick="loadPage('home.html')">Publications</a>
-              <a href="#" onclick="loadPage('home.html')">Research Labs</a>
-              <a href="#" onclick="loadPage('home.html')">Facilities</a>
-            </li>
-          </div>
-
-          <div class="dropdown-btn">
-            <a>Academics</a>
-            <li class="dropdown-content">
-              <a href="#" onclick="loadPage('home.html')">Programs</a>
-              <a href="#" onclick="loadPage('home.html')">Timetable</a>
-              <a href="#" onclick="loadPage('home.html')">Academic Documents</a>
-            </li>
-          </div>
-
-          <div class="dropdown-btn">
-            <a>Oppurtunities</a>
-            <li class="dropdown-content">
-              <a href="#" onclick="loadPage('home.html')">Recruitment</a>
-              <a href="#" onclick="loadPage('home.html')">Research Positions</a>
-            </li>
-          </div>
-
-          <div class="dropdown-btn">
-            <a>Resources</a>
-            <li class="dropdown-content">
-              <a href="#" onclick="loadPage('home.html')">Links</a>
-              <a href="#" onclick="loadPage('home.html')">Documents</a>
-              <a href="#" onclick="loadPage('home.html')">Gallery</a>
-              <a href="#" onclick="loadPage('home.html')">Room Booking</a>
-            </li>
-          </div>
-          <div class="dropdown-btn">
-            <a href="#" onclick="loadPage('home.html')">Committees</a>
-          </div>
-
-        <button id="open-menu-btn"><i class="uil uil-list-ul"></i></button>
-        <button id="close-menu-btn"><i class="uil uil-multiply"></i></button>
+    <!-- Header Content Section -->
+    <header class="header">
+      <div class="top-bar">
+        <div class="logo">
+          <a href="https://iith.ac.in" target="_blank">
+            <img
+              src="assets/iith-logo2.png"
+              alt="IITH Logo"
+              class="logo-desktop"
+            />
+            <img
+              src="assets/iith-logo.png"
+              alt="IITH Logo"
+              class="logo-mobile"
+            />
+          </a>
+        </div>
+        <div class="top-bar-title">
+          <a href="index.html">
+            <h1 class="title-desktop">Department of Physics</h1>
+            <h2 class="title-desktop">
+              Indian Institute of Technology Hyderabad
+            </h2>
+            <h1 class="title-mobile">Dept of Physics</h1>
+            <h2 class="title-mobile">IITH</h2>
+          </a>
+        </div>
+        <div class="top-bar-right">
+          <a href="https://iith.ac.in" target="_blank">IITH</a>
+        </div>
       </div>
-    </nav>
+      <nav class="navbar">
+        <div class="nav_container">
+          <ul class="nav_menu">
+            <li><a href="home.html">Home</a></li>
+            <li class="dropdown">
+              <a>About Us</a>
+              <ul class="dropdown-menu">
+                <li><a href="about-glance.html">Physics at a glance</a></li>
+                <li><a href="about-glance.html">HoD Desk</a></li>
+                <li><a href="about-glance.html">Physics Brochure</a></li>
+                <li><a href="about-glance.html">Physics Video</a></li>
+                <li><a href="about-glance.html">Contact us</a></li>
+              </ul>
+            </li>
+            <li class="dropdown">
+              <a>People</a>
+              <ul class="dropdown-menu">
+                <li><a href="about-glance.html">Faculty</a></li>
+                <li><a href="about-glance.html">Staff</a></li>
+                <li><a href="about-glance.html">Ex-HODs</a></li>
+                <li><a href="about-glance.html">Alumni</a></li>
+                <li><a href="about-glance.html">Student</a></li>
+              </ul>
+            </li>
+            <li class="dropdown">
+              <a>Research</a>
+              <ul class="dropdown-menu">
+                <li><a href="about-glance.html">Research Areas</a></li>
+                <li><a href="about-glance.html">Publications</a></li>
+                <li><a href="about-glance.html">Research Labs</a></li>
+                <li><a href="about-glance.html">Facilities</a></li>
+              </ul>
+            </li>
+            <li class="dropdown">
+              <a>Academics</a>
+              <ul class="dropdown-menu">
+                <li><a href="about-glance.html">Programs</a></li>
+                <li><a href="about-glance.html">Timetable</a></li>
+                <li><a href="about-glance.html">Academic Documents</a></li>
+              </ul>
+            </li>
+            <li class="dropdown">
+              <a>Opportunities</a>
+              <ul class="dropdown-menu">
+                <li><a href="about-glance.html">Recruitment</a></li>
+                <li><a href="about-glance.html">Research Positions</a></li>
+              </ul>
+            </li>
+            <li class="dropdown">
+              <a>Resources</a>
+              <ul class="dropdown-menu">
+                <li><a href="about-glance.html">Links</a></li>
+                <li><a href="about-glance.html">Documents</a></li>
+                <li><a href="about-glance.html">Gallery</a></li>
+                <li><a href="about-glance.html">Room booking</a></li>
+              </ul>
+            </li>
+            <li><a href="about-glance.html">Committees</a></li>
+          </ul>
+        </div>
+      </nav>
+      <!-- Hamburger button for mobile/tablet -->
+      <div class="hamburger" onclick="toggleMobileMenu(this)">
+        <div class="bar1"></div>
+        <div class="bar2"></div>
+        <div class="bar3"></div>
+      </div>
+      <!-- Mobile menu container -->
+      <div class="mobile-menu" id="mobileMenu">
+        <ul class="mobile-nav_menu">
+          <li><a href="home.html">Home</a></li>
+          <li class="mobile-dropdown">
+            <a href="" onclick="return false;">About Us</a>
+            <ul class="mobile-dropdown-menu">
+              <li><a href="about-glance.html">Physics at a glance</a></li>
+              <li><a href="about-glance.html">HoD Desk</a></li>
+              <li><a href="about-glance.html">Physics Brochure</a></li>
+              <li><a href="about-glance.html">Physics Video</a></li>
+              <li><a href="about-glance.html">Contact us</a></li>
+            </ul>
+          </li>
+          <li class="mobile-dropdown">
+            <a href="" onclick="return false;">People</a>
+            <ul class="mobile-dropdown-menu">
+              <li><a href="about-glance.html">Faculty</a></li>
+              <li><a href="about-glance.html">Staff</a></li>
+              <li><a href="about-glance.html">Ex-HODs</a></li>
+              <li><a href="about-glance.html">Alumni</a></li>
+              <li><a href="about-glance.html">Student</a></li>
+            </ul>
+          </li>
+          <li class="mobile-dropdown">
+            <a href="" onclick="return false;">Research</a>
+            <ul class="mobile-dropdown-menu">
+              <li><a href="about-glance.html">Research Areas</a></li>
+              <li><a href="about-glance.html">Publications</a></li>
+              <li><a href="about-glance.html">Research Labs</a></li>
+              <li><a href="about-glance.html">Facilities</a></li>
+            </ul>
+          </li>
+          <li class="mobile-dropdown">
+            <a href="" onclick="return false;">Academics</a>
+            <ul class="mobile-dropdown-menu">
+              <li><a href="about-glance.html">Programs</a></li>
+              <li><a href="about-glance.html">Timetable</a></li>
+              <li><a href="about-glance.html">Academic Documents</a></li>
+            </ul>
+          </li>
+          <li class="mobile-dropdown">
+            <a href="" onclick="return false;">Opportunities</a>
+            <ul class="mobile-dropdown-menu">
+              <li><a href="about-glance.html">Recruitment</a></li>
+              <li><a href="about-glance.html">Research Positions</a></li>
+            </ul>
+          </li>
+          <li class="mobile-dropdown">
+            <a href="" onclick="return false;">Resources</a>
+            <ul class="mobile-dropdown-menu">
+              <li><a href="about-glance.html">Links</a></li>
+              <li><a href="about-glance.html">Documents</a></li>
+              <li><a href="about-glance.html">Gallery</a></li>
+              <li><a href="about-glance.html">Room booking</a></li>
+            </ul>
+          </li>
+          <li><a href="about-glance.html">Committees</a></li>
+        </ul>
+      </div>
+    </header>
 
-    <!--=================END OF NAVBAR=================-->
-
-    <main id="content">
-      <!-- Dynamic content will be loaded here -->
+    <!-- Main Content Section -->
+    <main class="content">
+      <div id="dynamicContent"></div>
+      <!-- Dynamic content will load here -->
     </main>
 
-    <!--===================Start of footer====================-->
-
-    <footer class="foot">
+    <!-- Footer Section -->
+    <footer class="footer">
       <div class="container foot__container">
         <div class="footer__left">
-          <h4 class="footer__title">Facilities amd campus life</h4>
+          <h4 class="footer__title">Facilities and campus life</h4>
           <div class="footer__left-content">
             <a href="#" class="foot__link"
               ><p>Lorem ipsum dolor sit amet.</p></a
@@ -214,6 +291,11 @@
         </div>
       </div>
 
+      <div class="copyright">
+        <p>&copy; Copyrights 2025</p>
+        <p>All Rights Reserved</p>
+      </div>
+
       <div class="container dept__contact">
         <div class="HOD__contact">
           <p>HOD Office : office@phy.iith.ac.in | Phone : 040-2301 6700</p>
@@ -264,7 +346,9 @@
         </div>
       </div>
     </footer>
-
-    <script src="./main.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="main.js"></script>
+    <script src="home.js"></script>
+    <script src="spotlight.js"></script>
   </body>
 </html>

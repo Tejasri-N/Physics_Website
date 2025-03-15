@@ -1,0 +1,339 @@
+.main-columns {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 30px;
+}
+
+.main-carousel-announcements {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+}
+
+.carousel-container {
+  width: 70%;
+  position: relative;
+}
+
+.carousel {
+  position: relative;
+  width: 100%;
+  height: 400px; /* Adjust height as needed */
+  overflow: hidden;
+}
+
+.carousel-item {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+
+.carousel-item.active {
+  opacity: 1;
+}
+
+.carousel-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.prev-button,
+.next-button {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background-color: transparent;
+  border: none;
+  font-size: 40px;
+  cursor: pointer;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 50%;
+  background-color: white;
+  color: #333;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.prev-button {
+  left: 0;
+}
+
+.next-button {
+  right: 0;
+}
+
+.carousel-dots {
+  position: relative;
+  text-align: center;
+  margin-top: 20px;
+}
+
+.dot {
+  height: 15px;
+  width: 15px;
+  margin: 0 10px;
+  background-color: #bbb;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.dot.active {
+  background-color: #333;
+}
+
+.announcements {
+  width: 20%;
+  padding: 20px;
+  border: 1px solid #1f4e79;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+  /* background-color: #f0f0f0;*/
+}
+
+.announcements h2 {
+  text-align: center;
+}
+
+.announcement-list {
+  max-height: 300px; /* Adjust height as needed */
+  overflow-y: auto;
+  scrollbar-color: #1f4e79 #fff; /* For Chrome, Safari, and Edge */
+  scrollbar-width: auto;
+}
+
+.announcement-list::-webkit-scrollbar {
+  width: 10px;
+  background-color: #fff;
+}
+
+.announcement-list::-webkit-scrollbar-thumb {
+  background-color: #1f4e79;
+  border-radius: 10px;
+}
+
+.announcement-list::-webkit-scrollbar-thumb:hover {
+  background-color: #333;
+}
+
+hr {
+  margin: 10px 0;
+  border-color: #1f4e79;
+}
+
+.spotlight-section {
+  display: flex;
+  justify-content: space-between;
+  padding: 20px;
+}
+
+.spotlight {
+  width: 20%;
+  padding: 10px;
+  border: 1px solid #1f4e79;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+  /* background-color: #f0f0f0; */
+}
+
+.spotlight-carousel {
+  position: relative;
+  width: 100%;
+  height: 200px; /* Adjust height as needed */
+  overflow: hidden;
+}
+
+.spotlight-carousel-item {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+
+.spotlight-carousel-item.active {
+  opacity: 1;
+}
+
+.spotlight-carousel-item img {
+  width: 100%;
+  height: 50%; /* Adjust image height */
+  object-fit: cover;
+}
+
+.spotlight-carousel-item p {
+  padding: 10px;
+  height: 50%; /* Adjust text height */
+  overflow: hidden;
+  text-align: justify;
+}
+
+.spotlight-carousel-controls {
+  position: relative;
+  text-align: center;
+  margin-top: 20px;
+}
+
+/* .spotlight-prev-button,
+.spotlight-next-button {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background-color: transparent;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  padding: 10px;
+  border-radius: 50%;
+  background-color: white;
+  color: #333;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.spotlight-prev-button {
+  left: 0;
+}
+
+.spotlight-next-button {
+  right: 0;
+} */
+
+.spotlight-prev-button,
+.spotlight-next-button {
+  position: absolute;
+  top: -50px; /* Adjust based on carousel height */
+  font-size: 24px;
+  cursor: pointer;
+  padding: 10px;
+  border-radius: 50%;
+  background-color: white;
+  color: #333;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.spotlight-prev-button {
+  left: 0;
+}
+
+.spotlight-next-button {
+  right: 0;
+}
+
+.spotlight-dots {
+  position: relative;
+  text-align: center;
+  margin-top: 20px;
+}
+
+.spotlight-dot {
+  height: 15px;
+  width: 15px;
+  margin: 0 10px;
+  background-color: #bbb;
+  border-radius: 50%;
+  display: none;
+}
+
+.spotlight-dot.active {
+  background-color: #333;
+}
+
+.seminars-events {
+  width: 30%;
+  padding: 10px;
+  border: 1px solid #1f4e79;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+  /* background-color: #f0f0f0; */
+}
+
+.latest-publications {
+  width: 30%;
+  padding: 10px;
+  border: 1px solid #1f4e79;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+  /* background-color: #f0f0f0; */
+}
+
+.spotlight-list,
+.seminars-events-list,
+.latest-publications-list {
+  max-height: 300px; /* Adjust height as needed */
+  overflow-y: auto;
+  scrollbar-color: #1f4e79 #fff; /* For Chrome, Safari, and Edge */
+  scrollbar-width: auto;
+}
+
+.spotlight-list::-webkit-scrollbar,
+.seminars-events-list::-webkit-scrollbar,
+.latest-publications-list::-webkit-scrollbar {
+  width: 10px;
+  background-color: #fff;
+}
+
+.spotlight-list::-webkit-scrollbar-thumb,
+.seminars-events-list::-webkit-scrollbar-thumb,
+.latest-publications-list::-webkit-scrollbar-thumb {
+  background-color: #1f4e79;
+  border-radius: 10px;
+}
+
+.spotlight-list::-webkit-scrollbar-thumb:hover,
+.seminars-events-list::-webkit-scrollbar-thumb:hover,
+.latest-publications-list::-webkit-scrollbar-thumb:hover {
+  background-color: #333;
+}
+
+/* hr {
+  margin: 10px 0;
+  border-color: #1f4e79;
+} */
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .main-columns {
+    flex-direction: column;
+  }
+
+  .main-carousel-announcements {
+    flex-direction: column;
+  }
+
+  .carousel-container {
+    width: 100%;
+    margin-bottom: 20px;
+  }
+
+  .announcements {
+    width: 90%;
+  }
+
+  .spotlight-section {
+    flex-direction: column;
+  }
+
+  .spotlight,
+  .seminars-events,
+  .latest-publications {
+    width: 100%;
+    margin-bottom: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .carousel-container {
+    height: 200px; /* Adjust for mobile screens */
+  }
+
+  /* .spotlight-section {
+    padding: 10px;
+  } */
+}

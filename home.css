@@ -129,11 +129,11 @@ hr {
 .spotlight-section {
   display: flex;
   justify-content: space-between;
-  padding: 20px;
+  padding-top: 20px;
 }
 
 .spotlight {
-  width: 20%;
+  width: 25%;
   padding: 10px;
   border: 1px solid #1f4e79;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
@@ -323,8 +323,9 @@ hr {
   .spotlight,
   .seminars-events,
   .latest-publications {
-    width: 100%;
+    width: 90%;
     margin-bottom: 20px;
+    padding: 20px;
   }
 }
 

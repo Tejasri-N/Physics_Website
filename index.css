@@ -243,6 +243,10 @@ body {
   z-index: 1;
 }
 
+/* .mobile-menu.show {
+  display: block;
+} */
+
 .mobile-nav_menu {
   list-style-type: none;
   padding: 0;

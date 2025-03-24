@@ -40,7 +40,7 @@
 .carousel-item img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
 }
 
 .prev-button,
@@ -132,6 +132,10 @@ hr {
   padding-top: 20px;
 }
 
+.spotlight-section h2 {
+  text-align: center;
+}
+
 .spotlight {
   width: 25%;
   padding: 10px;
@@ -144,7 +148,7 @@ hr {
 .spotlight-carousel {
   position: relative;
   width: 100%;
-  height: 200px; /* Adjust height as needed */
+  height: 300px; /* Adjust height as needed */
   overflow: hidden;
 }
 
@@ -171,8 +175,9 @@ hr {
 .spotlight-carousel-item p {
   padding: 10px;
   height: 50%; /* Adjust text height */
-  overflow: hidden;
+  /* overflow: hidden; */
   text-align: justify;
+  font-size: small;
 }
 
 .spotlight-carousel-controls {
@@ -208,7 +213,7 @@ hr {
 .spotlight-prev-button,
 .spotlight-next-button {
   position: absolute;
-  top: -50px; /* Adjust based on carousel height */
+  top: -250px; /* Adjust based on carousel height */
   font-size: 24px;
   cursor: pointer;
   padding: 10px;
@@ -331,7 +336,8 @@ hr {
 
 @media (max-width: 480px) {
   .carousel-container {
-    height: 200px; /* Adjust for mobile screens */
+    /* height: 450px; */
+    height: auto;
   }
 
   /* .spotlight-section {

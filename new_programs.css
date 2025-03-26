@@ -1,0 +1,95 @@
+/* General Reset */
+.programs-wrapper * {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.programs-wrapper {
+  font-family: "Source Sans Pro", sans-serif;
+}
+
+/* Program Buttons */
+.programs-buttons {
+  display: flex;
+  justify-content: center;
+  background-color: #e6f2ff;
+  padding: 10px 0;
+}
+
+.programs-buttons .programs-btn {
+  background-color: #004080;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  margin-right: 10px;
+  cursor: pointer;
+}
+
+.programs-buttons .programs-btn:hover {
+  background-color: #0059b3;
+}
+
+/* Details and Content Layout */
+.programs-details-and-content {
+  display: flex;
+}
+
+/* Details Section as a Full-Height Column */
+.programs-details-section {
+  width: 25%;
+  background-color: #004080;
+  padding: 20px;
+  height: 78vh;
+  overflow-y: auto;
+}
+
+.programs-details-section h3 {
+  color: white;
+  margin-bottom: 15px;
+  font-size: 18px;
+}
+
+.programs-details-section .detail-btn,
+.programs-details-section .course-btn {
+  display: block;
+  width: 100%;
+  margin-bottom: 10px;
+  background-color: #0059b3;
+  color: white;
+  border-radius: 5px;
+  border: none;
+  padding: 10px 15px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.programs-details-section .detail-btn:hover,
+.programs-details-section .course-btn:hover {
+  background-color: #0073e6;
+}
+
+/* Back Button Styling */
+.programs-details-section .back-btn {
+  display: block;
+  width: 100%;
+  margin-top: 20px;
+  background-color: #ff7043;
+  color: white;
+  border-radius: 5px;
+  border: none;
+  padding: 10px 15px;
+  text-align: center;
+}
+
+.programs-details-section .back-btn:hover {
+  background-color: #ff5722;
+}
+
+/* Content Section Styling */
+.programs-content-section {
+  width: 75%;
+  background-color: #ffffff;
+  padding: 20px;
+  overflow-y: auto;
+}

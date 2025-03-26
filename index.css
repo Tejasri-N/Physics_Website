@@ -32,7 +32,8 @@ body {
 }
 
 .top-bar {
-  background-color: #f5751d;
+  background-color: #1a1a2e;
+  /* background: linear-gradient(to right, #2c3e50, #4ca1af); */
   color: white;
   padding: 10px;
   display: flex;
@@ -331,7 +332,8 @@ body {
 
 /* =================== Footer styles =================== */
 .footer {
-  background-color: #1f4e79;
+  /* background-color: #1f4e79; */
+  background-color: #1a1a2e;
   /* height: 110vh; */
   color: white;
   text-align: center;

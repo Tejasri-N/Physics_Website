@@ -350,6 +350,8 @@ body {
 .foot__link {
   transition: var(--transition);
   color: white;
+  text-align: left;
+  text-decoration: none;
 }
 
 .foot__link:hover {

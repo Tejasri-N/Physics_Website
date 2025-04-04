@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alphabet Tabs</title>
+    <link rel="stylesheet" href="alphabet-tabs.css">
+    <style>
+        body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+}
+
+.tab-container {
+    margin: 20px 0;
+    display: block;
+}
+
+.tablink {
+    background-color: #f1f1f1;
+    border: none;
+    color: black;
+    padding: 10px 15px;
+    cursor: pointer;
+    font-size: 16px;
+    margin: 2px;
+    border-radius: 5px;
+    transition: 0.3s;
+    
+}
+
+.tablink:hover {
+    background-color: #ddd;
+}
+
+.tablink.active {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.tab-content-container {
+    margin-top: 20px;
+}
+
+.tabcontent {
+    display: none;
+    padding: 20px;
+    border: 1px solid #ccc;
+    background-color: #f9f9f9;
+    border-radius: 5px;
+}
+
+    </style>
+</head>
+<body>
+
+    <h2>Select a year:</h2>
+    <div class="tab-container">
+        <button class="tablink" onclick="openTab('2025')">2025</button>
+        <button class="tablink" onclick="openTab('2024')">2024</button>
+        <button class="tablink" onclick="openTab('2023')">2023</button>
+        <button class="tablink" onclick="openTab('2022')">2022</button>
+        <button class="tablink" onclick="openTab('2021')">2021</button>
+        <button class="tablink" onclick="openTab('2020')">2020</button>
+        <button class="tablink" onclick="openTab('2019')">2019</button>
+        <button class="tablink" onclick="openTab('2018')">2018</button>
+        <button class="tablink" onclick="openTab('2017')">2017</button>
+        <button class="tablink" onclick="openTab('2016')">2016</button>
+        <button class="tablink" onclick="openTab('2015')">2015</button>
+        <button class="tablink" onclick="openTab('2014')">2014</button>
+        <button class="tablink" onclick="openTab('2013')">2013</button>
+        <button class="tablink" onclick="openTab('2012')">2012</button>
+        <button class="tablink" onclick="openTab('2011')">2011</button>
+        <button class="tablink" onclick="openTab('2010')">2010</button>
+        <button class="tablink" onclick="openTab('2009')">2009</button>
+        <button class="tablink" onclick="openTab('2008')">2008</button>
+    </div>
+
+    <div class="tab-content-container">
+        <div id="2025" class="tabcontent">
+            <h3>A</h3>
+            <p>Alice, Alex, Aaron</p>
+        </div>
+        <div id="2024" class="tabcontent">
+            <h3>B</h3>
+            <p>Bob, Bella, Brian</p>
+        </div>
+        <div id="2023" class="tabcontent">
+            <h3>C</h3>
+            <p>Charlie, Chloe, Chris</p>
+        </div>
+        <div id="2022" class="tabcontent">
+            <h3>D</h3>
+            <p>Daniel, Daisy, David</p>
+        </div>
+        <div id="2021" class="tabcontent">
+            <h3>E</h3>
+            <p>Emily, Ethan, Eva</p>
+        </div>
+    </div>
+
+    <script src="alphabet-tabs.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+    openTab("A"); // Open "A" tab by default
+});
+
+function openTab(letter) {
+    var i, tabcontent, tablinks;
+
+    // Hide all tab contents
+    tabcontent = document.getElementsByClassName("tabcontent");
+    for (i = 0; i < tabcontent.length; i++) {
+        tabcontent[i].style.display = "none";
+    }
+
+    // Remove active class from all buttons
+    tablinks = document.getElementsByClassName("tablink");
+    for (i = 0; i < tablinks.length; i++) {
+        tablinks[i].classList.remove("active");
+    }
+
+    // Show selected tab content
+    document.getElementById(letter).style.display = "block";
+
+    // Highlight the active button
+    document.querySelector(`.tablink[onclick="openTab('${letter}')"]`).classList.add("active");
+}
+
+    </script>
+
+</body>
+</html>

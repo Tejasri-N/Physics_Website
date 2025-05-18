@@ -177,6 +177,10 @@ body {
     text-align: center;
 }
 
+
+
+
+    
 /* Extra Small Devices (Phones, less than 576px) */
 @media only screen and (max-width: 575.98px) {
     body {
@@ -607,3 +611,219 @@ body {
         margin: 1rem 0;
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* Table Container */
+        .table-container {
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        /* Table Styles */
+        .equipment-table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: var(--color-white);
+            table-layout: auto;
+        }
+
+        .equipment-table th,
+        .equipment-table td {
+            border: 1px solid var(--color-bg1);
+            text-align: left;
+            padding: 12px 10px;
+            vertical-align: top;
+            font-size: 16px;
+            white-space: normal;
+        }
+
+        .equipment-table th {
+            background-color: var(--color-bg1);
+            color: var(--color-white);
+            font-weight: bold;
+        }
+
+        .equipment-table td {
+            color: var(--color-bg1);
+        }
+
+        .equipment-table tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        .equipment-table tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        .equipment-table a {
+            color: var(--color-danger);
+            text-decoration: none;
+        }
+
+        .equipment-table a:hover {
+            text-decoration: underline;
+        }
+
+        /* Stacked Layout for Medium, Small, and Extra Small Screens */
+        @media only screen and (max-width: 991.98px) {
+            .equipment-table {
+                display: block;
+            }
+
+            .equipment-table thead,
+            .equipment-table tbody,
+            .equipment-table th,
+            .equipment-table td,
+            .equipment-table tr {
+                display: block;
+            }
+
+            .equipment-table thead tr {
+                position: absolute;
+                top: -9999px;
+                left: -9999px;
+            }
+
+            .equipment-table tr {
+                border: 1px solid var(--color-bg1);
+                margin-bottom: 10px;
+            }
+
+            .equipment-table td {
+                border: none;
+                border-bottom: 1px solid #eee;
+                position: relative;
+                max-width: none;
+            }
+        }
+
+        /* Two-Stack Layout for Medium Screens (768px–991.98px) */
+        @media only screen and (min-width: 768px) and (max-width: 991.98px) {
+            .equipment-table tr {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 10px;
+                padding: 10px;
+            }
+
+            .equipment-table td {
+                font-size: 15px;
+                padding: 10px;
+                display: flex;
+                flex-direction: column;
+            }
+
+            .equipment-table td:before {
+                content: attr(data-label);
+                font-weight: bold;
+                color: var(--color-bg1);
+                margin-bottom: 5px;
+                white-space: nowrap;
+            }
+
+            .equipment-table td:last-child {
+                border-bottom: 1px solid #eee; /* Restore border for last cell in pair */
+            }
+
+            /* Adjust for 6 columns: pair cells logically */
+            .equipment-table td:nth-child(odd) {
+                border-right: 1px solid #eee;
+            }
+
+            .equipment-table td:nth-child(even) {
+                border-left: none;
+            }
+
+            /* Ensure last two cells in each row don't have extra bottom border */
+            .equipment-table td:nth-child(5),
+            .equipment-table td:nth-child(6) {
+                border-bottom: none;
+            }
+        }
+
+        /* Single-Stack Layout for Small and Extra Small Screens */
+        @media only screen and (max-width: 767.98px) {
+            .equipment-table td {
+                padding-left: 50%;
+            }
+
+            .equipment-table td:before {
+                position: absolute;
+                top: 12px;
+                left: 10px;
+                width: 45%;
+                padding-right: 10px;
+                white-space: nowrap;
+                content: attr(data-label);
+                font-weight: bold;
+                color: var(--color-bg1);
+            }
+
+            .equipment-table td:last-child {
+                border-bottom: 0;
+            }
+        }
+
+        /* Extra Small Devices (<576px) */
+        @media only screen and (max-width: 575.98px) {
+            .equipment-table td {
+                font-size: 14px;
+                padding: 10px 10px 10px 50%;
+            }
+
+            .equipment-table td:before {
+                top: 10px;
+                left: 8px;
+            }
+        }
+
+        /* Small Devices (576px–767.98px) */
+        @media only screen and (min-width: 576px) and (max-width: 767.98px) {
+            .equipment-table td {
+                font-size: 15px;
+                padding: 11px 10px 11px 50%;
+            }
+
+            .equipment-table td:before {
+                top: 11px;
+                left: 9px;
+            }
+        }
+
+        /* Large Devices (992px–1199.98px) */
+        @media only screen and (min-width: 992px) and (max-width: 1199.98px) {
+            .equipment-table th,
+            .equipment-table td {
+                font-size: 16px;
+                padding: 10px 8px;
+                max-width: 180px;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+        }
+
+        /* Extra Large Devices (≥1200px) */
+        @media only screen and (min-width: 1200px) {
+            .equipment-table th,
+            .equipment-table td {
+                font-size: 16px;
+                padding: 12px 10px;
+                max-width: 200px;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+        }

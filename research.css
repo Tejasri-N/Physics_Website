@@ -711,27 +711,26 @@ body {
             }
         }
 
-        /* Two-Stack Layout for Medium Screens (768px–991.98px) */
-        @media only screen and (min-width: 768px) and (max-width: 991.98px) {
+        /* Two-Stack Layout for Medium and Small Screens (576px–991.98px) */
+        @media only screen and (min-width: 576px) and (max-width: 991.98px) {
             .equipment-table tr {
                 display: grid;
                 grid-template-columns: 1fr 1fr;
-                gap: 10px;
-                padding: 10px;
+                gap: 8px;
+                padding: 8px;
             }
 
             .equipment-table td {
-                font-size: 15px;
-                padding: 10px;
                 display: flex;
                 flex-direction: column;
+                padding: 8px;
             }
 
             .equipment-table td:before {
                 content: attr(data-label);
                 font-weight: bold;
                 color: var(--color-bg1);
-                margin-bottom: 5px;
+                margin-bottom: 4px;
                 white-space: nowrap;
             }
 
@@ -748,23 +747,53 @@ body {
                 border-left: none;
             }
 
-            /* Ensure last two cells in each row don't have extra bottom border */
+            /* Remove bottom border for last two cells in each row */
             .equipment-table td:nth-child(5),
             .equipment-table td:nth-child(6) {
                 border-bottom: none;
             }
         }
 
-        /* Single-Stack Layout for Small and Extra Small Screens */
-        @media only screen and (max-width: 767.98px) {
+        /* Medium Screens (768px–991.98px) */
+        @media only screen and (min-width: 768px) and (max-width: 991.98px) {
             .equipment-table td {
-                padding-left: 50%;
+                font-size: 15px;
+                padding: 10px;
+            }
+
+            .equipment-table td:before {
+                margin-bottom: 5px;
+            }
+
+            .equipment-table tr {
+                gap: 10px;
+                padding: 10px;
+            }
+        }
+
+        /* Small Screens (576px–767.98px) */
+        @media only screen and (min-width: 576px) and (max-width: 767.98px) {
+            .equipment-table td {
+                font-size: 14px;
+                padding: 8px;
+            }
+
+            .equipment-table td:before {
+                margin-bottom: 4px;
+            }
+        }
+
+        /* Single-Stack Layout for Extra Small Screens (<576px) */
+        @media only screen and (max-width: 575.98px) {
+            .equipment-table td {
+                font-size: 14px;
+                padding: 10px 10px 10px 50%;
             }
 
             .equipment-table td:before {
                 position: absolute;
-                top: 12px;
-                left: 10px;
+                top: 10px;
+                left: 8px;
                 width: 45%;
                 padding-right: 10px;
                 white-space: nowrap;
@@ -775,32 +804,6 @@ body {
 
             .equipment-table td:last-child {
                 border-bottom: 0;
-            }
-        }
-
-        /* Extra Small Devices (<576px) */
-        @media only screen and (max-width: 575.98px) {
-            .equipment-table td {
-                font-size: 14px;
-                padding: 10px 10px 10px 50%;
-            }
-
-            .equipment-table td:before {
-                top: 10px;
-                left: 8px;
-            }
-        }
-
-        /* Small Devices (576px–767.98px) */
-        @media only screen and (min-width: 576px) and (max-width: 767.98px) {
-            .equipment-table td {
-                font-size: 15px;
-                padding: 11px 10px 11px 50%;
-            }
-
-            .equipment-table td:before {
-                top: 11px;
-                left: 9px;
             }
         }
 

@@ -1,5 +1,47 @@
-// Modal functionality for images and videos
 document.addEventListener('DOMContentLoaded', function () {
+    // ... (existing code)
+
+    // Store the currently filtered gallery items for modal navigation
+    let filteredGalleryItems = [];
+    let currentIndex = -1;
+    let currentCategory = 'all';
+
+    // Update filteredGalleryItems whenever category changes
+    function updateFilteredGalleryItems() {
+        const allGalleryItems = Array.from(document.querySelectorAll('.gallery-item'));
+        if (currentCategory === 'all') {
+            filteredGalleryItems = allGalleryItems;
+        } else {
+            filteredGalleryItems = allGalleryItems.filter(item =>
+                item.getAttribute('data-category').split(' ').includes(currentCategory)
+            );
+        }
+    }
+
+    // Category filtering logic
+    const categoryItems = document.querySelectorAll('.category-item');
+    categoryItems.forEach(item => {
+        item.addEventListener('click', function () {
+            categoryItems.forEach(ci => ci.classList.remove('active'));
+            this.classList.add('active');
+            currentCategory = this.getAttribute('data-category');
+            const allGalleryItems = document.querySelectorAll('.gallery-item');
+            allGalleryItems.forEach(galleryItem => {
+                const itemCategories = galleryItem.getAttribute('data-category').split(' ');
+                if (currentCategory === 'all' || itemCategories.includes(currentCategory)) {
+                    galleryItem.style.display = '';
+                } else {
+                    galleryItem.style.display = 'none';
+                }
+            });
+            updateFilteredGalleryItems();
+        });
+    });
+
+    // Initial update for filtered items
+    updateFilteredGalleryItems();
+
+    // Modal logic
     const modal = document.getElementById("modal");
     const modalImg = document.getElementById("modal-img");
     const modalVideo = document.getElementById("modal-video");
@@ -8,86 +50,107 @@ document.addEventListener('DOMContentLoaded', function () {
     const prevBtn = document.getElementById("prev");
     const nextBtn = document.getElementById("next");
 
-    // Get all gallery items (images and videos)
-    const galleryItems = document.querySelectorAll('.gallery-item img, .gallery-item video');
-    let currentIndex = -1; // Initialize current index to -1 to indicate no item is open
+    // Open modal on gallery item click
+    function getAllMediaElements() {
+        // Only visible items in filteredGalleryItems
+        return filteredGalleryItems.map(item => item.querySelector('img, video'));
+    }
 
-    // Open modal on item click
-    galleryItems.forEach((item, index) => {
-        item.addEventListener('click', function () {
-            currentIndex = index; // Set current index
-            openModal(item);
+    document.querySelectorAll('.gallery-item').forEach((item) => {
+        item.querySelector('img, video').addEventListener('click', function (e) {
+            e.stopPropagation();
+            updateFilteredGalleryItems();
+            const mediaElements = getAllMediaElements();
+            currentIndex = mediaElements.indexOf(this);
+            openModal(this);
         });
     });
 
-    // Open modal and display content (image or video)
     function openModal(item) {
-        modal.style.display = "flex"; // Show modal
-
+        modal.style.display = "flex";
         if (item.tagName === "IMG") {
             modalImg.src = item.src;
             modalImg.style.display = "block";
             modalVideo.style.display = "none";
         } else if (item.tagName === "VIDEO") {
-            modalVideo.src = item.querySelector('source').src;
+            modalVideo.src = item.currentSrc || item.src || (item.querySelector('source') ? item.querySelector('source').src : "");
             modalVideo.style.display = "block";
             modalImg.style.display = "none";
-            modalVideo.play(); // Play video only when modal opens
+            modalVideo.play();
         }
-
-        // Retrieve description text from the parent `.gallery-item` div
+        // Set description
         const parentItem = item.closest('.gallery-item');
         const descriptionDiv = parentItem.querySelector('.description');
-        captionText.textContent = descriptionDiv ? descriptionDiv.textContent : "No description available"; 
-        captionText.style.display = captionText.textContent ? "block" : "none"; // Hide caption if no text
+        captionText.textContent = descriptionDiv ? descriptionDiv.textContent : "";
+        captionText.style.display = captionText.textContent ? "block" : "none";
     }
 
-    // Close modal when clicking the close button
-    closeBtn.addEventListener('click', function () {
+    closeBtn.addEventListener('click', function (e) {
+        e.stopPropagation();
         closeModal();
     });
 
-    // Close modal when clicking outside content
+    prevBtn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        showPrev();
+    });
+    nextBtn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        showNext();
+    });
+
     modal.addEventListener('click', function (event) {
-        if (event.target !== modalImg && event.target !== modalVideo && event.target !== prevBtn && event.target !== nextBtn) {
+        if (event.target === modal) {
             closeModal();
         }
     });
 
-    // Close modal function
     function closeModal() {
-        modal.style.display = "none"; // Hide the modal
-        modalImg.src = ""; // Clear image source
-        modalVideo.pause(); // Pause the video playback
-        modalVideo.src = ""; // Clear video source to stop playback completely
-        currentIndex = -1; // Reset current index
-        captionText.textContent = ""; // Clear caption text
-        captionText.style.display = "none"; // Hide caption
+        modal.style.display = "none";
+        modalImg.src = "";
+        modalVideo.pause();
+        modalVideo.src = "";
+        currentIndex = -1;
+        captionText.textContent = "";
+        captionText.style.display = "none";
     }
 
-    // Show previous item
-    prevBtn.addEventListener('click', function () {
+    function showPrev() {
+        const mediaElements = getAllMediaElements();
         if (currentIndex > 0) {
+            resetModalVideo();
             currentIndex--;
-            resetModalVideo(); // Reset video before switching content
-            openModal(galleryItems[currentIndex]);
+            openModal(mediaElements[currentIndex]);
         }
-    });
-
-    // Show next item
-    nextBtn.addEventListener('click', function () {
-        if (currentIndex < galleryItems.length - 1) {
+    }
+    function showNext() {
+        const mediaElements = getAllMediaElements();
+        if (currentIndex < mediaElements.length - 1) {
+            resetModalVideo();
             currentIndex++;
-            resetModalVideo(); // Reset video before switching content
-            openModal(galleryItems[currentIndex]);
+            openModal(mediaElements[currentIndex]);
         }
-    });
-
-    // Helper function to reset video playback before switching items
+    }
     function resetModalVideo() {
         if (modalVideo) {
-            modalVideo.pause(); // Pause the video if it's playing
-            modalVideo.src = ""; // Clear the video source
+            modalVideo.pause();
+            modalVideo.src = "";
         }
     }
+    document.addEventListener('keydown', function (e) {
+        if (modal.style.display === "flex") {
+            if (e.key === "Escape") {
+                closeModal();
+            }
+            if (e.key === "ArrowLeft") {
+                showPrev();
+            }
+            if (e.key === "ArrowRight") {
+                showNext();
+            }
+        }
+    });
+
+    // On initial load, update filteredGalleryItems
+    updateFilteredGalleryItems();
 });

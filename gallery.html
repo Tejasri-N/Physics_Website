@@ -5,112 +5,77 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>IIT Hyderabad Department of Physics Gallery</title>
   <link rel="stylesheet" href="gallery.css">
+  <link href="https://fonts.googleapis.com/css?family=Inter:400,600&display=swap" rel="stylesheet">
 </head>
 <body>
+  <div class="main-content">
+    <aside class="sidebar">
+      <h2>GALLERY</h2>
+      <ul class="category-list">
+        <li class="category-item active" data-category="all">All</li>
+        <li class="category-item" data-category="events">Events</li>
+        <li class="category-item" data-category="laboratories">Laboratories</li>
+        <li class="category-item" data-category="student-visits">Student Visits</li>
+        <li class="category-item" data-category="faculty-visits">Faculty Visits</li>
+      </ul>
+    </aside>
 
-    <header>
-        <div class="header-content">
-          <h1>IIT Hyderabad</h1>
-          <h1>Department of Physics</h1>
-          <a href="index.html" class="home-button">Home</a> <!-- Button inside header -->
+    <!-- Gallery -->
+    <section class="gallery-container">
+      <div class="gallery-bg-box">
+      <div class="gallery">
+        <div class="gallery-item" data-category="events">
+          <img src="images/1.jpg" alt="Physics Symposium">
+          <div class="description">Physics Symposium</div>
         </div>
-      </header>
-      
-
-<section class="gallery-container">
-  <div class="gallery">
-
-    <!-- Images -->
-    <div class="gallery-item">
-      <img src="/Users/niladri/Documents/GitHub/Physics_Website/images/1.jpg" alt="Physics Department">
-      <div class="description">Physics Department</div>
+        <div class="gallery-item" data-category="laboratories">
+          <img src="images/2.png" alt="Optics Lab">
+          <div class="description">Quantum Optics Lab</div>
+        </div>
+        <div class="gallery-item" data-category="student-visits">
+          <img src="images/3.jpg" alt="Student Visit">
+          <div class="description">Student Visit</div>
+        </div>
+        <div class="gallery-item" data-category="faculty-visits">
+          <img src="images/4.jpg" alt="Faculty Visit">
+          <div class="description">Faculty Visit</div>
+        </div>
+        <div class="gallery-item" data-category="laboratories">
+          <img src="images/5.jpg" alt="Quantum Lab">
+          <div class="description">Quantum Lab</div>
+        </div>
+        <div class="gallery-item" data-category="events">
+          <video controls>
+            <source src="images/2.mp4" type="video/mp4">
+            Your browser does not support video playback.
+          </video>
+          <div class="description">Annual Physics Meet - Highlights</div>
+        </div>
+        <div class="gallery-item" data-category="student-visits">
+          <video controls>
+            <source src="images/3.mp4" type="video/mp4">
+            Your browser does not support video playback.
+          </video>
+          <div class="description">Student Exchange Program in Japan</div>
+        </div>
+        <!-- Add more items as needed, assigning the correct data-category -->
+      </div>
     </div>
-
-    <div class="gallery-item">
-        <img src="/Users/niladri/Documents/GitHub/Physics_Website/images/2.png" alt="Physics Department">
-        <div class="description">Physics Department</div>
-      </div>
-
-      <div class="gallery-item">
-        <img src="/Users/niladri/Documents/GitHub/Physics_Website/images/3.jpg" alt="Physics Department">
-        <div class="description">Physics Department</div>
-      </div>
-
-      <div class="gallery-item">
-        <img src="/Users/niladri/Documents/GitHub/Physics_Website/images/4.jpg" alt="Physics Department">
-        <div class="description">Physics Department</div>
-      </div>
-
-      <div class="gallery-item">
-        <img src="/Users/niladri/Documents/GitHub/Physics_Website/images/5.jpg" alt="Physics Department">
-        <div class="description">Physics Department</div>
-      </div>
-
-      <div class="gallery-item">
-        <img src="/Users/niladri/Documents/GitHub/Physics_Website/images/1.jpg" alt="Physics Department">
-        <div class="description">Physics Department</div>
-      </div>
-
-      <div class="gallery-item">
-        <img src="/Users/niladri/Documents/GitHub/Physics_Website/images/2.png" alt="Physics Department">
-        <div class="description">Physics Department</div>
-      </div>
-
-    <!-- Videos -->
-    <div class="gallery-item video-item">
-      <video controls>
-        <source src="/Users/niladri/Documents/GitHub/Physics_Website/images/2.mp4" type="video/mp4">
-        Your browser does not support video playback.
-      </video>
-      <div class="description">Physics Department</div>
-    </div>
-
-    <div class="gallery-item video-item">
-        <video controls>
-          <source src="/Users/niladri/Documents/GitHub/Physics_Website/images/2.mp4" type="video/mp4">
-          Your browser does not support video playback.
-        </video>
-        <div class="description">Physics Department</div>
-      </div>
-
-      <div class="gallery-item video-item">
-        <video controls>
-          <source src="/Users/niladri/Documents/GitHub/Physics_Website/images/2.mp4" type="video/mp4">
-          Your browser does not support video playback.
-        </video>
-        <div class="description">Physics Department</div>
-      </div>
-
-      <div class="gallery-item video-item">
-        <video controls>
-          <source src="/Users/niladri/Documents/GitHub/Physics_Website/images/2.mp4" type="video/mp4">
-          Your browser does not support video playback.
-        </video>
-        <div class="description">Physics Department</div>
-      </div>
-    
-
+    </section>
   </div>
-</section>
 
-<!-- Modal for enlarged view -->
-
-<div id="modal" class="modal">
+  <!-- Modal for enlarged view -->
+  <div id="modal" class="modal">
     <span id="close">&times;</span>
-    <button id="prev" class="modal-nav-button">❮</button> <!-- Previous Button -->
+    <button id="prev" class="modal-nav-button">❮</button>
     <div class="modal-content-container">
-      <img class="modal-content" id="modal-img">
-      <video controls class="modal-content" id="modal-video"></video>
-      <div id="caption"></div> <!-- Description container -->
+      <img class="modal-content" id="modal-img" style="display:none;">
+      <video controls class="modal-content" id="modal-video" style="display:none;"></video>
     </div>
-    <button id="next" class="modal-nav-button">❯</button> <!-- Next Button -->
+    <button id="next" class="modal-nav-button">❯</button>
+    <div id="caption"></div>
   </div>
-  
-<footer>
-  <p>&copy; 2025 IIT Hyderabad. All rights reserved.</p>
-</footer>
 
-<script src="gallery.js"></script>
-
+  <script src="gallery.js"></script>
 </body>
 </html>

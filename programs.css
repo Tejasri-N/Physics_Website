@@ -1,3 +1,5 @@
+
+
 /* General Reset */
 * {
     margin: 0;
@@ -145,4 +147,3 @@ body, html {
    /* Sticky Footer Technique */
    margin-top: auto; /* Pushes footer to the bottom when content is short */
 }
-

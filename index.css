@@ -29,10 +29,12 @@ body {
 .header {
   display: flex;
   flex-direction: column;
+  margin: 0;
+  padding: 0;
 }
 
 .top-bar {
-  background-color: #1a1a2e;
+  background-color: #004b96;
   /* background: linear-gradient(to right, #2c3e50, #4ca1af); */
   color: white;
   padding: 10px;

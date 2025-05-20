@@ -1,0 +1,22 @@
+[
+  {
+    "name": "Dr. Anirban Naskar",
+    "image": "images/faculty/image.jpg",
+    "title": "Assistant Professor",
+    "description": "Research areas: Surface Engineering, Surface Finishing, Numerical Modelling of Surface Finishing Processes.",
+    "office": "506, C-block, IITH",
+    "email": "anaskar@phy.iith.ac.in",
+    "phone": "+91 (40) 2301 6682",
+    "homepage": "https://physics.iith.ac.in/anaskar"
+  },
+  {
+    "name": "Dr. Jane Smith",
+    "image": "images/faculty/image.jpg",
+    "title": "Associate Professor",
+    "description": "Research areas: Quantum Computing, Nanomaterials, Spintronics.",
+    "office": "205, D-block, IITH",
+    "email": "jsmith@phy.iith.ac.in",
+    "phone": "+91 (40) 2301 6677",
+    "homepage": "https://physics.iith.ac.in/jsmith"
+  }
+]

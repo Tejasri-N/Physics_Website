@@ -160,14 +160,68 @@ function toggleMobileMenu(hamburger) {
   document.getElementById("mobileMenu").classList.toggle("show");
 }
 
-// Dynamic Content Loading
+// ----------------------------------- People section ----------------------------------- //
+// document.querySelectorAll(".load-people").forEach((link) => {
+//   link.addEventListener("click", function (e) {
+//     e.preventDefault();
+//     const section = this.dataset.section;
+
+//     // Load people.html with section parameter
+//     fetch("people.html")
+//       .then((response) => response.text())
+//       .then((html) => {
+//         document.getElementById("dynamicContent").innerHTML = html;
+//         // Trigger section load after slight delay
+//         setTimeout(() => loadPeopleSection(section), 50);
+//       });
+//   });
+// });
+
+// function loadPeopleSection(section) {
+//   // Highlight active section
+//   const activeLink = document.querySelector(
+//     `.people-nav[data-section="${section}"]`
+//   );
+//   if (activeLink) {
+//     document
+//       .querySelectorAll(".people-nav")
+//       .forEach((link) => link.classList.remove("active"));
+//     activeLink.classList.add("active");
+
+//     // Load corresponding content
+//     const contentUrl = `${section}.html`;
+//     fetch(contentUrl)
+//       .then((response) => response.text())
+//       .then((data) => {
+//         document.getElementById("peopleContent").innerHTML = data;
+//       });
+//   }
+// }
+
+// ----------------------------------- Dynamic Content Loading ----------------------------------- //
 $(document).ready(function () {
   $("#dynamicContent").load("home.html"); // Load home.html content by default
 
   $(".nav_menu a").on("click", function (e) {
     e.preventDefault(); // Prevent default link behavior
-    var url = $(this).attr("href"); // Get the URL from the link
-    $("#dynamicContent").load(url); // Load the content dynamically
+
+    // Check if it's a people-nav link
+    if ($(this).hasClass("people-nav")) {
+      var section = $(this).data("section");
+      // Pass the section as a query param to people.html
+      $("#dynamicContent").load("people.html?section=" + section, function () {
+        // After people.html loads, trigger the correct section
+        setTimeout(function () {
+          if (window.handleNavigation) {
+            handleNavigation(section);
+          }
+        }, 50);
+      });
+    } else {
+      var url = $(this).attr("href"); // Get the URL from the link
+      $("#dynamicContent").load(url); // Load the content dynamically
+    }
+
     // Close dropdowns after clicking
     document.querySelectorAll(".dropdown-menu").forEach(function (menu) {
       menu.classList.remove("show");

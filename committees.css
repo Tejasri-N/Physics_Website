@@ -1,0 +1,162 @@
+body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    margin: 0;
+    padding: 30px;
+    background: #ffffff;
+    color: #143f4e;
+    min-height: 100vh;
+}
+
+.container {
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
+.main-title {
+    text-align: center;
+    color: #0d2b36;
+    margin-bottom: 40px;
+    font-weight: 400;
+    letter-spacing: 2px;
+    border-bottom: 4px solid #004080; 
+    padding-bottom: 12px;
+}
+
+.committees-table {
+    background: #e3f6f5;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 8px 32px rgba(44, 62, 80, 0.08);
+    border: 1.5px solid #b2dfdb;
+}
+
+.table-header {
+    display: grid;
+    grid-template-columns: 80px 1fr 340px;
+    padding: 18px 0;
+    background: #b2ebf2;
+    font-weight: bold;
+    border-bottom: 2px solid #00458f;
+}
+
+.table-header .col-sno {
+    padding: 0 24px;
+    border-right: 2px solid #00458f;
+}
+.table-header .col-name {
+    padding: 0 24px;
+    border-right: 2px solid #00458f;
+}
+.table-header .col-email {
+    padding: 0 24px;
+}
+
+.committee-header {
+    display: grid;
+    grid-template-columns: 80px 1fr 300px 40px;
+    align-items: center;
+    padding: 16px 0;
+    border-bottom: 1.5px solid #00458f;
+    cursor: pointer;
+    background: #f2f2f2;
+    transition: border-color 0.3s, background 0.3s;
+}
+
+.committee-header .col-sno {
+    padding: 0 24px;
+    border-right: 2px solid #00458f;
+}
+.committee-header .col-name {
+    padding: 0 24px;
+    border-right: 2px solid #00458f;
+}
+.committee-header .col-email {
+    padding: 0 24px;
+}
+
+.committee-header:hover,
+.committee-header.active {
+    border-bottom: 1.5px solid #43cea2;
+    background: #e0f2f1;
+}
+
+.arrow {
+    transition: transform 0.3s;
+    font-size: 16px;
+    color: #008080;
+    justify-self: center;
+}
+
+.committee-header.active .arrow {
+    transform: rotate(180deg);
+}
+
+.committee-mail {
+    color: #008080;
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.2s;
+    word-break: break-all;
+}
+.committee-mail:hover {
+    color: #43cea2;
+    text-decoration: underline;
+}
+
+.committee-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    background: #fafdfe;
+}
+
+.members-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #fafdfe;
+}
+
+.members-table th, .members-table td {
+    border-right: 1.5px solid #b2dfdb;
+    border-bottom: 1.5px solid #b2dfdb;
+    padding: 12px 18px;
+    text-align: left;
+}
+
+.members-table th {
+    background: #018799;
+    color: #ffffff;
+    font-weight: 500;
+}
+
+.members-table tr:last-child td {
+    border-bottom: none;
+}
+
+.members-table th:last-child,
+.members-table td:last-child {
+    border-right: none;
+}
+
+.members-table tr:hover {
+    background: #e0f2f1;
+}
+
+.members-table tbody tr:nth-child(even) {
+    background: #eaf4fb;
+}
+
+
+@media (max-width: 900px) {
+    .table-header, .committee-header {
+        grid-template-columns: 50px 1fr 120px 28px;
+    }
+    .table-header .col-sno, .committee-header .col-sno,
+    .table-header .col-name, .committee-header .col-name,
+    .table-header .col-email, .committee-header .col-email {
+        padding: 0 10px;
+    }
+    .members-table th, .members-table td {
+        padding: 8px 6px;
+    }
+}

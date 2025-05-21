@@ -1,305 +1,289 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="people.css">
-    <script src="people.js" defer></script>
-    <title>Physics Department</title>
-</head>
-<body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Faculty - Department of Physics</title>
+    <link rel="stylesheet" href="faculty.css" />
+  </head>
+  <body>
+    <div class="faculty-grid">
+      <!-- Faculty 1 -->
+      <div class="faculty-card">
+        <div class="faculty-row">
+          <img
+            src="images/faculty/image.png"
+            alt="Dr. Anirban Naskar"
+            class="faculty-image"
+            onerror="this.src='default-avatar.jpg'"
+          />
+          <div class="faculty-info">
+            <h3 class="faculty-name">Dr. Anirban Naskar</h3>
+            <p class="faculty-title">Assistant Professor</p>
+            <p class="faculty-description">
+              Research areas: Surface Engineering, Surface Finishing, Numerical
+              Modelling of Surface Finishing Processes.
+            </p>
+          </div>
+          <!-- Contact Info -->
+          <div class="contact-info">
+            <div class="contact-item">
+              <i class="uil uil-building"></i> 506, C-block, IITH
+            </div>
+            <div class="contact-item">
+              <i class="uil uil-envelope"></i>
+              <a href="mailto:anaskar@phy.iith.ac.in">anaskar@phy.iith.ac.in</a>
+            </div>
+            <div class="contact-item">
+              <i class="uil uil-phone"></i> +91 (40) 2301 6682
+            </div>
+            <a
+              href="https://physics.iith.ac.in/anaskar"
+              class="homepage-link"
+              target="_blank"
+              >Personal Website</a
+            >
+          </div>
+          <!-- <button class="dropdown-toggle" onclick="toggleDropdown(this)">
+            ▼
+          </button> -->
+          <button
+            class="dropdown-toggle"
+            aria-expanded="false"
+            aria-controls="faculty-details-1"
+            onclick="toggleDropdown(this)"
+          >
+            <span class="arrow">&#9660;</span>
+          </button>
+        </div>
 
-    <!-- Navigation Section (Fixed) -->
-    <nav>
-        <a href="index.html">
-            <div class="brand-name">IIT Hyderabad</div>
-          </a>
-        <ul class="nav-links">
-            <li><a href="index.html">About</a></li>
+        <div class="dropdown-content" aria-hidden="true">
+          <!-- Additional Details -->
+          <h4>Additional Information</h4>
+          <ul class="additional-details">
             <li>
-                <a href="#" id="coursesToggle">Courses</a>
-                <ul class="dropdown">
-                    <li><a href="home.html">Brochure</a></li>
-                </ul>
+              <strong>Education:</strong> Ph.D. in Mechanical Engineering, XYZ
+              University
+            </li>
+            <li><strong>Awards:</strong> Best Researcher Award 2020</li>
+            <li>
+              <strong>Publications:</strong> Over 50 peer-reviewed journal
+              articles
             </li>
             <li>
-                <a href="#" id="membersToggle">People</a>
-                <ul class="dropdown">
-                    <li><a href="faculty.html">Faculty</a></li>
-                    <li><a href="staffs.html">Staffs</a></li>
-                    <li><a href="hods.html">HoDs</a></li>
-                    <li><a href="students.html">Students</a></li>
-                    <li><a href="alumini.html">Alumini</a></li>
-                    
-                </ul>
+              <strong>Projects:</strong> Principal Investigator for 5 funded
+              projects
             </li>
-            <li><a href="#contact">Contact Us</a></li>
-        </ul>
-    </nav>
-
-   <!-- Hero Section -->
-<div class="hero">
-    <div class="hero-content">
-        <div class="image-container"> <img src="/Users/niladri/Desktop/Physics.png" alt="IITH Physics LOGO" /> </div> 
-        <div class="welcome-message">
-            <h1>Department of Physics</h1>
-            <p>Indian Institute of Technology, Hyderabad</p>
+          </ul>
         </div>
-    </div>
-</div>
-<div class="members">
-    <h2 class="title">FACULTY MEMBERS</h2>
-</div>
-  
-  
-  
-  
-  
-<!-- Toggle Buttons for Member Categories -->
-<div class="year-toggle-container">
-    <div class="year-toggle" data-year="iith">IIT-H Faculty</div>
-</div>
+      </div>
 
-<!-- Members Section -->
-<div class="members-container">
-
-    <!-- Members IIT-H -->
-    <div class="members-list" data-year="iith">
-        
-        <div class="member-card" data-year="iith">
-            <div class="member-image">
-                <img src="/Users/niladri/Desktop/Phy/Images/Proff./unknown.png" alt="Member Name">
-            </div>
-            <div class="member-info">
-                <h3> Dr. Anjan Giri </h3>
-                <p> <strong>Professor</strong></p>
-                <p> <strong>Office:</strong> PH306, Department of physics</p>
-                <p> <strong>Phone:</strong> 040 2301 6701</p>
-                <h4> Area of Research: </h4>
-                <p> Understanding the baryon asymmetry of the Universe and to decipher the signals of new physics (BSM) using flavour physics and neutrino physics.</p>
-                <p><strong>E-Mail:</strong> <a href="mailto:giria@phy.iith.ac.in">giria@phy.iith.ac.in</a></p>
-                <p><u><strong><a href="https://people.iith.ac.in/giria/">Visit Profile</a></strong></u></p>
-            </div>
-        </div>
-        
-
-
-        <div class="member-card" data-year="iith">
-            <div class="member-image">
-                <img src="/Users/niladri/Desktop/Phy/Images/Proff./unknown.png" alt="Member Name">
-            </div>
-            <div class="member-info">
-                <h3> Dr. Anjan Giri </h3>
-                <p> <strong>Professor</strong></p>
-                <p> <strong>Office:</strong> PH306, Department of physics</p>
-                <p> <strong>Phone:</strong> 040 2301 6701</p>
-                <h4> Area of Research: </h4>
-                <p> Understanding the baryon asymmetry of the Universe and to decipher the signals of new physics (BSM) using flavour physics and neutrino physics.</p>
-                <p><strong>E-Mail:</strong> <a href="mailto:giria@phy.iith.ac.in">giria@phy.iith.ac.in</a></p>
-                <p><u><strong><a href="https://people.iith.ac.in/giria/">Visit Profile</a></strong></u></p>
-            </div>
-        </div>
-
-
-        <div class="member-card" data-year="iith">
-            <div class="member-image">
-                <img src="/Users/niladri/Desktop/Phy/Images/Proff./unknown.png" alt="Member Name">
-            </div>
-            <div class="member-info">
-                <h3> Dr. Anjan Giri </h3>
-                <p> <strong>Professor</strong></p>
-                <p> <strong>Office:</strong> PH306, Department of physics</p>
-                <p> <strong>Phone:</strong> 040 2301 6701</p>
-                <h4> Area of Research: </h4>
-                <p> Understanding the baryon asymmetry of the Universe and to decipher the signals of new physics (BSM) using flavour physics and neutrino physics.</p>
-                <p><strong>E-Mail:</strong> <a href="mailto:giria@phy.iith.ac.in">giria@phy.iith.ac.in</a></p>
-                <p><u><strong><a href="https://people.iith.ac.in/giria/">Visit Profile</a></strong></u></p>
-            </div>
-        </div>
-
-
-        <div class="member-card" data-year="iith">
-            <div class="member-image">
-                <img src="/Users/niladri/Desktop/Phy/Images/Proff./unknown.png" alt="Member Name">
-            </div>
-            <div class="member-info">
-                <h3> Dr. Anjan Giri </h3>
-                <p> <strong>Professor</strong></p>
-                <p> <strong>Office:</strong> PH306, Department of physics</p>
-                <p> <strong>Phone:</strong> 040 2301 6701</p>
-                <h4> Area of Research: </h4>
-                <p> Understanding the baryon asymmetry of the Universe and to decipher the signals of new physics (BSM) using flavour physics and neutrino physics.</p>
-                <p><strong>E-Mail:</strong> <a href="mailto:giria@phy.iith.ac.in">giria@phy.iith.ac.in</a></p>
-                <p><u><strong><a href="https://people.iith.ac.in/giria/">Visit Profile</a></strong></u></p>
-            </div>
-        </div>
-
-
-    </div>
-</div>
-        
-
-
-
-  
-  
- <!-- Toggle Buttons for Member Categories -->
-<div class="year-toggle-container">
-    <div class="year-toggle" data-year="faculty">Exchange Faculty</div>
-</div>
-
-<!-- Members Section -->
-<div class="members-container">
-
-    <!-- Members Exchange -->
-    <div class="members-list" data-year="faculty">
-        
-        <div class="member-card" data-year="faculty">
-            <div class="member-image">
-                <img src="/Users/niladri/Desktop/MedPhy/Images/Proff./unknown.png" alt="Member Name">
-            </div>
-            <div class="member-info">
-                <h3> Dr. Anjan Giri </h3>
-                <p> <strong>Professor</strong></p>
-                <p> <strong>Office:</strong> PH306, Department of physics</p>
-                <p> <strong>Phone:</strong> 040 2301 6701</p>
-                <h4> Area of Research: </h4>
-                <p> Understanding the baryon asymmetry of the Universe and to decipher the signals of new physics (BSM) using flavour physics and neutrino physics.</p>
-                <p><strong>E-Mail:</strong> <a href="mailto:giria@phy.iith.ac.in">giria@phy.iith.ac.in</a></p>
-                <p><u><strong><a href="https://people.iith.ac.in/giria/">Visit Profile</a></strong></u></p>
-            </div>
-        </div>
-
-
-        <div class="member-card" data-year="faculty">
-            <div class="member-image">
-                <img src="/Users/niladri/Desktop/MedPhy/Images/Proff./unknown.png" alt="Member Name">
-            </div>
-            <div class="member-info">
-                <h3> Dr. Anjan Giri </h3>
-                <p> <strong>Professor</strong></p>
-                <p> <strong>Office:</strong> PH306, Department of physics</p>
-                <p> <strong>Phone:</strong> 040 2301 6701</p>
-                <h4> Area of Research: </h4>
-                <p> Understanding the baryon asymmetry of the Universe and to decipher the signals of new physics (BSM) using flavour physics and neutrino physics.</p>
-                <p><strong>E-Mail:</strong> <a href="mailto:giria@phy.iith.ac.in">giria@phy.iith.ac.in</a></p>
-                <p><u><strong><a href="https://people.iith.ac.in/giria/">Visit Profile</a></strong></u></p>
-            </div>
-        </div>
-
-
-        <div class="member-card" data-year="faculty">
-            <div class="member-image">
-                <img src="/Users/niladri/Desktop/MedPhy/Images/Proff./unknown.png" alt="Member Name">
-            </div>
-            <div class="member-info">
-                <h3> Dr. Anjan Giri </h3>
-                <p> <strong>Professor</strong></p>
-                <p> <strong>Office:</strong> PH306, Department of physics</p>
-                <p> <strong>Phone:</strong> 040 2301 6701</p>
-                <h4> Area of Research: </h4>
-                <p> Understanding the baryon asymmetry of the Universe and to decipher the signals of new physics (BSM) using flavour physics and neutrino physics.</p>
-                <p><strong>E-Mail:</strong> <a href="mailto:giria@phy.iith.ac.in">giria@phy.iith.ac.in</a></p>
-                <p><u><strong><a href="https://people.iith.ac.in/giria/">Visit Profile</a></strong></u></p>
-            </div>
-        </div>
-
-
-        <div class="member-card" data-year="faculty">
-            <div class="member-image">
-                <img src="/Users/niladri/Desktop/MedPhy/Images/Proff./unknown.png" alt="Member Name">
-            </div>
-            <div class="member-info">
-                <h3> Dr. Anjan Giri </h3>
-                <p> <strong>Professor</strong></p>
-                <p> <strong>Office:</strong> PH306, Department of physics</p>
-                <p> <strong>Phone:</strong> 040 2301 6701</p>
-                <h4> Area of Research: </h4>
-                <p> Understanding the baryon asymmetry of the Universe and to decipher the signals of new physics (BSM) using flavour physics and neutrino physics.</p>
-                <p><strong>E-Mail:</strong> <a href="mailto:giria@phy.iith.ac.in">giria@phy.iith.ac.in</a></p>
-                <p><u><strong><a href="https://people.iith.ac.in/giria/">Visit Profile</a></strong></u></p>
-            </div>
-        </div>
-
-
-
-    </div>
-</div>
-  
-
-
-
-
-
-
-  <!-- Footer Section -->
-<footer>
-    <div class="footer-container" id="contact">
-        <div class="footer-col logo">
-            <a href="https://www.iith.ac.in/">
-            <img src="/Users/niladri/Desktop/Phy/Images/Logos/Untitled_design__7_-removebg-preview.png" alt="Second Logo" class="footer-second-logo"> </a>
-        </div>
-        <div class="footer-col">
-            <h3>Links</h3>
-            <ul>
-                <li><a href="#home">Home</a></li>
-                <li><a href="#admissions">Admissions</a></li>
-                <li><a href="#courses">Courses</a></li>
-            </ul>
-        </div>
-        <div class="footer-col">
-            <h3>Information</h3>
-            <ul>
-                <li><a href="#">Privacy Policy</a></li>
-                <li><a href="#">Terms of Service</a></li>
-            </ul>
-        </div>
-        <div class="footer-col contact">
-            <h3>Contact</h3>
-            <p>
-                Email: <a href="mailto:niladrif@gmail.com">niladrif@gmail.com</a>
+      <!-- Faculty 2 -->
+      <div class="faculty-card">
+        <div class="faculty-row">
+          <img
+            src="images/faculty/image.png"
+            alt="Dr. Anirban Naskar"
+            class="faculty-image"
+            onerror="this.src='default-avatar.jpg'"
+          />
+          <div class="faculty-info">
+            <h3 class="faculty-name">Dr. Anirban Naskar</h3>
+            <p class="faculty-title">Assistant Professor</p>
+            <p class="faculty-description">
+              Research areas: Surface Engineering, Surface Finishing, Numerical
+              Modelling of Surface Finishing Processes.
             </p>
-            <p>
-                Phone: <a href="tel:+919131218704">+91-9131218704</a>
-            </p>
-            <p>
-                Address: <a href="https://www.google.com/maps/place/Raman+IITH" target="_blank">Raman IITH</a>
-            </p>
-            <!-- Google Maps Embed -->
-            <div class="map-container">
-                <iframe 
-                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d5734.242123915785!2d78.1240774858012!3d17.592761547594346!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bcbefdc136bffbb%3A0x73414ff6594c9191!2sIndian%20Institute%20of%20Technology%2C%20Hyderabad!5e0!3m2!1sen!2sin!4v1728330352706!5m2!1sen!2sin" 
-                    width="300" 
-                    height="150" 
-                    style="border:0;" 
-                    allowfullscreen="" 
-                    loading="lazy">
-                </iframe> 
+          </div>
+          <!-- Contact Info -->
+          <div class="contact-info">
+            <div class="contact-item">
+              <i class="uil uil-building"></i> 506, C-block, IITH
             </div>
+            <div class="contact-item">
+              <i class="uil uil-envelope"></i>
+              <a href="mailto:anaskar@phy.iith.ac.in">anaskar@phy.iith.ac.in</a>
+            </div>
+            <div class="contact-item">
+              <i class="uil uil-phone"></i> +91 (40) 2301 6682
+            </div>
+            <a
+              href="https://physics.iith.ac.in/anaskar"
+              class="homepage-link"
+              target="_blank"
+              >Personal Website</a
+            >
+          </div>
+          <button
+            class="dropdown-toggle"
+            aria-expanded="false"
+            aria-controls="faculty-details-2"
+            onclick="toggleDropdown(this)"
+          >
+            <span class="arrow">&#9660;</span>
+            <span class="sr-only">Show more details</span>
+          </button>
         </div>
+
+        <div class="dropdown-content">
+          <!-- Additional Details -->
+          <h4>Additional Information</h4>
+          <ul class="additional-details">
+            <li>
+              <strong>Education:</strong> Ph.D. in Mechanical Engineering, XYZ
+              University
+            </li>
+            <li><strong>Awards:</strong> Best Researcher Award 2020</li>
+            <li>
+              <strong>Publications:</strong> Over 50 peer-reviewed journal
+              articles
+            </li>
+            <li>
+              <strong>Projects:</strong> Principal Investigator for 5 funded
+              projects
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="faculty-card">
+        <div class="faculty-row">
+          <img
+            src="images/faculty/image.png"
+            alt="Dr. Anirban Naskar"
+            class="faculty-image"
+            onerror="this.src='default-avatar.jpg'"
+          />
+          <div class="faculty-info">
+            <h3 class="faculty-name">Dr. Anirban Naskar</h3>
+            <p class="faculty-title">Assistant Professor</p>
+            <p class="faculty-description">
+              Research areas: Surface Engineering, Surface Finishing, Numerical
+              Modelling of Surface Finishing Processes.
+            </p>
+          </div>
+          <!-- Contact Info -->
+          <div class="contact-info">
+            <div class="contact-item">
+              <i class="uil uil-building"></i> 506, C-block, IITH
+            </div>
+            <div class="contact-item">
+              <i class="uil uil-envelope"></i>
+              <a href="mailto:anaskar@phy.iith.ac.in">anaskar@phy.iith.ac.in</a>
+            </div>
+            <div class="contact-item">
+              <i class="uil uil-phone"></i> +91 (40) 2301 6682
+            </div>
+            <a
+              href="https://physics.iith.ac.in/anaskar"
+              class="homepage-link"
+              target="_blank"
+              >Personal Website</a
+            >
+          </div>
+          <button
+            class="dropdown-toggle"
+            aria-expanded="false"
+            aria-controls="faculty-details-3"
+            onclick="toggleDropdown(this)"
+          >
+            <span class="arrow">&#9660;</span>
+            <span class="sr-only">Show more details</span>
+          </button>
+        </div>
+
+        <div class="dropdown-content">
+          <!-- Additional Details -->
+          <h4>Additional Information</h4>
+          <ul class="additional-details">
+            <li>
+              <strong>Education:</strong> Ph.D. in Mechanical Engineering, XYZ
+              University
+            </li>
+            <li><strong>Awards:</strong> Best Researcher Award 2020</li>
+            <li>
+              <strong>Publications:</strong> Over 50 peer-reviewed journal
+              articles
+            </li>
+            <li>
+              <strong>Projects:</strong> Principal Investigator for 5 funded
+              projects
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="faculty-card">
+        <div class="faculty-row">
+          <img
+            src="images/faculty/image.png"
+            alt="Dr. Anirban Naskar"
+            class="faculty-image"
+            onerror="this.src='default-avatar.jpg'"
+          />
+          <div class="faculty-info">
+            <h3 class="faculty-name">Dr. Anirban Naskar</h3>
+            <p class="faculty-title">Assistant Professor</p>
+            <p class="faculty-description">
+              Research areas: Surface Engineering, Surface Finishing, Numerical
+              Modelling of Surface Finishing Processes.
+            </p>
+          </div>
+          <!-- Contact Info -->
+          <div class="contact-info">
+            <div class="contact-item">
+              <i class="uil uil-building"></i> 506, C-block, IITH
+            </div>
+            <div class="contact-item">
+              <i class="uil uil-envelope"></i>
+              <a href="mailto:anaskar@phy.iith.ac.in">anaskar@phy.iith.ac.in</a>
+            </div>
+            <div class="contact-item">
+              <i class="uil uil-phone"></i> +91 (40) 2301 6682
+            </div>
+            <a
+              href="https://physics.iith.ac.in/anaskar"
+              class="homepage-link"
+              target="_blank"
+              >Personal Website</a
+            >
+          </div>
+          <button
+            class="dropdown-toggle"
+            aria-expanded="false"
+            aria-controls="faculty-details-4"
+            onclick="toggleDropdown(this)"
+          >
+            <span class="arrow">&#9660;</span>
+            <span class="sr-only">Show more details</span>
+          </button>
+        </div>
+
+        <div class="dropdown-content">
+          <!-- Additional Details -->
+          <h4>Additional Information</h4>
+          <ul class="additional-details">
+            <li>
+              <strong>Education:</strong> Ph.D. in Mechanical Engineering, XYZ
+              University
+            </li>
+            <li><strong>Awards:</strong> Best Researcher Award 2020</li>
+            <li>
+              <strong>Publications:</strong> Over 50 peer-reviewed journal
+              articles
+            </li>
+            <li>
+              <strong>Projects:</strong> Principal Investigator for 5 funded
+              projects
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Add more faculty cards as needed -->
     </div>
 
-     <!-- Social Media Links -->
-     <div class="social-media">
-        <a href="https://www.facebook.com" target="_blank" rel="noopener noreferrer">
-            <img src="/Users/niladri/Desktop/Phy/Images/Social Media/1.png" alt="Facebook" class="social-icon">
-        </a><a href="https://www.twitter.com" target="_blank" rel="noopener noreferrer">
-            <img src="/Users/niladri/Desktop/Phy/Images/Social Media/2.png" alt="Twitter" class="social-icon">
-        </a><a href="https://www.instagram.com" target="_blank" rel="noopener noreferrer">
-            <img src="/Users/niladri/Desktop/Phy/Images/Social Media/3.png" alt="Instagram" class="social-icon">
-        </a><a href="https://www.linkedin.com" target="_blank" rel="noopener noreferrer">
-            <img src="/Users/niladri/Desktop/Phy/Images/Social Media/4.png" alt="LinkedIn" class="social-icon">
-        </a><a href="https://www.youtube.com" target="_blank" rel="noopener noreferrer">
-            <img src="/Users/niladri/Desktop/Phy/Images/Social Media/5.png" alt="YouTube" class="social-icon">
-        </a>
-    </div>
-
-
-    <div class="footer-bottom">
-        <hr>
-        <p>© 2024 INDIAN INSTITUTE OF TECHNOLOGY | All Rights Reserved.</p>
-    </div>
-</footer>
-
-</body>
+    <!-- JavaScript -->
+    <script src="faculty.js"></script>
+  </body>
 </html>

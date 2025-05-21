@@ -5,8 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Responsive Navbar Design</title>
     <link rel="stylesheet" href="index.css" />
+    <link rel="stylesheet" href="about-glance.css" />
+    <link rel="stylesheet" href="hod-desk.css" />
     <link rel="stylesheet" href="home.css" />
     <link rel="stylesheet" href="new_programs.css" />
+    <link rel="stylesheet" href="people.css" />
+    <!-- <link rel="stylesheet" href="faculty.css" /> -->
     <link
       rel="stylesheet"
       href="https://unicons.iconscout.com/release/v4.0.8/css/line.css"
@@ -60,36 +64,114 @@
               <a>About Us</a>
               <ul class="dropdown-menu">
                 <li><a href="about-glance.html">Physics at a glance</a></li>
-                <li><a href="about-glance.html">HoD Desk</a></li>
+                <li><a href="hod-desk.html">HoD Desk</a></li>
                 <li><a href="about-glance.html">Physics Brochure</a></li>
-                <li><a href="about-glance.html">Physics Video</a></li>
+                <li>
+                  <a
+                    href="https://youtu.be/0_-P6tQ0x8Y?si=JOtgwI7DvesFuCUs"
+                    target="_blank"
+                    >Physics Video</a
+                  >
+                </li>
                 <li><a href="about-glance.html">Contact us</a></li>
               </ul>
             </li>
             <li class="dropdown">
               <a>People</a>
               <ul class="dropdown-menu">
-                <li><a href="faculty.html">Faculty</a></li>
-                <li><a href="staffs.html">Staff</a></li>
-                <li><a href="hods.html">Ex-HODs</a></li>
-                <li><a href="alumini.html">Alumni</a></li>
-                <li><a href="students.html">Student</a></li>
+                <li>
+                  <a
+                    href="people.html"
+                    class="people-nav"
+                    data-section="faculty"
+                    >Faculty</a
+                  >
+                </li>
+                <li>
+                  <a href="people.html" class="people-nav" data-section="staff"
+                    >Staff</a
+                  >
+                </li>
+                <li>
+                  <a
+                    href="people.html"
+                    class="people-nav"
+                    data-section="students-ug"
+                    >Student</a
+                  >
+                </li>
+                <li>
+                  <a href="people.html" class="people-nav" data-section="hods"
+                    >Ex-HODs</a
+                  >
+                </li>
+                <li>
+                  <a href="people.html" class="people-nav" data-section="alumni"
+                    >Alumni</a
+                  >
+                </li>
               </ul>
             </li>
             <li class="dropdown">
               <a>Research</a>
               <ul class="dropdown-menu">
-                <li><a href="about-glance.html">Research Areas</a></li>
-                <li><a href="about-glance.html">Publications</a></li>
-                <li><a href="about-glance.html">Research Labs</a></li>
-                <li><a href="about-glance.html">Facilities</a></li>
+                <li>
+                  <a
+                    href="#"
+                    class="research__navigator"
+                    data-section="Research__areas"
+                    >Research Areas</a
+                  >
+                </li>
+                <li>
+                  <a
+                    href="#"
+                    class="research__navigator"
+                    data-section="Lab__facilities"
+                    >Labs & Facilities</a
+                  >
+                </li>
+                <li>
+                  <a
+                    href="#"
+                    class="research__navigator"
+                    data-section="Research__projects"
+                    >Research Projects</a
+                  >
+                </li>
+                <li>
+                  <a href="#" class="research__navigator" data-section="PHD"
+                    >Ph.D. Admissions</a
+                  >
+                </li>
+                <li>
+                  <a href="#" class="research__navigator" data-section="TT1"
+                    >Academic Calendar (Jul-Dec)</a
+                  >
+                </li>
+                <li>
+                  <a href="#" class="research__navigator" data-section="TT2"
+                    >Academic Calendar (Jan-Jul)</a
+                  >
+                </li>
+                <li>
+                  <a href="#" class="research__navigator" data-section="TT3"
+                    >Time Table</a
+                  >
+                </li>
               </ul>
             </li>
+
             <li class="dropdown">
               <a>Academics</a>
               <ul class="dropdown-menu">
                 <li><a href="new_programs.html">Programs</a></li>
-                <li><a href="about-glance.html">Timetable</a></li>
+                <li>
+                  <a
+                    href="https://docs.google.com/document/d/1QnmUAuiC5R_S7Dvxg8X5ln5ccwByqoGzX3Jo_pjVa14/edit?tab=t.0#heading=h.5ns3ct1gaq7l"
+                    >Timetable</a
+                  >
+                </li>
                 <li><a href="about-glance.html">Academic Documents</a></li>
               </ul>
             </li>
@@ -109,7 +191,7 @@
                 <li><a href="about-glance.html">Room booking</a></li>
               </ul>
             </li>
-            <li><a href="about-glance.html">Committees</a></li>
+            <li><a href="committees.html">Committees</a></li>
           </ul>
         </div>
       </nav>
@@ -124,7 +206,7 @@
         <ul class="mobile-nav_menu">
           <li><a href="home.html">Home</a></li>
           <li class="mobile-dropdown">
-            <a href="" onclick="return false;">About Us</a>
+            <a>About Us</a>
             <ul class="mobile-dropdown-menu">
               <li><a href="about-glance.html">Physics at a glance</a></li>
               <li><a href="about-glance.html">HoD Desk</a></li>
@@ -134,26 +216,63 @@
             </ul>
           </li>
           <li class="mobile-dropdown">
-            <a href="" onclick="return false;">People</a>
+            <a>People</a>
             <ul class="mobile-dropdown-menu">
-              <li><a href="faculty.html">Faculty</a></li>
-              <li><a href="staffs.html">Staff</a></li>
-              <li><a href="hods.html">Ex-HODs</a></li>
-              <li><a href="alumini.html">Alumni</a></li>
-              <li><a href="students.html">Student</a></li>
+              <li>
+                <a href="people.html" class="people-nav" data-section="faculty"
+                  >Faculty</a
+                >
+              </li>
+              <li>
+                <a href="people.html" class="people-nav" data-section="staff"
+                  >Staff</a
+                >
+              </li>
+              <li>
+                <a
+                  href="people.html"
+                  class="people-nav"
+                  data-section="students-ug"
+                  >Student</a
+                >
+              </li>
+              <li>
+                <a href="people.html" class="people-nav" data-section="hods"
+                  >Ex-HODs</a
+                >
+              </li>
+              <li>
+                <a href="people.html" class="people-nav" data-section="alumni"
+                  >Alumni</a
+                >
+              </li>
             </ul>
           </li>
           <li class="mobile-dropdown">
-            <a href="" onclick="return false;">Research</a>
+            <a>Research</a>
             <ul class="mobile-dropdown-menu">
-              <li><a href="about-glance.html">Research Areas</a></li>
-              <li><a href="about-glance.html">Publications</a></li>
-              <li><a href="about-glance.html">Research Labs</a></li>
-              <li><a href="about-glance.html">Facilities</a></li>
+              <li>
+                <a href="research.html#Research__areas">Research Areas</a>
+              </li>
+              <li><a href="research.html#Publications">Publications</a></li>
+              <li>
+                <a href="research.html#Lab__facilities">Labs & Facilities</a>
+              </li>
+              <li>
+                <a href="research.html#Research__projects">Research Projects</a>
+              </li>
+              <li><a href="research.html#PHD">Ph.D. Admissions</a></li>
+              <li>
+                <a href="research.html#TT1">Academic Calendar (Jul-Dec)</a>
+              </li>
+              <li>
+                <a href="research.html#TT2">Academic Calendar (Jan-Jul)</a>
+              </li>
+              <li><a href="research.html#TT3">Time Table</a></li>
             </ul>
           </li>
           <li class="mobile-dropdown">
-            <a href="" onclick="return false;">Academics</a>
+            <a>Academics</a>
             <ul class="mobile-dropdown-menu">
               <li><a href="new_programs.html">Programs</a></li>
               <li><a href="about-glance.html">Timetable</a></li>
@@ -161,14 +280,14 @@
             </ul>
           </li>
           <li class="mobile-dropdown">
-            <a href="" onclick="return false;">Opportunities</a>
+            <a>Opportunities</a>
             <ul class="mobile-dropdown-menu">
               <li><a href="about-glance.html">Recruitment</a></li>
               <li><a href="about-glance.html">Research Positions</a></li>
             </ul>
           </li>
           <li class="mobile-dropdown">
-            <a href="" onclick="return false;">Resources</a>
+            <a>Resources</a>
             <ul class="mobile-dropdown-menu">
               <li><a href="about-glance.html">Links</a></li>
               <li><a href="about-glance.html">Documents</a></li>
@@ -269,9 +388,7 @@
         </div>
 
         <div class="footer__right">
-          <div class="footer__title">
-            <h4>Address and Location</h4>
-          </div>
+          <h4 class="footer__title">Address and Location</h4>
 
           <div class="footer__right-content">
             <div class="address">
@@ -361,5 +478,6 @@
     <script src="home.js"></script>
     <script src="spotlight.js"></script>
     <script src="new_programs.js"></script>
+    <script src="research.js"></script>
   </body>
 </html>

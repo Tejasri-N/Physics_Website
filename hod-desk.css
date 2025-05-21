@@ -1,0 +1,85 @@
+.hod-desk {
+  max-width: 1100px;
+  margin: 2.5rem auto;
+  padding: 2rem 1.5rem;
+  background: #fafbfc;
+  border-radius: 10px;
+  box-shadow: 0 2px 12px rgba(50, 60, 80, 0.06);
+  font-family: "Segoe UI", "Montserrat", Arial, sans-serif;
+}
+
+.hod-desk-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2.5rem;
+  align-items: flex-start;
+}
+
+.hod-desk-photo {
+  flex: 0 0 260px;
+  max-width: 260px;
+  text-align: center;
+}
+
+.hod-desk-photo img {
+  width: 220px;
+  height: 220px;
+  object-fit: cover;
+  border-radius: 8px;
+  margin-bottom: 1.2rem;
+  box-shadow: 0 2px 12px rgba(50, 60, 80, 0.1);
+  background: #e9ecef;
+}
+
+.hod-desk-name {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin-bottom: 0.7rem;
+  color: #2e3267;
+}
+
+.hod-desk-profile {
+  display: inline-block;
+  padding: 0.5em 1.2em;
+  border: 1.5px solid #1f4e79;
+  border-radius: 5px;
+  color: #1f4e79;
+  background: #fff;
+  font-size: 1rem;
+  text-decoration: none;
+  transition: background 0.2s, color 0.2s;
+}
+
+.hod-desk-profile:hover,
+.hod-desk-profile:focus {
+  background: #1f4e79;
+  color: #fff;
+}
+
+.hod-message {
+  flex: 1 1 340px;
+  color: #222;
+  font-size: 1.08rem;
+  line-height: 1.7;
+}
+
+.hod-message-con {
+  margin-top: 2.5rem;
+  color: #222;
+  font-size: 1.08rem;
+  line-height: 1.7;
+}
+
+@media (max-width: 900px) {
+  .hod-desk-row {
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+  }
+  .hod-desk-photo {
+    margin-bottom: 1.5rem;
+  }
+  .hod-message {
+    text-align: left;
+  }
+}

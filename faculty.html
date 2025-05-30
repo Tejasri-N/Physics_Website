@@ -3,287 +3,513 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Faculty - Department of Physics</title>
-    <link rel="stylesheet" href="faculty.css" />
+    <title>Physics Faculty | IIT Hyderabad</title>
+    <link rel="stylesheet" href="fsh.css" />
+    <link rel="stylesheet" href="header.css" />
+    <link rel="stylesheet" href="footer.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://unicons.iconscout.com/release/v4.0.8/css/line.css"
+    />
   </head>
   <body>
-    <div class="faculty-grid">
-      <!-- Faculty 1 -->
-      <div class="faculty-card">
-        <div class="faculty-row">
-          <img
-            src="images/faculty/image.png"
-            alt="Dr. Anirban Naskar"
-            class="faculty-image"
-            onerror="this.src='default-avatar.jpg'"
-          />
-          <div class="faculty-info">
-            <h3 class="faculty-name">Dr. Anirban Naskar</h3>
-            <p class="faculty-title">Assistant Professor</p>
-            <p class="faculty-description">
-              Research areas: Surface Engineering, Surface Finishing, Numerical
-              Modelling of Surface Finishing Processes.
+    <header class="header"></header>
+    <!-- Side Navigation -->
+    <nav class="side-nav">
+      <h1 class="department-title">Physics Department</h1>
+      <ul class="nav-menu">
+        <li><a href="faculty.html" class="active">Faculty</a></li>
+        <li><a href="hod.html">HOD</a></li>
+        <li><a href="staff.html">Staff</a></li>
+        <li><a href="students.html">Students</a></li>
+        <li><a href="alumni.html">Alumni</a></li>
+      </ul>
+    </nav>
+    <!-- Main Content -->
+    <main class="main-content">
+      <!-- Member Card -->
+      <article class="member-card">
+        <div class="card-grid">
+          <!-- Column 1: Image -->
+          <div class="image-column">
+            <div class="image-container">
+              <img
+                src="profiles/anaskar.jpg"
+                alt="Dr. Anirban Naskar"
+                onerror="this.onerror=null; this.src='profiles/default.jpg'"
+              />
+            </div>
+          </div>
+          <!-- Column 2: Info -->
+          <div class="info-column">
+            <h2 class="member-name">Dr. Anirban Naskar</h2>
+            <p class="designation">Assistant Professor</p>
+            <p class="department">Department of Physics</p>
+            <div class="research-areas">
+              <strong>Research Areas:</strong>
+              Surface Engineering, Numerical Modeling, Advanced Coating
+              Technologies
+            </div>
+            <p class="member-description">
+              Ph.D. in Mechanical Engineering, XYZ University. Best Researcher
+              Award 2020. Over 50 peer-reviewed journal articles. Principal
+              Investigator for 5 funded projects.
             </p>
           </div>
-          <!-- Contact Info -->
-          <div class="contact-info">
-            <div class="contact-item">
-              <i class="uil uil-building"></i> 506, C-block, IITH
-            </div>
-            <div class="contact-item">
-              <i class="uil uil-envelope"></i>
-              <a href="mailto:anaskar@phy.iith.ac.in">anaskar@phy.iith.ac.in</a>
-            </div>
-            <div class="contact-item">
-              <i class="uil uil-phone"></i> +91 (40) 2301 6682
+          <!-- Divider -->
+          <div class="vertical-divider"></div>
+          <!-- Column 3: Contacts and Website -->
+          <div class="contact-column">
+            <div class="contact-details">
+              <div class="contact-item">
+                <span class="contact-label">Address:</span>
+                <span>Room 506, C-block, IIT Hyderabad</span>
+              </div>
+              <div class="contact-item">
+                <span class="contact-label">Email:</span>
+                <a href="mailto:anaskar@phy.iith.ac.in"
+                  >anaskar@phy.iith.ac.in</a
+                >
+              </div>
+              <div class="contact-item">
+                <span class="contact-label">Phone:</span>
+                <a href="tel:+914023016682">+91 40 2301 6682</a>
+              </div>
             </div>
             <a
               href="https://physics.iith.ac.in/anaskar"
-              class="homepage-link"
+              class="website-link"
               target="_blank"
-              >Personal Website</a
             >
-          </div>
-          <!-- <button class="dropdown-toggle" onclick="toggleDropdown(this)">
-            ▼
-          </button> -->
-          <button
-            class="dropdown-toggle"
-            aria-expanded="false"
-            aria-controls="faculty-details-1"
-            onclick="toggleDropdown(this)"
-          >
-            <span class="arrow">&#9660;</span>
-          </button>
-        </div>
-
-        <div class="dropdown-content" aria-hidden="true">
-          <!-- Additional Details -->
-          <h4>Additional Information</h4>
-          <ul class="additional-details">
-            <li>
-              <strong>Education:</strong> Ph.D. in Mechanical Engineering, XYZ
-              University
-            </li>
-            <li><strong>Awards:</strong> Best Researcher Award 2020</li>
-            <li>
-              <strong>Publications:</strong> Over 50 peer-reviewed journal
-              articles
-            </li>
-            <li>
-              <strong>Projects:</strong> Principal Investigator for 5 funded
-              projects
-            </li>
-          </ul>
-        </div>
-      </div>
-
-      <!-- Faculty 2 -->
-      <div class="faculty-card">
-        <div class="faculty-row">
-          <img
-            src="images/faculty/image.png"
-            alt="Dr. Anirban Naskar"
-            class="faculty-image"
-            onerror="this.src='default-avatar.jpg'"
-          />
-          <div class="faculty-info">
-            <h3 class="faculty-name">Dr. Anirban Naskar</h3>
-            <p class="faculty-title">Assistant Professor</p>
-            <p class="faculty-description">
-              Research areas: Surface Engineering, Surface Finishing, Numerical
-              Modelling of Surface Finishing Processes.
-            </p>
-          </div>
-          <!-- Contact Info -->
-          <div class="contact-info">
-            <div class="contact-item">
-              <i class="uil uil-building"></i> 506, C-block, IITH
+              Personal Website
+            </a>
+            <div class="dropdown-toggle-container">
+              <button class="dropdown-toggle" aria-expanded="false">
+                <span class="arrow">▼</span>
+              </button>
             </div>
-            <div class="contact-item">
-              <i class="uil uil-envelope"></i>
-              <a href="mailto:anaskar@phy.iith.ac.in">anaskar@phy.iith.ac.in</a>
-            </div>
-            <div class="contact-item">
-              <i class="uil uil-phone"></i> +91 (40) 2301 6682
-            </div>
-            <a
-              href="https://physics.iith.ac.in/anaskar"
-              class="homepage-link"
-              target="_blank"
-              >Personal Website</a
-            >
           </div>
-          <button
-            class="dropdown-toggle"
-            aria-expanded="false"
-            aria-controls="faculty-details-2"
-            onclick="toggleDropdown(this)"
-          >
-            <span class="arrow">&#9660;</span>
-            <span class="sr-only">Show more details</span>
-          </button>
         </div>
-
+        <!-- Dropdown Content -->
         <div class="dropdown-content">
-          <!-- Additional Details -->
-          <h4>Additional Information</h4>
-          <ul class="additional-details">
-            <li>
-              <strong>Education:</strong> Ph.D. in Mechanical Engineering, XYZ
-              University
-            </li>
-            <li><strong>Awards:</strong> Best Researcher Award 2020</li>
-            <li>
-              <strong>Publications:</strong> Over 50 peer-reviewed journal
-              articles
-            </li>
-            <li>
-              <strong>Projects:</strong> Principal Investigator for 5 funded
-              projects
-            </li>
-          </ul>
+          <div class="dropdown-section">
+            <h3>Education</h3>
+            <ul>
+              <li>Ph.D. in Mechanical Engineering, XYZ University</li>
+              <li>Best Researcher Award 2020</li>
+            </ul>
+          </div>
+          <div class="dropdown-section">
+            <h3>Awards</h3>
+            <ul>
+              <li>Best Researcher Award 2020</li>
+            </ul>
+          </div>
+          <div class="dropdown-section">
+            <h3>Publications</h3>
+            <ul>
+              <li>
+                Over 50 peer-reviewed journal articles,
+                <em>Nature, Scopius</em>
+              </li>
+            </ul>
+          </div>
+          <div class="dropdown-section">
+            <h3>Projects</h3>
+            <ul>
+              <li>PPrincipal Investigator for 5 funded projects</li>
+            </ul>
+          </div>
         </div>
-      </div>
-
-      <div class="faculty-card">
-        <div class="faculty-row">
-          <img
-            src="images/faculty/image.png"
-            alt="Dr. Anirban Naskar"
-            class="faculty-image"
-            onerror="this.src='default-avatar.jpg'"
-          />
-          <div class="faculty-info">
-            <h3 class="faculty-name">Dr. Anirban Naskar</h3>
-            <p class="faculty-title">Assistant Professor</p>
-            <p class="faculty-description">
-              Research areas: Surface Engineering, Surface Finishing, Numerical
-              Modelling of Surface Finishing Processes.
+      </article>
+      <!-- Member Card -->
+      <article class="member-card">
+        <div class="card-grid">
+          <!-- Column 1: Image -->
+          <div class="image-column">
+            <div class="image-container">
+              <img
+                src="profiles/anaskar.jpg"
+                alt="Dr. Anirban Naskar"
+                onerror="this.onerror=null; this.src='profiles/default.jpg'"
+              />
+            </div>
+          </div>
+          <!-- Column 2: Info -->
+          <div class="info-column">
+            <h2 class="member-name">Dr. Anirban Naskar</h2>
+            <p class="designation">Assistant Professor</p>
+            <p class="department">Department of Physics</p>
+            <div class="research-areas">
+              <strong>Research Areas:</strong>
+              Surface Engineering, Numerical Modeling, Advanced Coating
+              Technologies
+            </div>
+            <p class="member-description">
+              Ph.D. in Mechanical Engineering, XYZ University. Best Researcher
+              Award 2020. Over 50 peer-reviewed journal articles. Principal
+              Investigator for 5 funded projects.
             </p>
           </div>
-          <!-- Contact Info -->
-          <div class="contact-info">
-            <div class="contact-item">
-              <i class="uil uil-building"></i> 506, C-block, IITH
-            </div>
-            <div class="contact-item">
-              <i class="uil uil-envelope"></i>
-              <a href="mailto:anaskar@phy.iith.ac.in">anaskar@phy.iith.ac.in</a>
-            </div>
-            <div class="contact-item">
-              <i class="uil uil-phone"></i> +91 (40) 2301 6682
+          <!-- Divider -->
+          <div class="vertical-divider"></div>
+          <!-- Column 3: Contacts and Website -->
+          <div class="contact-column">
+            <div class="contact-details">
+              <div class="contact-item">
+                <span class="contact-label">Address:</span>
+                <span>Room 506, C-block, IIT Hyderabad</span>
+              </div>
+              <div class="contact-item">
+                <span class="contact-label">Email:</span>
+                <a href="mailto:anaskar@phy.iith.ac.in"
+                  >anaskar@phy.iith.ac.in</a
+                >
+              </div>
+              <div class="contact-item">
+                <span class="contact-label">Phone:</span>
+                <a href="tel:+914023016682">+91 40 2301 6682</a>
+              </div>
             </div>
             <a
               href="https://physics.iith.ac.in/anaskar"
-              class="homepage-link"
+              class="website-link"
               target="_blank"
-              >Personal Website</a
             >
+              Personal Website
+            </a>
+            <div class="dropdown-toggle-container">
+              <button class="dropdown-toggle" aria-expanded="false">
+                <span class="arrow">▼</span>
+              </button>
+            </div>
           </div>
-          <button
-            class="dropdown-toggle"
-            aria-expanded="false"
-            aria-controls="faculty-details-3"
-            onclick="toggleDropdown(this)"
-          >
-            <span class="arrow">&#9660;</span>
-            <span class="sr-only">Show more details</span>
-          </button>
         </div>
-
+        <!-- Dropdown Content -->
         <div class="dropdown-content">
-          <!-- Additional Details -->
-          <h4>Additional Information</h4>
-          <ul class="additional-details">
-            <li>
-              <strong>Education:</strong> Ph.D. in Mechanical Engineering, XYZ
-              University
-            </li>
-            <li><strong>Awards:</strong> Best Researcher Award 2020</li>
-            <li>
-              <strong>Publications:</strong> Over 50 peer-reviewed journal
-              articles
-            </li>
-            <li>
-              <strong>Projects:</strong> Principal Investigator for 5 funded
-              projects
-            </li>
-          </ul>
+          <div class="dropdown-section">
+            <h3>Education</h3>
+            <ul>
+              <li>Ph.D. in Mechanical Engineering, XYZ University</li>
+              <li>Best Researcher Award 2020</li>
+            </ul>
+          </div>
+          <div class="dropdown-section">
+            <h3>Awards</h3>
+            <ul>
+              <li>Best Researcher Award 2020</li>
+            </ul>
+          </div>
+          <div class="dropdown-section">
+            <h3>Publications</h3>
+            <ul>
+              <li>
+                Over 50 peer-reviewed journal articles,
+                <em>Nature, Scopius</em>
+              </li>
+            </ul>
+          </div>
+          <div class="dropdown-section">
+            <h3>Projects</h3>
+            <ul>
+              <li>PPrincipal Investigator for 5 funded projects</li>
+            </ul>
+          </div>
         </div>
-      </div>
-
-      <div class="faculty-card">
-        <div class="faculty-row">
-          <img
-            src="images/faculty/image.png"
-            alt="Dr. Anirban Naskar"
-            class="faculty-image"
-            onerror="this.src='default-avatar.jpg'"
-          />
-          <div class="faculty-info">
-            <h3 class="faculty-name">Dr. Anirban Naskar</h3>
-            <p class="faculty-title">Assistant Professor</p>
-            <p class="faculty-description">
-              Research areas: Surface Engineering, Surface Finishing, Numerical
-              Modelling of Surface Finishing Processes.
+      </article>
+      <!-- Member Card -->
+      <article class="member-card">
+        <div class="card-grid">
+          <!-- Column 1: Image -->
+          <div class="image-column">
+            <div class="image-container">
+              <img
+                src="profiles/anaskar.jpg"
+                alt="Dr. Anirban Naskar"
+                onerror="this.onerror=null; this.src='profiles/default.jpg'"
+              />
+            </div>
+          </div>
+          <!-- Column 2: Info -->
+          <div class="info-column">
+            <h2 class="member-name">Dr. Anirban Naskar</h2>
+            <p class="designation">Assistant Professor</p>
+            <p class="department">Department of Physics</p>
+            <div class="research-areas">
+              <strong>Research Areas:</strong>
+              Surface Engineering, Numerical Modeling, Advanced Coating
+              Technologies
+            </div>
+            <p class="member-description">
+              Ph.D. in Mechanical Engineering, XYZ University. Best Researcher
+              Award 2020. Over 50 peer-reviewed journal articles. Principal
+              Investigator for 5 funded projects.
             </p>
           </div>
-          <!-- Contact Info -->
-          <div class="contact-info">
-            <div class="contact-item">
-              <i class="uil uil-building"></i> 506, C-block, IITH
-            </div>
-            <div class="contact-item">
-              <i class="uil uil-envelope"></i>
-              <a href="mailto:anaskar@phy.iith.ac.in">anaskar@phy.iith.ac.in</a>
-            </div>
-            <div class="contact-item">
-              <i class="uil uil-phone"></i> +91 (40) 2301 6682
+          <!-- Divider -->
+          <div class="vertical-divider"></div>
+          <!-- Column 3: Contacts and Website -->
+          <div class="contact-column">
+            <div class="contact-details">
+              <div class="contact-item">
+                <span class="contact-label">Address:</span>
+                <span>Room 506, C-block, IIT Hyderabad</span>
+              </div>
+              <div class="contact-item">
+                <span class="contact-label">Email:</span>
+                <a href="mailto:anaskar@phy.iith.ac.in"
+                  >anaskar@phy.iith.ac.in</a
+                >
+              </div>
+              <div class="contact-item">
+                <span class="contact-label">Phone:</span>
+                <a href="tel:+914023016682">+91 40 2301 6682</a>
+              </div>
             </div>
             <a
               href="https://physics.iith.ac.in/anaskar"
-              class="homepage-link"
+              class="website-link"
               target="_blank"
-              >Personal Website</a
             >
+              Personal Website
+            </a>
+            <div class="dropdown-toggle-container">
+              <button class="dropdown-toggle" aria-expanded="false">
+                <span class="arrow">▼</span>
+              </button>
+            </div>
           </div>
-          <button
-            class="dropdown-toggle"
-            aria-expanded="false"
-            aria-controls="faculty-details-4"
-            onclick="toggleDropdown(this)"
-          >
-            <span class="arrow">&#9660;</span>
-            <span class="sr-only">Show more details</span>
-          </button>
         </div>
-
+        <!-- Dropdown Content -->
         <div class="dropdown-content">
-          <!-- Additional Details -->
-          <h4>Additional Information</h4>
-          <ul class="additional-details">
-            <li>
-              <strong>Education:</strong> Ph.D. in Mechanical Engineering, XYZ
-              University
-            </li>
-            <li><strong>Awards:</strong> Best Researcher Award 2020</li>
-            <li>
-              <strong>Publications:</strong> Over 50 peer-reviewed journal
-              articles
-            </li>
-            <li>
-              <strong>Projects:</strong> Principal Investigator for 5 funded
-              projects
-            </li>
-          </ul>
+          <div class="dropdown-section">
+            <h3>Education</h3>
+            <ul>
+              <li>Ph.D. in Mechanical Engineering, XYZ University</li>
+              <li>Best Researcher Award 2020</li>
+            </ul>
+          </div>
+          <div class="dropdown-section">
+            <h3>Awards</h3>
+            <ul>
+              <li>Best Researcher Award 2020</li>
+            </ul>
+          </div>
+          <div class="dropdown-section">
+            <h3>Publications</h3>
+            <ul>
+              <li>
+                Over 50 peer-reviewed journal articles,
+                <em>Nature, Scopius</em>
+              </li>
+            </ul>
+          </div>
+          <div class="dropdown-section">
+            <h3>Projects</h3>
+            <ul>
+              <li>PPrincipal Investigator for 5 funded projects</li>
+            </ul>
+          </div>
         </div>
-      </div>
-
-      <!-- Add more faculty cards as needed -->
-    </div>
-
-    <!-- JavaScript -->
-    <script src="faculty.js"></script>
+      </article>
+      <!-- Member Card -->
+      <article class="member-card">
+        <div class="card-grid">
+          <!-- Column 1: Image -->
+          <div class="image-column">
+            <div class="image-container">
+              <img
+                src="profiles/anaskar.jpg"
+                alt="Dr. Anirban Naskar"
+                onerror="this.onerror=null; this.src='profiles/default.jpg'"
+              />
+            </div>
+          </div>
+          <!-- Column 2: Info -->
+          <div class="info-column">
+            <h2 class="member-name">Dr. Anirban Naskar</h2>
+            <p class="designation">Assistant Professor</p>
+            <p class="department">Department of Physics</p>
+            <div class="research-areas">
+              <strong>Research Areas:</strong>
+              Surface Engineering, Numerical Modeling, Advanced Coating
+              Technologies
+            </div>
+            <p class="member-description">
+              Ph.D. in Mechanical Engineering, XYZ University. Best Researcher
+              Award 2020. Over 50 peer-reviewed journal articles. Principal
+              Investigator for 5 funded projects.
+            </p>
+          </div>
+          <!-- Divider -->
+          <div class="vertical-divider"></div>
+          <!-- Column 3: Contacts and Website -->
+          <div class="contact-column">
+            <div class="contact-details">
+              <div class="contact-item">
+                <span class="contact-label">Address:</span>
+                <span>Room 506, C-block, IIT Hyderabad</span>
+              </div>
+              <div class="contact-item">
+                <span class="contact-label">Email:</span>
+                <a href="mailto:anaskar@phy.iith.ac.in"
+                  >anaskar@phy.iith.ac.in</a
+                >
+              </div>
+              <div class="contact-item">
+                <span class="contact-label">Phone:</span>
+                <a href="tel:+914023016682">+91 40 2301 6682</a>
+              </div>
+            </div>
+            <a
+              href="https://physics.iith.ac.in/anaskar"
+              class="website-link"
+              target="_blank"
+            >
+              Personal Website
+            </a>
+            <div class="dropdown-toggle-container">
+              <button class="dropdown-toggle" aria-expanded="false">
+                <span class="arrow">▼</span>
+              </button>
+            </div>
+          </div>
+        </div>
+        <!-- Dropdown Content -->
+        <div class="dropdown-content">
+          <div class="dropdown-section">
+            <h3>Education</h3>
+            <ul>
+              <li>Ph.D. in Mechanical Engineering, XYZ University</li>
+              <li>Best Researcher Award 2020</li>
+            </ul>
+          </div>
+          <div class="dropdown-section">
+            <h3>Awards</h3>
+            <ul>
+              <li>Best Researcher Award 2020</li>
+            </ul>
+          </div>
+          <div class="dropdown-section">
+            <h3>Publications</h3>
+            <ul>
+              <li>
+                Over 50 peer-reviewed journal articles,
+                <em>Nature, Scopius</em>
+              </li>
+            </ul>
+          </div>
+          <div class="dropdown-section">
+            <h3>Projects</h3>
+            <ul>
+              <li>PPrincipal Investigator for 5 funded projects</li>
+            </ul>
+          </div>
+        </div>
+      </article>
+      <!-- Member Card -->
+      <article class="member-card">
+        <div class="card-grid">
+          <!-- Column 1: Image -->
+          <div class="image-column">
+            <div class="image-container">
+              <img
+                src="profiles/anaskar.jpg"
+                alt="Dr. Anirban Naskar"
+                onerror="this.onerror=null; this.src='profiles/default.jpg'"
+              />
+            </div>
+          </div>
+          <!-- Column 2: Info -->
+          <div class="info-column">
+            <h2 class="member-name">Dr. Anirban Naskar</h2>
+            <p class="designation">Assistant Professor</p>
+            <p class="department">Department of Physics</p>
+            <div class="research-areas">
+              <strong>Research Areas:</strong>
+              Surface Engineering, Numerical Modeling, Advanced Coating
+              Technologies
+            </div>
+            <p class="member-description">
+              Ph.D. in Mechanical Engineering, XYZ University. Best Researcher
+              Award 2020. Over 50 peer-reviewed journal articles. Principal
+              Investigator for 5 funded projects.
+            </p>
+          </div>
+          <!-- Divider -->
+          <div class="vertical-divider"></div>
+          <!-- Column 3: Contacts and Website -->
+          <div class="contact-column">
+            <div class="contact-details">
+              <div class="contact-item">
+                <span class="contact-label">Address:</span>
+                <span>Room 506, C-block, IIT Hyderabad</span>
+              </div>
+              <div class="contact-item">
+                <span class="contact-label">Email:</span>
+                <a href="mailto:anaskar@phy.iith.ac.in"
+                  >anaskar@phy.iith.ac.in</a
+                >
+              </div>
+              <div class="contact-item">
+                <span class="contact-label">Phone:</span>
+                <a href="tel:+914023016682">+91 40 2301 6682</a>
+              </div>
+            </div>
+            <a
+              href="https://physics.iith.ac.in/anaskar"
+              class="website-link"
+              target="_blank"
+            >
+              Personal Website
+            </a>
+            <div class="dropdown-toggle-container">
+              <button class="dropdown-toggle" aria-expanded="false">
+                <span class="arrow">▼</span>
+              </button>
+            </div>
+          </div>
+        </div>
+        <!-- Dropdown Content -->
+        <div class="dropdown-content">
+          <div class="dropdown-section">
+            <h3>Education</h3>
+            <ul>
+              <li>Ph.D. in Mechanical Engineering, XYZ University</li>
+              <li>Best Researcher Award 2020</li>
+            </ul>
+          </div>
+          <div class="dropdown-section">
+            <h3>Awards</h3>
+            <ul>
+              <li>Best Researcher Award 2020</li>
+            </ul>
+          </div>
+          <div class="dropdown-section">
+            <h3>Publications</h3>
+            <ul>
+              <li>
+                Over 50 peer-reviewed journal articles,
+                <em>Nature, Scopius</em>
+              </li>
+            </ul>
+          </div>
+          <div class="dropdown-section">
+            <h3>Projects</h3>
+            <ul>
+              <li>PPrincipal Investigator for 5 funded projects</li>
+            </ul>
+          </div>
+        </div>
+      </article>
+      <button id="backToTopBtn" title="Go to top">&#8679; Top</button>
+    </main>
+    <footer class="footer"></footer>
+    <script src="fsh.js"></script>
+    <script src="main.js"></script>
   </body>
 </html>

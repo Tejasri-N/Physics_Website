@@ -1,358 +1,242 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="people.css">
-    <script src="people.js" defer></script>
-    <title>Physics Department</title>
-</head>
-<body>
-
-    <!-- Navigation Section (Fixed) -->
-    <nav>
-        <a href="index.html">
-            <div class="brand-name">IIT Hyderabad</div>
-          </a>
-        <ul class="nav-links">
-            <li><a href="index.html">About</a></li>
-            <li>
-                <a href="#" id="coursesToggle">Courses</a>
-                <ul class="dropdown">
-                    <li><a href="home.html">Brochure</a></li>
-                </ul>
-            </li>
-            <li>
-                <a href="#" id="membersToggle">People</a>
-                <ul class="dropdown">
-                    <li><a href="faculty.html">Faculty</a></li>
-                    <li><a href="staffs.html">Staffs</a></li>
-                    <li><a href="hods.html">HoDs</a></li>
-                    <li><a href="students.html">Students</a></li>
-                    <li><a href="alumini.html">Alumini</a></li>
-                    
-                </ul>
-            </li>
-            <li><a href="#contact">Contact Us</a></li>
-        </ul>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Students Directory</title>
+    <link rel="stylesheet" href="al_students.css" />
+    <link rel="stylesheet" href="header.css" />
+    <link rel="stylesheet" href="footer.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://unicons.iconscout.com/release/v4.0.8/css/line.css"
+    />
+  </head>
+  <body>
+    <header class="header"></header>
+    <!-- Side Navigation -->
+    <nav class="side-nav">
+      <h1 class="department-title">Physics Department</h1>
+      <ul class="nav-menu">
+        <li><a href="faculty.html">Faculty</a></li>
+        <li><a href="hod.html">HOD</a></li>
+        <li><a href="staff.html">Staff</a></li>
+        <li><a href="students.html" class="active">Students</a></li>
+        <li><a href="alumni.html">Alumni</a></li>
+      </ul>
     </nav>
 
-   <!-- Hero Section -->
-<div class="hero">
-    <div class="hero-content">
-        <div class="image-container"> <img src="/Users/niladri/Desktop/Physics.png" alt="Physics" /> </div> 
-        <div class="welcome-message">
-            <h1>Department of Physics</h1>
-            <p>Indian Institute of Technology, Hyderabad</p>
+    <!-- Main Content -->
+    <div class="main-content">
+      <header>
+        <h2 class="main-title">Students Directory</h2>
+      </header>
+
+      <!-- Main Courses -->
+      <nav class="course-nav" id="courseNav">
+        <div class="course-pill" data-course="btech">B.Tech</div>
+        <div class="course-pill" data-course="msc">M.Sc</div>
+        <div class="course-pill" data-course="mtech">M.Tech</div>
+        <div class="course-pill" data-course="phd">PhD</div>
+      </nav>
+
+      <!-- Sub-courses -->
+      <div class="subcourse-nav hidden" id="subcourseNav"></div>
+
+      <!-- Years Scroll Section -->
+      <div
+        class="year-scroll-wrapper"
+        id="yearScrollWrapper"
+        style="display: none"
+      >
+        <button
+          class="scroll-arrow left"
+          id="yearLeftArrow"
+          onclick="scrollYears(-1)"
+        >
+          ‹
+        </button>
+        <div class="year-container" id="yearContainer"></div>
+        <button
+          class="scroll-arrow right"
+          id="yearRightArrow"
+          onclick="scrollYears(1)"
+        >
+          ›
+        </button>
+      </div>
+
+      <!-- Table -->
+      <div class="table-container hidden" id="tableContainer">
+        <table id="studentTable">
+          <caption id="tableCaption"></caption>
+          <thead>
+            <tr>
+              <th>Serial No.</th>
+              <th>Student Name</th>
+              <th>Enrollment Number</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody"></tbody>
+        </table>
+      </div>
+
+      <!-- Data -->
+      <div id="studentData" style="display: none">
+        <!-- B.Tech -->
+        <div data-course="btech" data-year="2026">
+          <div data-name="Niladri" data-enroll="ph23mscst14001"></div>
+          <div data-name="karmakar" data-enroll="Ph23mscst14005"></div>
+          <div data-name="Niladri" data-enroll="ph23mscst14001"></div>
+          <div data-name="karmakar" data-enroll="Ph23mscst14005"></div>
         </div>
+        <div
+          data-course="btech"
+          data-subcourse="engineering-physics"
+          data-year="2025"
+        >
+          <div data-name="niladri" data-enroll="ph23mscst14006"></div>
+          <div data-name="Niladri" data-enroll="ph23mscst14001"></div>
+          <div data-name="karmakar" data-enroll="Ph23mscst14005"></div>
+        </div>
+        <div
+          data-course="btech"
+          data-subcourse="engineering-physics"
+          data-year="2024"
+        >
+          <div data-name="niladri" data-enroll="ph23mscst14006"></div>
+          <div data-name="Niladri" data-enroll="ph23mscst14001"></div>
+          <div data-name="karmakar" data-enroll="Ph23mscst14005"></div>
+        </div>
+        <div
+          data-course="btech"
+          data-subcourse="engineering-physics"
+          data-year="2023"
+        >
+          <div data-name="niladri" data-enroll="ph23mscst14006"></div>
+          <div data-name="Niladri" data-enroll="ph23mscst14001"></div>
+          <div data-name="karmakar" data-enroll="Ph23mscst14005"></div>
+        </div>
+        <div
+          data-course="btech"
+          data-subcourse="engineering-physics"
+          data-year="2022"
+        >
+          <div data-name="niladri" data-enroll="ph23mscst14006"></div>
+          <div data-name="Niladri" data-enroll="ph23mscst14001"></div>
+          <div data-name="karmakar" data-enroll="Ph23mscst14005"></div>
+        </div>
+        <div
+          data-course="btech"
+          data-subcourse="engineering-physics"
+          data-year="2021"
+        >
+          <div data-name="niladri" data-enroll="ph23mscst14006"></div>
+          <div data-name="Niladri" data-enroll="ph23mscst14001"></div>
+          <div data-name="karmakar" data-enroll="Ph23mscst14005"></div>
+        </div>
+        <div
+          data-course="btech"
+          data-subcourse="engineering-physics"
+          data-year="2020"
+        >
+          <div data-name="niladri" data-enroll="ph23mscst14006"></div>
+        </div>
+        <div
+          data-course="btech"
+          data-subcourse="engineering-physics"
+          data-year="2019"
+        >
+          <div data-name="niladri" data-enroll="ph23mscst14006"></div>
+        </div>
+        <div
+          data-course="btech"
+          data-subcourse="engineering-physics"
+          data-year="2018"
+        >
+          <div data-name="niladri" data-enroll="ph23mscst14006"></div>
+          <div data-name="Niladri" data-enroll="ph23mscst14001"></div>
+          <div data-name="karmakar" data-enroll="Ph23mscst14005"></div>
+        </div>
+        <div
+          data-course="btech"
+          data-subcourse="engineering-physics"
+          data-year="2017"
+        >
+          <div data-name="niladri" data-enroll="ph23mscst14006"></div>
+        </div>
+        <div
+          data-course="btech"
+          data-subcourse="engineering-physics"
+          data-year="2016"
+        >
+          <div data-name="niladri" data-enroll="ph23mscst14006"></div>
+        </div>
+        <div
+          data-course="btech"
+          data-subcourse="engineering-physics"
+          data-year="2015"
+        >
+          <div data-name="niladri" data-enroll="ph23mscst14006"></div>
+        </div>
+        <div
+          data-course="btech"
+          data-subcourse="engineering-physics"
+          data-year="2014"
+        >
+          <div data-name="niladri" data-enroll="ph23mscst14006"></div>
+        </div>
+
+        <!-- MSc Physics -->
+        <div data-course="msc" data-subcourse="physics" data-year="2025">
+          <div data-name="Niladri" data-enroll="PH23MSCST14005"></div>
+        </div>
+
+        <!-- MSc Medical Physics -->
+        <div
+          data-course="msc"
+          data-subcourse="medical-physics"
+          data-year="2025"
+        >
+          <div data-name="Niladri" data-enroll="PH23MSCST140051"></div>
+        </div>
+
+        <!-- M.Tech Quantum -->
+        <div data-course="mtech" data-subcourse="quantum" data-year="2025">
+          <div data-name="Niladri" data-enroll="PH23MSCST14005"></div>
+        </div>
+
+        <!-- M.Tech Semiconductor -->
+        <div
+          data-course="mtech"
+          data-subcourse="semiconductor"
+          data-year="2025"
+        >
+          <div data-name="Niladri" data-enroll="PH23MSCST14005"></div>
+        </div>
+
+        <!-- PhD Research -->
+        <div data-course="phd" data-subcourse="research" data-year="2025">
+          <div data-name="Niladri" data-enroll="PH23MSCST14005"></div>
+        </div>
+
+        <!-- PhD JRF -->
+        <div data-course="phd" data-subcourse="jrf" data-year="2025">
+          <div data-name="Niladri" data-enroll="PH23MSCST14005"></div>
+        </div>
+
+        <!-- PhD SRF -->
+        <div data-course="phd" data-subcourse="srf" data-year="2025">
+          <div data-name="Niladri" data-enroll="PH23mscst14005"></div>
+        </div>
+      </div>
     </div>
-</div>
-<div class="members">
-    <h2 class="title">STUDENTS</h2>
-</div>
-  
-  
-  
-  
-  
-<!-- Toggle Buttons for Member Categories -->
-<div class="year-toggle-container">
-    <div class="year-toggle" data-year="2024">2024 Students</div>
-</div>
-
-<!-- Members Section -->
-<div class="members-container">
-
-    <!-- Members for 2022 -->
-    <div class="members-list" data-year="2024">
-        
-        <div class="member-card" data-year="2024">
-            <div class="member-image">
-                <img src="/Users/niladri/Desktop/Phy/Images/Students/Niladri.jpg" alt="Member Name">
-            </div>
-            <div class="member-info">
-                <h3> Niladri Karmakar </h3>
-                <p> <strong>Enrollment Number:</strong> MP24MSCST14001 </p>
-                <p> <strong>Year:</strong> 2024</p>
-                <h4> About: </h4>
-                <p> My name is Niladri, and I am currently pursuing an MSc in Physics with the class of 2023. </p>
-                <p><strong>E-Mail:</strong> <a href="mailto:ph24mscst14001@iith.ac.in">ph24mscst14001@iith.ac.in</a></p>
-            </div>
-        </div>
-
-        <div class="member-card" data-year="2024">
-            <div class="member-image">
-                <img src="/Users/niladri/Desktop/Phy/Images/Students/Niladri.jpg" alt="Member Name">
-            </div>
-            <div class="member-info">
-                <h3> Niladri Karmakar </h3>
-                <p> <strong>Enrollment Number:</strong> MP24MSCST14002 </p>
-                <p> <strong>Year:</strong> 2024</p>
-                <h4> About: </h4>
-                <p> My name is Niladri, and I am currently pursuing an MSc in Physics with the class of 2023. </p>
-                <p><strong>E-Mail:</strong> <a href="mailto:ph24mscst14001@iith.ac.in">ph24mscst14001@iith.ac.in</a></p>
-            </div>
-        </div>
-
-        <div class="member-card" data-year="2024">
-            <div class="member-image">
-                <img src="/Users/niladri/Desktop/Phy/Images/Students/Niladri.jpg" alt="Member Name">
-            </div>
-            <div class="member-info">
-                <h3> Niladri Karmakar </h3>
-                <p> <strong>Enrollment Number:</strong> MP24MSCST14003 </p>
-                <p> <strong>Year:</strong> 2024</p>
-                <h4> About: </h4>
-                <p> My name is Niladri, and I am currently pursuing an MSc in Physics with the class of 2023. </p>
-                <p><strong>E-Mail:</strong> <a href="mailto:ph24mscst14001@iith.ac.in">ph24mscst14001@iith.ac.in</a></p>
-            </div>
-        </div>
-
-        <div class="member-card" data-year="2024">
-            <div class="member-image">
-                <img src="/Users/niladri/Desktop/Phy/Images/Students/Niladri.jpg" alt="Member Name">
-            </div>
-            <div class="member-info">
-                <h3> Niladri Karmakar </h3>
-                <p> <strong>Enrollment Number:</strong> MP24MSCST14004 </p>
-                <p> <strong>Year:</strong> 2024</p>
-                <h4> About: </h4>
-                <p> My name is Niladri, and I am currently pursuing an MSc in Physics with the class of 2023. </p>
-                <p><strong>E-Mail:</strong> <a href="mailto:ph24mscst14001@iith.ac.in">ph24mscst14001@iith.ac.in</a></p>
-            </div>
-        </div>
-        
-
-        
-
-        
-
-       
-    </div>
-</div>
-</div>  
-
-
-
-  
-  
- <!-- Toggle Buttons for Member Categories -->
-<div class="year-toggle-container">
-    <div class="year-toggle" data-year="2023">2023 Students</div>
-</div>
-
-<!-- Members Section -->
-<div class="members-container">
-
-    <!-- Members for 2023 -->
-    <div class="members-list" data-year="2023">
-        
-        <div class="member-card" data-year="2023">
-            <div class="member-image">
-                <img src="/Users/niladri/Desktop/Phy/Images/Students/Niladri.jpg" alt="Member Name">
-            </div>
-            <div class="member-info">
-                <h3> Niladri Karmakar </h3>
-                <p> <strong>Enrollment Number:</strong> PH23MSCST14001 </p>
-                <p> <strong>Year:</strong> 2023</p>
-                <h4> About: </h4>
-                <p> My name is Niladri, and I am currently pursuing an MSc in Physics with the class of 2023. </p>
-                <p><strong>E-Mail:</strong> <a href="mailto:ph23mscst14001@iith.ac.in">ph23mscst14001@iith.ac.in</a></p>
-            </div>
-        </div>
-
-       
-        <div class="member-card" data-year="2023">
-            <div class="member-image">
-                <img src="/Users/niladri/Desktop/Phy/Images/Students/Niladri.jpg" alt="Member Name">
-            </div>
-            <div class="member-info">
-                <h3> Niladri Karmakar </h3>
-                <p> <strong>Enrollment Number:</strong> PH23MSCST14002 </p>
-                <p> <strong>Year:</strong> 2023</p>
-                <h4> About: </h4>
-                <p> My name is Niladri, and I am currently pursuing an MSc in Physics with the class of 2023. </p>
-                <p><strong>E-Mail:</strong> <a href="mailto:ph23mscst14001@iith.ac.in">ph23mscst14001@iith.ac.in</a></p>
-            </div>
-        </div>
-
-        <div class="member-card" data-year="2023">
-            <div class="member-image">
-                <img src="/Users/niladri/Desktop/Phy/Images/Students/Niladri.jpg" alt="Member Name">
-            </div>
-            <div class="member-info">
-                <h3> Niladri Karmakar </h3>
-                <p> <strong>Enrollment Number:</strong> PH23MSCST14003 </p>
-                <p> <strong>Year:</strong> 2023</p>
-                <h4> About: </h4>
-                <p> My name is Niladri, and I am currently pursuing an MSc in Physics with the class of 2023. </p>
-                <p><strong>E-Mail:</strong> <a href="mailto:ph23mscst14001@iith.ac.in">ph23mscst14001@iith.ac.in</a></p>
-            </div>
-        </div>
-
-        <div class="member-card" data-year="2023">
-            <div class="member-image">
-                <img src="/Users/niladri/Desktop/Phy/Images/Students/Niladri.jpg" alt="Member Name">
-            </div>
-            <div class="member-info">
-                <h3> Niladri Karmakar </h3>
-                <p> <strong>Enrollment Number:</strong> PH23MSCST14004 </p>
-                <p> <strong>Year:</strong> 2023</p>
-                <h4> About: </h4>
-                <p> My name is Niladri, and I am currently pursuing an MSc in Physics with the class of 2023. </p>
-                <p><strong>E-Mail:</strong> <a href="mailto:ph23mscst14001@iith.ac.in">ph23mscst14001@iith.ac.in</a></p>
-            </div>
-        </div>
-
-        
-
-
-    </div>
-</div>
-  
-
-
-
-<!-- Toggle Buttons for Member Categories -->
-<div class="year-toggle-container">
-    <div class="year-toggle" data-year="2022">2022 Students</div>
-</div>
-
-<!-- Members Section -->
-<div class="members-container">
-
-    <!-- Members for 2022 -->
-    <div class="members-list" data-year="2022">
-        
-        <div class="member-card" data-year="2022">
-            <div class="member-image">
-                <img src="/Users/niladri/Desktop/Phy/Images/Students/Niladri.jpg" alt="Member Name">
-            </div>
-            <div class="member-info">
-                <h3> Niladri </h3>
-                <p> <strong>Enrollment Number:</strong> MP22MSCST14001 </p>
-                <p> <strong>Year:</strong> 2022</p>
-                <h4> About: </h4>
-                <p> My name is Niladri, and I am currently pursuing an MSc in Physics with the class of 2023. </p>
-                <p><strong>E-Mail:</strong> <a href="mailto:ph22mscst14001@iith.ac.in">ph22mscst14001@iith.ac.in</a></p>
-            </div>
-        </div>
-
-        <div class="member-card" data-year="2022">
-            <div class="member-image">
-                <img src="/Users/niladri/Desktop/Phy/Images/Students/Niladri.jpg" alt="Member Name">
-            </div>
-            <div class="member-info">
-                <h3> Niladri </h3>
-                <p> <strong>Enrollment Number:</strong> MP22MSCST14002 </p>
-                <p> <strong>Year:</strong> 2022</p>
-                <h4> About: </h4>
-                <p> My name is Niladri, and I am currently pursuing an MSc in Physics with the class of 2023. </p>
-                <p><strong>E-Mail:</strong> <a href="mailto:ph22mscst14001@iith.ac.in">ph22mscst14001@iith.ac.in</a></p>
-            </div>
-        </div>
-
-        <div class="member-card" data-year="2022">
-            <div class="member-image">
-                <img src="/Users/niladri/Desktop/Phy/Images/Students/Niladri.jpg" alt="Member Name">
-            </div>
-            <div class="member-info">
-                <h3> Niladri </h3>
-                <p> <strong>Enrollment Number:</strong> MP22MSCST14003 </p>
-                <p> <strong>Year:</strong> 2022</p>
-                <h4> About: </h4>
-                <p> My name is Niladri, and I am currently pursuing an MSc in Physics with the class of 2023. </p>
-                <p><strong>E-Mail:</strong> <a href="mailto:ph22mscst14001@iith.ac.in">ph22mscst14001@iith.ac.in</a></p>
-            </div>
-        </div>
-
-        <div class="member-card" data-year="2022">
-            <div class="member-image">
-                <img src="/Users/niladri/Desktop/Phy/Images/Students/Niladri.jpg" alt="Member Name">
-            </div>
-            <div class="member-info">
-                <h3> Niladri </h3>
-                <p> <strong>Enrollment Number:</strong> MP22MSCST14004 </p>
-                <p> <strong>Year:</strong> 2022</p>
-                <h4> About: </h4>
-                <p> My name is Niladri, and I am currently pursuing an MSc in Physics with the class of 2023. </p>
-                <p><strong>E-Mail:</strong> <a href="mailto:ph22mscst14001@iith.ac.in">ph22mscst14001@iith.ac.in</a></p>
-            </div>
-        </div>
-
-    </div>
-</div>
-
-
-
-  <!-- Footer Section -->
-<footer>
-    <div class="footer-container" id="contact">
-        <div class="footer-col logo">
-            <a href="https://www.iith.ac.in/">
-            <img src="/Users/niladri/Desktop/Phy/Images/Logos/Untitled_design__7_-removebg-preview.png" alt="Second Logo" class="footer-second-logo"> </a>
-        </div>
-        <div class="footer-col">
-            <h3>Links</h3>
-            <ul>
-                <li><a href="#home">Home</a></li>
-                <li><a href="#admissions">Admissions</a></li>
-                <li><a href="#courses">Courses</a></li>
-            </ul>
-        </div>
-        <div class="footer-col">
-            <h3>Information</h3>
-            <ul>
-                <li><a href="#">Privacy Policy</a></li>
-                <li><a href="#">Terms of Service</a></li>
-            </ul>
-        </div>
-        <div class="footer-col contact">
-            <h3>Contact</h3>
-            <p>
-                Email: <a href="mailto:niladrif@gmail.com">niladrif@gmail.com</a>
-            </p>
-            <p>
-                Phone: <a href="tel:+919131218704">+91-9131218704</a>
-            </p>
-            <p>
-                Address: <a href="https://www.google.com/maps/place/Raman+IITH" target="_blank">Raman IITH</a>
-            </p>
-            <!-- Google Maps Embed -->
-            <div class="map-container">
-                <iframe 
-                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d5734.242123915785!2d78.1240774858012!3d17.592761547594346!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bcbefdc136bffbb%3A0x73414ff6594c9191!2sIndian%20Institute%20of%20Technology%2C%20Hyderabad!5e0!3m2!1sen!2sin!4v1728330352706!5m2!1sen!2sin" 
-                    width="300" 
-                    height="150" 
-                    style="border:0;" 
-                    allowfullscreen="" 
-                    loading="lazy">
-                </iframe> 
-            </div>
-        </div>
-    </div>
-
-     <!-- Social Media Links -->
-     <div class="social-media">
-        <a href="https://www.facebook.com" target="_blank" rel="noopener noreferrer">
-            <img src="/Users/niladri/Desktop/Phy/Images/Social Media/1.png" alt="Facebook" class="social-icon">
-        </a><a href="https://www.twitter.com" target="_blank" rel="noopener noreferrer">
-            <img src="/Users/niladri/Desktop/Phy/Images/Social Media/2.png" alt="Twitter" class="social-icon">
-        </a><a href="https://www.instagram.com" target="_blank" rel="noopener noreferrer">
-            <img src="/Users/niladri/Desktop/Phy/Images/Social Media/3.png" alt="Instagram" class="social-icon">
-        </a><a href="https://www.linkedin.com" target="_blank" rel="noopener noreferrer">
-            <img src="/Users/niladri/Desktop/Phy/Images/Social Media/4.png" alt="LinkedIn" class="social-icon">
-        </a><a href="https://www.youtube.com" target="_blank" rel="noopener noreferrer">
-            <img src="/Users/niladri/Desktop/Phy/Images/Social Media/5.png" alt="YouTube" class="social-icon">
-        </a>
-    </div>
-
-
-    <div class="footer-bottom">
-        <hr>
-        <p>© 2024 INDIAN INSTITUTE OF TECHNOLOGY | Designed & Developed by Niladri Karmakar, IIT Hyderabad All Rights Reserved.</p>
-    </div>
-</footer>
-
-</body>
+    <footer class="footer"></footer>
+    <script src="main.js"></script>
+    <script src="al_students.js"></script>
+  </body>
 </html>

@@ -7,9 +7,10 @@ body {
   min-height: 100vh;
 }
 
-.container {
+.com-container {
   max-width: 1100px;
   margin: 0 auto;
+  margin-bottom: 30px;
 }
 
 .main-title {

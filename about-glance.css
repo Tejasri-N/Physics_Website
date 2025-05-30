@@ -1,4 +1,8 @@
-/* about-glance.css */
+body {
+  margin: 0;
+  font-family: "Segoe UI", Arial, sans-serif;
+}
+
 .about-content {
   max-width: 900px;
   margin: 2rem auto;

@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Academic Documents - Department of Physics</title>
+    <link rel="stylesheet" href="header.css" />
+    <link rel="stylesheet" href="footer.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://unicons.iconscout.com/release/v4.0.8/css/line.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@400;600&display=swap"
+    />
+    <style>
+      body {
+        font-family: "Source Sans Pro", Arial, sans-serif;
+        margin: 0;
+        color: #222;
+      }
+      .academic-docs-container {
+        max-width: 800px;
+        margin: 60px auto 30px auto;
+        padding: 0 16px;
+      }
+      .doc-title {
+        text-align: center;
+        font-size: 2.2rem;
+        font-weight: 600;
+        margin-bottom: 8px;
+        letter-spacing: 0.5px;
+        color: #1a237e;
+      }
+      .doc-underline {
+        width: 98%;
+        height: 3px;
+        margin: 0 auto 28px auto;
+        background: linear-gradient(to right, #ff9800 40%, #fff 100%);
+        border: none;
+        border-radius: 2px;
+        display: block;
+      }
+      .doc-list {
+        background: #fff;
+        border: 1px solid #e0e0e0;
+        border-radius: 6px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+        overflow: hidden;
+      }
+      .doc-link {
+        display: block;
+        padding: 18px 24px;
+        font-size: 1.1rem;
+        color: #004080;
+        text-decoration: none;
+        border-bottom: 1px solid #f0f0f0;
+        transition: background 0.2s, color 0.2s;
+      }
+      .doc-link:last-child {
+        border-bottom: none;
+      }
+      .doc-link:hover,
+      .doc-link:focus {
+        background: #e6f2ff;
+        color: #ff9800;
+        outline: none;
+      }
+      @media (max-width: 600px) {
+        .academic-docs-container {
+          margin-top: 30px;
+          padding: 0 4px;
+        }
+        .doc-title {
+          font-size: 1.4rem;
+        }
+        .doc-link {
+          padding: 14px 10px;
+          font-size: 1rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="header"></header>
+    <div class="academic-docs-container">
+      <h1 class="doc-title">Documents</h1>
+      <hr class="doc-underline" />
+      <div class="doc-list" id="docList">
+        <!-- JS will populate document links here -->
+      </div>
+    </div>
+    <footer class="footer"></footer>
+    <script>
+      // Replace these with your actual document URLs
+      const documents = [
+        {
+          name: "B. Tech and B. Des Course Booklet",
+          url: "/BTech_BDes_Course_Booklet.pdf",
+        },
+        {
+          name: "Masters and P.hd Booklet",
+          url: "/Masters_PhD_Booklet.pdf",
+        },
+        {
+          name: "Academic Handbook",
+          url: "/Academic_Handbook.pdf",
+        },
+        {
+          name: "Fractal Academics",
+          url: "/Fractal_Academics.pdf",
+        },
+        {
+          name: "Academics FAQ",
+          url: "/Academics_FAQ.pdf",
+        },
+        {
+          name: "Forms",
+          url: "/Forms.pdf",
+        },
+      ];
+
+      const docList = document.getElementById("docList");
+      documents.forEach((doc) => {
+        const a = document.createElement("a");
+        a.href = doc.url;
+        a.target = "_blank";
+        a.rel = "noopener";
+        a.className = "doc-link";
+        a.textContent = doc.name;
+        docList.appendChild(a);
+      });
+    </script>
+  </body>
+  <script src="main.js"></script>
+</html>

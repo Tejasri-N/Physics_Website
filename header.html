@@ -1,0 +1,146 @@
+<div class="header-topbar">
+  <div class="logo-horizontal">
+    <img src="assets/iith_horizontal_logo.png" alt="IITH Horizontal Logo" />
+  </div>
+  <div class="logo-vertical">
+    <img src="assets/iith_vertical_logo.png" alt="IITH Vertical Logo" />
+  </div>
+  <div class="header-topbar-center">
+    <div class="laptop-title">
+      <span class="dept"><h1>Department of Physics</h1></span>
+      <span class="inst"
+        ><h2>Indian Institute of Technology Hyderabad</h2></span
+      >
+    </div>
+    <div class="mobile-title">
+      <span class="dept"><h1>Dept of Physics</h1></span>
+      <span class="inst"><h2>IITH</h2></span>
+    </div>
+  </div>
+  <!-- Right Link -->
+  <div class="header-topbar-right">
+    <a href="https://www.iith.ac.in/" target="_blank" rel="noopener">IITH</a>
+  </div>
+</div>
+<!-- Hamburger icon for mobile, below topbar -->
+<a
+  href="javascript:void(0);"
+  class="mobile-hamburger"
+  id="mobileHamburger"
+  onclick="toggleResponsiveNav()"
+>
+  <i class="fa fa-bars"></i>
+</a>
+
+<nav class="navbar">
+  <div class="nav_container" id="navbarContainer">
+    <a href="index.html" class="nav-items">Home</a>
+    <div class="nav-dropdown">
+      <button class="dropbtn" onclick="toggleDropdown(event, 'dropdown1')">
+        About Us <i class="fa fa-caret-down"></i>
+      </button>
+      <div class="nav-dropdown-content" id="dropdown1">
+        <a href="about-glance.html">Physics at a glance</a>
+        <a href="hod-desk.html">HoD Desk</a>
+        <a href="assets/Physics_Brochure.pdf" target="_blank" rel="noopener"
+          >Physics Brochure</a
+        >
+        <a
+          href="https://youtu.be/0_-P6tQ0x8Y?si=JOtgwI7DvesFuCUs"
+          target="_blank"
+          rel="noopener"
+          >Physics Video</a
+        >
+        <a href="#">Contact Us</a>
+      </div>
+    </div>
+    <div class="nav-dropdown">
+      <button class="dropbtn" onclick="toggleDropdown(event, 'dropdown2')">
+        People <i class="fa fa-caret-down"></i>
+      </button>
+      <div class="nav-dropdown-content" id="dropdown2">
+        <a href="faculty.html">Faculty</a>
+        <a href="hod.html">HoD</a>
+        <a href="staff.html">Staff</a>
+        <a href="students.html">Students</a>
+        <a href="alumni.html">Alumni</a>
+      </div>
+    </div>
+    <!-- <div class="nav-dropdown">
+      <button class="dropbtn" onclick="toggleDropdown(event, 'dropdown3')">
+        Research <i class="fa fa-caret-down"></i>
+      </button>
+      <div class="nav-dropdown-content" id="dropdown3">
+        <a href="research.html" onclick="openTab('Research__areas')"
+          >Research Areas</a
+        >
+        <a href="research.html" onclick="openTab('Lab__facilities')"
+          >Labs & Facilities</a
+        >
+        <a href="research.html" onclick="openTab('Research__projects')"
+          >Research Projects</a
+        >
+        <a href="research.html" onclick="openTab('Admission')"
+          >Ph.D. Admissions</a
+        >
+        <a href="research.html" onclick="openTab('TT1')"
+          >Academic Calendar (Jul-Dec)</a
+        >
+        <a href="research.html" onclick="openTab('TT2')"
+          >Academic Calendar (Jan-Jul)</a
+        >
+        <a href="research.html" onclick="openTab('TT3')">Time Table</a>
+      </div>
+    </div> -->
+    <div class="nav-dropdown">
+      <button class="dropbtn" onclick="toggleDropdown(event, 'dropdown3')">
+        Research <i class="fa fa-caret-down"></i>
+      </button>
+      <div class="nav-dropdown-content" id="dropdown3">
+        <a href="research.html?tab=Research__areas">Research Areas</a>
+        <a href="research.html?tab=Lab__facilities">Labs & Facilities</a>
+        <a href="research.html?tab=Research__projects">Research Projects</a>
+        <a href="research.html?tab=Admission">Ph.D. Admissions</a>
+        <a href="research.html?tab=TT1">Academic Calendar (Jul-Dec)</a>
+        <a href="research.html?tab=TT2">Academic Calendar (Jan-Jul)</a>
+        <a href="research.html?tab=TT3">Time Table</a>
+      </div>
+    </div>
+    <div class="nav-dropdown">
+      <button class="dropbtn" onclick="toggleDropdown(event, 'dropdown4')">
+        Academics <i class="fa fa-caret-down"></i>
+      </button>
+      <div class="nav-dropdown-content" id="dropdown4">
+        <a href="programs.html">Programs</a>
+        <a
+          href="https://docs.google.com/document/d/1QnmUAuiC5R_S7Dvxg8X5ln5ccwByqoGzX3Jo_pjVa14/edit?tab=t.0#heading=h.5ns3ct1gaq7l"
+          target="_blank"
+          rel="noopener"
+          >Timetable</a
+        >
+        <a href="acad_docs.html">Academic Documents</a>
+      </div>
+    </div>
+    <div class="nav-dropdown">
+      <button class="dropbtn" onclick="toggleDropdown(event, 'dropdown5')">
+        Opportunities <i class="fa fa-caret-down"></i>
+      </button>
+      <div class="nav-dropdown-content" id="dropdown5">
+        <a href="opportunities.html">Recruitment</a>
+        <a href="#">Research Positions</a>
+      </div>
+    </div>
+    <div class="nav-dropdown">
+      <button class="dropbtn" onclick="toggleDropdown(event, 'dropdown6')">
+        Resources <i class="fa fa-caret-down"></i>
+      </button>
+      <div class="nav-dropdown-content" id="dropdown6">
+        <a href="#">Links</a>
+        <a href="#">Documents</a>
+        <a href="#">Gallery</a>
+        <a href="#">Room booking</a>
+      </div>
+    </div>
+    <a href="committees.html" class="nav-items">Committees</a>
+  </div>
+</nav>

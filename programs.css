@@ -1,149 +1,97 @@
-
-
-/* General Reset */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
-body, html {
-    height: 100%; /* Ensure full height for body and HTML */
-    font-family: 'Source Sans Pro', sans-serif; /* Set formal font */
+body {
+  margin: 0;
+  font-family: "Segoe UI", Arial, sans-serif;
 }
 
 .wrapper {
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh; /* Ensures wrapper takes up full viewport height */
-}
-
-/* Header */
-.header {
-    background-color: #004080;
-    color: white;
-    padding: 20px;
-}
-
-.header .container {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.header .logo {
-    font-size: 24px;
-}
-
-.navbar ul {
-    list-style: none;
-    display: flex;
-}
-
-.navbar ul li {
-    margin-left: 20px;
-}
-
-.navbar ul li a {
-    text-decoration: none;
-    color: white;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh; /* Ensures wrapper takes up full viewport height */
 }
 
 /* Program Buttons */
 .program-buttons {
-    display: flex;
-    justify-content: center;
-    background-color: #e6f2ff;
-    padding: 10px 0;
+  display: flex;
+  justify-content: center;
+  background-color: #e6f2ff;
+  padding: 10px 0;
 }
 
 .program-buttons .btn {
-    background-color: #004080;
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    margin-right: 10px;
-    cursor: pointer;
+  background-color: #004080;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  margin-right: 10px;
+  cursor: pointer;
 }
 
 .program-buttons .btn:hover {
-    background-color: #0059b3;
+  background-color: #0059b3;
 }
 
 /* Details and Content Layout */
 .details-and-content {
-    display: flex; /* Flexbox layout for left and right sections */
+  display: flex; /* Flexbox layout for left and right sections */
 }
 
 /* Details Section as a Full-Height Column */
 .details-section {
-    width: 25%;
-    background-color: #004080; /* Single-colored column */
-    padding: 20px;
-    height: 78vh;
-    overflow-y: auto; /* Add scrollbar if content overflows */
+  width: 25%;
+  background-color: #004080; /* Single-colored column */
+  padding: 20px;
+  height: 78vh;
+  overflow-y: auto; /* Add scrollbar if content overflows */
 }
 
 .details-section h3 {
-    color: white; /* Title in white for contrast */
-    margin-bottom: 15px; /* Add spacing below the header text */
-    font-size: 18px; /* Adjust font size for better readability */
+  color: white; /* Title in white for contrast */
+  margin-bottom: 15px; /* Add spacing below the header text */
+  font-size: 18px; /* Adjust font size for better readability */
 }
 
 .details-section .detail-btn,
-.details-section .course-btn { 
-    display: block; /* Makes each button a row */
-    width: 100%; /* Full width of the column */
-    margin-bottom: 10px; /* Spacing between rows */
-    background-color: #0059b3; /* Slightly lighter blue for buttons */
-    color: white;
-    border-radius: 5px; /* Rounded corners for buttons */
-    border: none;
-    padding: 10px 15px;
-    text-align: left; /* Align button text to the left for consistency */
-    cursor: pointer;
+.details-section .course-btn {
+  display: block; /* Makes each button a row */
+  width: 100%; /* Full width of the column */
+  margin-bottom: 10px; /* Spacing between rows */
+  background-color: #0059b3; /* Slightly lighter blue for buttons */
+  color: white;
+  border-radius: 5px; /* Rounded corners for buttons */
+  border: none;
+  padding: 10px 15px;
+  text-align: left; /* Align button text to the left for consistency */
+  cursor: pointer;
 }
 
 .details-section .detail-btn:hover,
-.details-section .course-btn:hover { 
-    background-color: #0073e6; /* Lighter shade on hover */
+.details-section .course-btn:hover {
+  background-color: #0073e6; /* Lighter shade on hover */
 }
 
 /* Back Button Styling */
 .details-section .back-btn {
-    display: block;
-    width: 100%;
-    margin-top: 20px; /* Space above Back button */
-    background-color: #ff7043; /* Distinct orange color for Back button */
-    color: white;
-    border-radius: 5px; /* Rounded corners */
-    border: none;
-    padding: 10px 15px;
-    text-align: center; /* Center text */
+  display: block;
+  width: 100%;
+  margin-top: 20px; /* Space above Back button */
+  background-color: #ff7043; /* Distinct orange color for Back button */
+  color: white;
+  border-radius: 5px; /* Rounded corners */
+  border: none;
+  padding: 10px 15px;
+  text-align: center; /* Center text */
 }
 
 .details-section .back-btn:hover {
-    background-color: #ff5722; /* Hover effect */
+  background-color: #ff5722; /* Hover effect */
 }
-
 
 /* Content Section Styling */
 .content-section {
-    width: 75%; /* Right section occupies remaining space */
-    background-color: #ffffff; /* White background for contrast with details section */
-    padding: 20px;
+  width: 75%; /* Right section occupies remaining space */
+  background-color: #ffffff; /* White background for contrast with details section */
+  padding: 20px;
 
-    /* Dynamic height based on content */
-    overflow-y: auto; /* Add scrollbar if content overflows */
-}
-
-/* Footer Section Styling */
-.footer {
-   text-align: center;
-   padding: 20px;
-   background-color: #004080;
-   color: white;
-
-   /* Sticky Footer Technique */
-   margin-top: auto; /* Pushes footer to the bottom when content is short */
+  /* Dynamic height based on content */
+  overflow-y: auto; /* Add scrollbar if content overflows */
 }

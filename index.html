@@ -2,482 +2,158 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <title>Physics IITH</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Responsive Navbar Design</title>
-    <link rel="stylesheet" href="index.css" />
-    <link rel="stylesheet" href="about-glance.css" />
-    <link rel="stylesheet" href="hod-desk.css" />
-    <link rel="stylesheet" href="home.css" />
-    <link rel="stylesheet" href="new_programs.css" />
-    <link rel="stylesheet" href="people.css" />
-    <!-- <link rel="stylesheet" href="faculty.css" /> -->
+    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="header.css" />
+    <link rel="stylesheet" href="footer.css" />
     <link
       rel="stylesheet"
       href="https://unicons.iconscout.com/release/v4.0.8/css/line.css"
     />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
+    />
 
-    <!--GOOGLE FONTS (MONTSERRAT)-->
+    <!-- GOOGLE FONTS (MONTSERRAT)
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap"
       rel="stylesheet"
-    />
+    /> -->
   </head>
   <body>
-    <!-- Header Content Section -->
-    <header class="header">
-      <div class="top-bar">
-        <div class="logo">
-          <a href="https://iith.ac.in" target="_blank">
-            <img
-              src="assets/IITH_Logo_3.png"
-              alt="IITH Logo"
-              class="logo-desktop"
-            />
-            <img
-              src="assets/iith-logo.png"
-              alt="IITH Logo"
-              class="logo-mobile"
-            />
-          </a>
+    <header class="header"></header>
+    <main class="home-content">
+      <div class="home-content">
+  <div class="main-columns">
+    <div class="main-carousel-announcements">
+      <div class="carousel-container">
+        <div class="carousel">
+          <div class="carousel-item active">
+            <img src="assets/carousel-1.png" alt="Image 1" />
+          </div>
+          <div class="carousel-item">
+            <img src="assets/carousel-2.jpeg" alt="Image 2" />
+          </div>
+          <div class="carousel-item">
+            <img src="assets/carousel-3.jpg" alt="Image 3" />
+          </div>
+          <!-- Add more images here -->
         </div>
-        <div class="top-bar-title">
-          <a href="index.html">
-            <h1 class="title-desktop">Department of Physics</h1>
-            <h2 class="title-desktop">
-              Indian Institute of Technology Hyderabad
-            </h2>
-            <h1 class="title-mobile">Dept of Physics</h1>
-            <h2 class="title-mobile">IITH</h2>
-          </a>
+        <div class="carousel-controls">
+          <button class="prev-button" onclick="prevSlide()">&#8249</button>
+          <button class="next-button" onclick="nextSlide()">&#8250</button>
         </div>
-        <div class="top-bar-right">
-          <a href="https://iith.ac.in" target="_blank">IITH</a>
+        <div class="carousel-dots">
+          <span class="dot active"></span>
+          <span class="dot"></span>
+          <span class="dot"></span>
+          <!-- Add more dots here -->
         </div>
       </div>
-      <nav class="navbar">
-        <div class="nav_container">
-          <ul class="nav_menu">
-            <li><a href="home.html">Home</a></li>
-            <li class="dropdown">
-              <a>About Us</a>
-              <ul class="dropdown-menu">
-                <li><a href="about-glance.html">Physics at a glance</a></li>
-                <li><a href="hod-desk.html">HoD Desk</a></li>
-                <li><a href="about-glance.html">Physics Brochure</a></li>
-                <li>
-                  <a
-                    href="https://youtu.be/0_-P6tQ0x8Y?si=JOtgwI7DvesFuCUs"
-                    target="_blank"
-                    >Physics Video</a
-                  >
-                </li>
-                <li><a href="about-glance.html">Contact us</a></li>
-              </ul>
-            </li>
-            <li class="dropdown">
-              <a>People</a>
-              <ul class="dropdown-menu">
-                <li>
-                  <a
-                    href="people.html"
-                    class="people-nav"
-                    data-section="faculty"
-                    >Faculty</a
-                  >
-                </li>
-                <li>
-                  <a href="people.html" class="people-nav" data-section="staff"
-                    >Staff</a
-                  >
-                </li>
-                <li>
-                  <a
-                    href="people.html"
-                    class="people-nav"
-                    data-section="students-ug"
-                    >Student</a
-                  >
-                </li>
-                <li>
-                  <a href="people.html" class="people-nav" data-section="hods"
-                    >Ex-HODs</a
-                  >
-                </li>
-                <li>
-                  <a href="people.html" class="people-nav" data-section="alumni"
-                    >Alumni</a
-                  >
-                </li>
-              </ul>
-            </li>
-            <li class="dropdown">
-              <a>Research</a>
-              <ul class="dropdown-menu">
-                <li>
-                  <a
-                    href="#"
-                    class="research__navigator"
-                    data-section="Research__areas"
-                    >Research Areas</a
-                  >
-                </li>
-                <li>
-                  <a
-                    href="#"
-                    class="research__navigator"
-                    data-section="Lab__facilities"
-                    >Labs & Facilities</a
-                  >
-                </li>
-                <li>
-                  <a
-                    href="#"
-                    class="research__navigator"
-                    data-section="Research__projects"
-                    >Research Projects</a
-                  >
-                </li>
-                <li>
-                  <a href="#" class="research__navigator" data-section="PHD"
-                    >Ph.D. Admissions</a
-                  >
-                </li>
-                <li>
-                  <a href="#" class="research__navigator" data-section="TT1"
-                    >Academic Calendar (Jul-Dec)</a
-                  >
-                </li>
-                <li>
-                  <a href="#" class="research__navigator" data-section="TT2"
-                    >Academic Calendar (Jan-Jul)</a
-                  >
-                </li>
-                <li>
-                  <a href="#" class="research__navigator" data-section="TT3"
-                    >Time Table</a
-                  >
-                </li>
-              </ul>
-            </li>
-
-            <li class="dropdown">
-              <a>Academics</a>
-              <ul class="dropdown-menu">
-                <li><a href="new_programs.html">Programs</a></li>
-                <li>
-                  <a
-                    href="https://docs.google.com/document/d/1QnmUAuiC5R_S7Dvxg8X5ln5ccwByqoGzX3Jo_pjVa14/edit?tab=t.0#heading=h.5ns3ct1gaq7l"
-                    >Timetable</a
-                  >
-                </li>
-                <li><a href="about-glance.html">Academic Documents</a></li>
-              </ul>
-            </li>
-            <li class="dropdown">
-              <a>Opportunities</a>
-              <ul class="dropdown-menu">
-                <li><a href="about-glance.html">Recruitment</a></li>
-                <li><a href="about-glance.html">Research Positions</a></li>
-              </ul>
-            </li>
-            <li class="dropdown">
-              <a>Resources</a>
-              <ul class="dropdown-menu">
-                <li><a href="about-glance.html">Links</a></li>
-                <li><a href="about-glance.html">Documents</a></li>
-                <li><a href="gallery.html">Gallery</a></li>
-                <li><a href="about-glance.html">Room booking</a></li>
-              </ul>
-            </li>
-            <li><a href="committees.html">Committees</a></li>
-          </ul>
+      <div class="announcements">
+        <h2>Announcements</h2>
+        <hr />
+        <div class="announcement-list">
+          <p>Announcement 1: Lorem, ipsum dolor sit amet consectetur adipisicing elit. Laudantium dolorem provident, veritatis dolore exercitationem recusandae repellat sequi eaque molestiae beatae neque vel soluta est quam facere illum sint dicta eligendi.</p>
+          <hr />
+          <p>Announcement 2: Lorem, ipsum dolor sit amet consectetur adipisicing elit. Laudantium dolorem provident, veritatis dolore exercitationem recusandae repellat sequi eaque molestiae beatae neque vel soluta est quam facere illum sint dicta eligendi.</p>
+          <hr />
+          <p>Announcement 3: Lorem, ipsum dolor sit amet consectetur adipisicing elit. Laudantium dolorem provident, veritatis dolore exercitationem recusandae repellat sequi eaque molestiae beatae neque vel soluta est quam facere illum sint dicta eligendi.</p>
+          <hr />
+          <p>Announcement 4: Lorem, ipsum dolor sit amet consectetur adipisicing elit. Laudantium dolorem provident, veritatis dolore exercitationem recusandae repellat sequi eaque molestiae beatae neque vel soluta est quam facere illum sint dicta eligendi.</p>
+          <hr />
+          <p>Announcement 5: Lorem, ipsum dolor sit amet consectetur adipisicing elit. Laudantium dolorem provident, veritatis dolore exercitationem recusandae repellat sequi eaque molestiae beatae neque vel soluta est quam facere illum sint dicta eligendi.</p>
+          <hr />
+          <p>Announcement 6: Lorem, ipsum dolor sit amet consectetur adipisicing elit. Laudantium dolorem provident, veritatis dolore exercitationem recusandae repellat sequi eaque molestiae beatae neque vel soluta est quam facere illum sint dicta eligendi.</p>
+          <hr />
+          <p>Announcement 7: Lorem, ipsum dolor sit amet consectetur adipisicing elit. Laudantium dolorem provident, veritatis dolore exercitationem recusandae repellat sequi eaque molestiae beatae neque vel soluta est quam facere illum sint dicta eligendi.</p>
+          <hr />
+          <p>Announcement 8: Lorem, ipsum dolor sit amet consectetur adipisicing elit. Laudantium dolorem provident, veritatis dolore exercitationem recusandae repellat sequi eaque molestiae beatae neque vel soluta est quam facere illum sint dicta eligendi.</p>
         </div>
-      </nav>
-      <!-- Hamburger button for mobile/tablet -->
-      <div class="hamburger" onclick="toggleMobileMenu(this)">
-        <div class="bar1"></div>
-        <div class="bar2"></div>
-        <div class="bar3"></div>
       </div>
-      <!-- Mobile menu container -->
-      <div class="mobile-menu" id="mobileMenu">
-        <ul class="mobile-nav_menu">
-          <li><a href="home.html">Home</a></li>
-          <li class="mobile-dropdown">
-            <a>About Us</a>
-            <ul class="mobile-dropdown-menu">
-              <li><a href="about-glance.html">Physics at a glance</a></li>
-              <li><a href="about-glance.html">HoD Desk</a></li>
-              <li><a href="about-glance.html">Physics Brochure</a></li>
-              <li><a href="about-glance.html">Physics Video</a></li>
-              <li><a href="about-glance.html">Contact us</a></li>
-            </ul>
-          </li>
-          <li class="mobile-dropdown">
-            <a>People</a>
-            <ul class="mobile-dropdown-menu">
-              <li>
-                <a href="people.html" class="people-nav" data-section="faculty"
-                  >Faculty</a
-                >
-              </li>
-              <li>
-                <a href="people.html" class="people-nav" data-section="staff"
-                  >Staff</a
-                >
-              </li>
-              <li>
-                <a
-                  href="people.html"
-                  class="people-nav"
-                  data-section="students-ug"
-                  >Student</a
-                >
-              </li>
-              <li>
-                <a href="people.html" class="people-nav" data-section="hods"
-                  >Ex-HODs</a
-                >
-              </li>
-              <li>
-                <a href="people.html" class="people-nav" data-section="alumni"
-                  >Alumni</a
-                >
-              </li>
-            </ul>
-          </li>
-          <li class="mobile-dropdown">
-            <a>Research</a>
-            <ul class="mobile-dropdown-menu">
-              <li>
-                <a href="research.html#Research__areas">Research Areas</a>
-              </li>
-              <li><a href="research.html#Publications">Publications</a></li>
-              <li>
-                <a href="research.html#Lab__facilities">Labs & Facilities</a>
-              </li>
-              <li>
-                <a href="research.html#Research__projects">Research Projects</a>
-              </li>
-              <li><a href="research.html#PHD">Ph.D. Admissions</a></li>
-              <li>
-                <a href="research.html#TT1">Academic Calendar (Jul-Dec)</a>
-              </li>
-              <li>
-                <a href="research.html#TT2">Academic Calendar (Jan-Jul)</a>
-              </li>
-              <li><a href="research.html#TT3">Time Table</a></li>
-            </ul>
-          </li>
-          <li class="mobile-dropdown">
-            <a>Academics</a>
-            <ul class="mobile-dropdown-menu">
-              <li><a href="new_programs.html">Programs</a></li>
-              <li><a href="about-glance.html">Timetable</a></li>
-              <li><a href="about-glance.html">Academic Documents</a></li>
-            </ul>
-          </li>
-          <li class="mobile-dropdown">
-            <a>Opportunities</a>
-            <ul class="mobile-dropdown-menu">
-              <li><a href="about-glance.html">Recruitment</a></li>
-              <li><a href="about-glance.html">Research Positions</a></li>
-            </ul>
-          </li>
-          <li class="mobile-dropdown">
-            <a>Resources</a>
-            <ul class="mobile-dropdown-menu">
-              <li><a href="about-glance.html">Links</a></li>
-              <li><a href="about-glance.html">Documents</a></li>
-              <li><a href="gallery.html">Gallery</a></li>
-              <li><a href="about-glance.html">Room booking</a></li>
-            </ul>
-          </li>
-          <li><a href="about-glance.html">Committees</a></li>
-        </ul>
+    </div>
+    <div class="spotlight-section">
+      <div class="spotlight">
+        <h2>Spotlight</h2>
+        <hr />
+        <div class="spotlight-carousel">
+          <div class="spotlight-carousel-item active">
+            <img src="assets/carousel-1.png" alt="Spotlight Image 1" />
+            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Nam, veniam! Tenetur natus quo pariatur iste placeat quis, ipsa minus, sed amet quibusdam suscipit recusandae, cumque perferendis cupiditate excepturi quos officia.</p>
+          </div>
+          <div class="spotlight-carousel-item">
+            <img src="assets/carousel-2.jpeg" alt="Spotlight Image 2" />
+            <p>Lorem, ipsum dolor sit amet consectetur adipisicing elit. Ducimus, odit laudantium repellat maxime tenetur nemo dignissimos possimus aliquam quas repellendus, amet nesciunt sint, natus veritatis vel neque perferendis molestiae in.</p>
+          </div>
+          <div class="spotlight-carousel-item">
+            <img src="assets/carousel-3.jpg" alt="Spotlight Image 3" />
+            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Excepturi eum magni nobis animi vitae, soluta itaque facere velit doloremque voluptatum expedita dicta, consectetur exercitationem quis? Exercitationem laborum esse saepe asperiores?</p>
+          </div>
+          <!-- Add more items here -->
+        </div>
+        <div class="spotlight-carousel-controls">
+          <button class="spotlight-prev-button" onclick="spotlightPrevSlide()">&#8249</button>
+          <button class="spotlight-next-button" onclick="spotlightNextSlide()">&#8250</button>
+        </div>
+        <div class="spotlight-dots">
+          <span class="spotlight-dot active"></span>
+          <span class="spotlight-dot"></span>
+          <span class="spotlight-dot"></span>
+          <!-- Add more dots here -->
+        </div>
       </div>
-    </header>
-
-    <!-- Main Content Section -->
-    <main class="content">
-      <div id="dynamicContent"></div>
-      <!-- Dynamic content will load here -->
+      <div class="seminars-events">
+        <h2>Seminars/Events</h2>
+        <hr />
+        <div class="seminars-events-list">
+          <p>Lorem, ipsum dolor sit amet consectetur adipisicing elit. Laudantium dolorem provident, veritatis dolore exercitationem recusandae repellat sequi eaque molestiae beatae neque vel soluta est quam facere illum sint dicta eligendi.</p>
+          <hr />
+          <p>Lorem, ipsum dolor sit amet consectetur adipisicing elit. Laudantium dolorem provident, veritatis dolore exercitationem recusandae repellat sequi eaque molestiae beatae neque vel soluta est quam facere illum sint dicta eligendi.</p>
+          <hr />
+          <p>Lorem, ipsum dolor sit amet consectetur adipisicing elit. Laudantium dolorem provident, veritatis dolore exercitationem recusandae repellat sequi eaque molestiae beatae neque vel soluta est quam facere illum sint dicta eligendi.</p>
+          <hr />
+          <p>Lorem, ipsum dolor sit amet consectetur adipisicing elit. Laudantium dolorem provident, veritatis dolore exercitationem recusandae repellat sequi eaque molestiae beatae neque vel soluta est quam facere illum sint dicta eligendi.</p>
+          <hr />
+          <p>Lorem, ipsum dolor sit amet consectetur adipisicing elit. Laudantium dolorem provident, veritatis dolore exercitationem recusandae repellat sequi eaque molestiae beatae neque vel soluta est quam facere illum sint dicta eligendi.</p>
+          <hr />
+          <p>Lorem, ipsum dolor sit amet consectetur adipisicing elit. Laudantium dolorem provident, veritatis dolore exercitationem recusandae repellat sequi eaque molestiae beatae neque vel soluta est quam facere illum sint dicta eligendi.</p>
+          <hr />
+          <p>Lorem, ipsum dolor sit amet consectetur adipisicing elit. Laudantium dolorem provident, veritatis dolore exercitationem recusandae repellat sequi eaque molestiae beatae neque vel soluta est quam facere illum sint dicta eligendi.</p>
+          <hr />
+          <p>Lorem, ipsum dolor sit amet consectetur adipisicing elit. Laudantium dolorem provident, veritatis dolore exercitationem recusandae repellat sequi eaque molestiae beatae neque vel soluta est quam facere illum sint dicta eligendi.</p>
+        </div>
+      </div>
+      <div class="latest-publications">
+        <h2>Latest Publications</h2>
+        <hr />
+        <div class="latest-publications-list">
+          <p>Lorem, ipsum dolor sit amet consectetur adipisicing elit. Laudantium dolorem provident, veritatis dolore exercitationem recusandae repellat sequi eaque molestiae beatae neque vel soluta est quam facere illum sint dicta eligendi.</p>
+          <hr />
+          <p>Lorem, ipsum dolor sit amet consectetur adipisicing elit. Laudantium dolorem provident, veritatis dolore exercitationem recusandae repellat sequi eaque molestiae beatae neque vel soluta est quam facere illum sint dicta eligendi.</p>
+          <hr />
+          <p>Lorem, ipsum dolor sit amet consectetur adipisicing elit. Laudantium dolorem provident, veritatis dolore exercitationem recusandae repellat sequi eaque molestiae beatae neque vel soluta est quam facere illum sint dicta eligendi.</p>
+          <hr />
+          <p>Lorem, ipsum dolor sit amet consectetur adipisicing elit. Laudantium dolorem provident, veritatis dolore exercitationem recusandae repellat sequi eaque molestiae beatae neque vel soluta est quam facere illum sint dicta eligendi.</p>
+          <hr />
+          <p>Lorem, ipsum dolor sit amet consectetur adipisicing elit. Laudantium dolorem provident, veritatis dolore exercitationem recusandae repellat sequi eaque molestiae beatae neque vel soluta est quam facere illum sint dicta eligendi.</p>
+          <hr />
+          <p>Lorem, ipsum dolor sit amet consectetur adipisicing elit. Laudantium dolorem provident, veritatis dolore exercitationem recusandae repellat sequi eaque molestiae beatae neque vel soluta est quam facere illum sint dicta eligendi.</p>
+          <hr />
+          <p>Lorem, ipsum dolor sit amet consectetur adipisicing elit. Laudantium dolorem provident, veritatis dolore exercitationem recusandae repellat sequi eaque molestiae beatae neque vel soluta est quam facere illum sint dicta eligendi.</p>
+          <hr />
+          <p>Lorem, ipsum dolor sit amet consectetur adipisicing elit. Laudantium dolorem provident, veritatis dolore exercitationem recusandae repellat sequi eaque molestiae beatae neque vel soluta est quam facere illum sint dicta eligendi.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
     </main>
-
-    <!-- Footer Section -->
-    <footer class="footer">
-      <div class="container foot__container">
-        <div class="footer__left">
-          <h4 class="footer__title">Facilities & Campus Life</h4>
-          <div class="footer__left-content">
-            <a href="https://library.iith.ac.in/" class="foot__link"
-              ><p>Library</p></a
-            >
-            <a href="#" class="foot__link"><p>Department Day & Events</p></a>
-            <a href="https://hostel.iith.ac.in/" class="foot__link"
-              ><p>Hostel Coordinating Unit</p></a
-            >
-            <a href="https://aims.iith.ac.in/aims/" class="foot__link"
-              ><p>AIMS</p></a
-            >
-            <a href="https://intranet.iith.ac.in/" class="foot__link"
-              ><p>Intranet IITH</p></a
-            >
-            <a
-              href="https://iith.ac.in/Medical-Facilities/#clinic"
-              class="foot__link"
-              ><p>Health Care At IITH</p></a
-            >
-            <a href="https://gymkhana.iith.ac.in/" class="foot__link"
-              ><p>Students Gymkhana IITH</p></a
-            >
-            <a href="#" class="foot__link"><p>FAQ's In Academic Matter</p></a>
-          </div>
-        </div>
-
-        <div class="footer__middle">
-          <h4 class="footer__title">Quick Links</h4>
-          <div class="footer__middle-content">
-            <a
-              href="https://sites.google.com/phy.iith.ac.in/nakshatraclubiith/home?authuser=0"
-              class="foot__link"
-              ><p>Nakshatra Club IITH</p></a
-            >
-            <a href="#" class="foot__link"><p>Website Team</p></a>
-            <a href="https://www.iith.ac.in/" class="foot__link"
-              ><p>IIT Hyderabad</p></a
-            >
-            <a href="https://ocs.iith.ac.in/" class="foot__link"
-              ><p>Internships & PLacements</p></a
-            >
-            <a href="https://www.iith.ac.in/academics/forms/" class="foot__link"
-              ><p>Forms and Downloads</p></a
-            >
-            <a
-              href="https://www.iith.ac.in/academics/assets/files/pdf/Charges-for-Issue-of-Various-Certificates.pdf"
-              class="foot__link"
-              ><p>Certificate Charges</p></a
-            >
-            <a
-              href="https://iith.ac.in/news/2021/02/18/QIP-Application-Portal/"
-              class="foot__link"
-              ><p>QIP Admission Portal</p></a
-            >
-            <a href="#" class="foot__link"><p>Gate/ JAM Office</p></a>
-            <a
-              href="https://docs.google.com/forms/d/e/1FAIpQLSc3alqVL8kb-9XnXtLdj-qd5_auC0RrRMcI7Qjmp7U6i0Bm0w/viewform"
-              class="foot__link"
-              ><p>Faculty Leave Form (For Internal use)</p></a
-            >
-            <a
-              href="https://docs.google.com/forms/d/e/1FAIpQLSfUWMgbR9TWND4lTaVN4Np9Mrr_fpV4kjrk-c6Pcfi2FYEdiQ/viewform"
-              class="foot__link"
-              ><p>CDPA Form (For Internal Use)</p></a
-            >
-            <a
-              href="https://docs.google.com/document/d/13f8IVkhSawRKBGM_M4MRnjSWhifHxkPBaGGbYLrO5ME/edit?tab=t.0"
-              class="foot__link"
-              ><p>
-                External agencies for International travel support for
-                conferences(for internal use)
-              </p></a
-            >
-          </div>
-        </div>
-
-        <div class="footer__right">
-          <h4 class="footer__title">Address and Location</h4>
-
-          <div class="footer__right-content">
-            <div class="address">
-              <p>
-                Office of Physics Department, Room No. PH109, Department of
-                Physics, Indian Institute of Technology Hyderabad, Kandi,
-                Sangareddy - 502284, Phone: 040-2301 6700
-              </p>
-            </div>
-
-            <div class="location">
-              <iframe
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3
-                    803.1860514323484!2d78.12201347414623!3d17.593897896825155!2m3!1f0!2f0!3f0!3
-                    m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bcbf74d6f0df97f%3A0x1af8f82239f8eedb!2sD
-                    epartment%20of%20Physics%20IIT%20Hyderabad!5e0!3m2!1sen!2sin!4v1736623318251
-                    !5m2!1sen!2sin"
-                width="100%"
-                height="100%"
-                style="border: 0"
-                allowfullscreen=""
-                loading="lazy"
-                referrerpolicy="no-referrer-when-downgrade"
-              ></iframe>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="copyright">
-        <p>&copy; Copyrights 2025, IITH.</p>
-        <p>All Rights Reserved.</p>
-      </div>
-
-      <div class="container dept__contact">
-        <div class="HOD__contact">
-          <p>HOD Office : office@phy.iith.ac.in | Phone : 040-2301 6700</p>
-          <p>HOD : head@phy.iith.ac.in | Phone : 040-2301 6026</p>
-          <p>FAX : 040-2301 6032</p>
-        </div>
-
-        <div class="social__media">
-          <a href="#">
-            <div class="social__media__link">
-              <span class="programs__icon"
-                ><i class="uil uil-facebook-f"></i
-              ></span>
-            </div>
-          </a>
-
-          <a href="#">
-            <div class="social__media__link">
-              <span class="programs__icon"
-                ><i class="uil uil-twitter-alt"></i
-              ></span>
-            </div>
-          </a>
-
-          <a href="#">
-            <div class="social__media__link">
-              <span class="programs__icon"
-                ><i class="uil uil-instagram"></i
-              ></span>
-            </div>
-          </a>
-
-          <a href="#">
-            <div class="social__media__link">
-              <span class="programs__icon"
-                ><i class="uil uil-linkedin"></i
-              ></span>
-            </div>
-          </a>
-
-          <a href="#">
-            <div class="social__media__link">
-              <span class="programs__icon"
-                ><i class="uil uil-youtube"></i
-              ></span>
-            </div>
-          </a>
-        </div>
-      </div>
-    </footer>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <footer class="footer"></footer>
     <script src="main.js"></script>
-    <script src="home.js"></script>
-    <script src="spotlight.js"></script>
-    <script src="new_programs.js"></script>
     <script src="research.js"></script>
   </body>
 </html>

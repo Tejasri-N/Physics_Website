@@ -1,35 +1,50 @@
-// =================== Navbar Dropdowns ===================
-function toggleDropdown(event) {
-  const dropdownMenu = event.target.nextElementSibling;
-  if (dropdownMenu.classList.contains("show")) {
-    dropdownMenu.classList.remove("show");
-  } else {
-    document
-      .querySelectorAll(".dropdown-menu.show")
-      .forEach((menu) => menu.classList.remove("show"));
-    dropdownMenu.classList.add("show");
-  }
+function loadHTML(selector, url) {
+  fetch(url)
+    .then((response) => {
+      if (!response.ok) throw new Error("Network response was not ok");
+      return response.text();
+    })
+    .then((data) => {
+      document.querySelector(selector).innerHTML = data;
+    })
+    .catch((error) => {
+      console.error("Error loading HTML:", error);
+    });
 }
-document.querySelectorAll(".nav_menu .dropdown > a").forEach((link) => {
-  link.addEventListener("click", function (e) {
-    e.preventDefault();
-    toggleDropdown(e);
-  });
-});
-document.querySelectorAll(".dropdown-menu a").forEach((menuItem) => {
-  menuItem.addEventListener("click", function () {
-    this.parentNode.classList.remove("show");
-  });
-});
-document.addEventListener("click", function (e) {
-  if (!e.target.closest(".dropdown")) {
-    document
-      .querySelectorAll(".dropdown-menu")
-      .forEach((menu) => menu.classList.remove("show"));
-  }
+
+// Load header and footer after DOM is loaded
+document.addEventListener("DOMContentLoaded", function () {
+  loadHTML(".header", "header.html");
+  loadHTML(".footer", "footer.html");
 });
 
-// =================== Sticky Navbar ===================
+// Dropdown toggle for desktop and mobile
+function toggleDropdown(event, dropdownId) {
+  event.stopPropagation();
+  // Close other dropdowns
+  document.querySelectorAll(".nav-dropdown-content").forEach(function (el) {
+    if (el.id !== dropdownId) el.classList.remove("show");
+  });
+  // Toggle current dropdown
+  var dropdown = document.getElementById(dropdownId);
+  dropdown.classList.toggle("show");
+
+  // For mobile: toggle parent .nav-dropdown 'open' class
+  var parentDropdown = dropdown.closest(".nav-dropdown");
+  parentDropdown.classList.toggle("open");
+}
+
+// Close dropdowns when clicking outside
+window.onclick = function (event) {
+  if (!event.target.matches(".dropbtn")) {
+    document.querySelectorAll(".nav-dropdown-content").forEach(function (el) {
+      el.classList.remove("show");
+      el.closest(".nav-dropdown").classList.remove("open");
+    });
+  }
+};
+
+// ------------------------------------- Sticky Navbar ------------------------------------- //
 window.onscroll = function () {
   stickyNavbar();
 };
@@ -43,121 +58,64 @@ function stickyNavbar() {
   }
 }
 
-// =================== Mobile Dropdowns ===================
-function toggleMobileDropdown(event) {
-  const dropdownMenu = event.target.nextElementSibling;
-  if (dropdownMenu.classList.contains("show")) {
-    dropdownMenu.classList.remove("show");
-  } else {
-    document
-      .querySelectorAll(".mobile-dropdown-menu.show")
-      .forEach((menu) => menu.classList.remove("show"));
-    dropdownMenu.classList.add("show");
-  }
-}
-document
-  .querySelectorAll(".mobile-nav_menu .mobile-dropdown > a")
-  .forEach((link) => {
-    link.addEventListener("click", function (e) {
-      e.preventDefault();
-      toggleMobileDropdown(e);
-      document.querySelector(".hamburger").classList.add("prevent-close");
-    });
+// Hamburger menu for mobile
+function toggleResponsiveNav() {
+  var nav = document.getElementById("navbarContainer");
+  nav.classList.toggle("responsive");
+  // Toggle hamburger active state for color change on click
+  document.getElementById("mobileHamburger").classList.toggle("active");
+  // Optionally close all dropdowns
+  document.querySelectorAll(".nav-dropdown-content").forEach(function (el) {
+    el.classList.remove("show");
+    el.closest(".nav-dropdown").classList.remove("open");
   });
-document
-  .querySelectorAll(".mobile-nav_menu .mobile-dropdown-menu a")
-  .forEach((menuItem) => {
-    menuItem.addEventListener("click", function () {
-      document.querySelector(".hamburger").classList.remove("prevent-close");
-      this.parentNode.classList.remove("show");
-    });
-  });
-
-// =================== Mobile Menu Toggle ===================
-function toggleMobileMenu(x) {
-  x.classList.toggle("change");
-  var mobileMenu = document.getElementById("mobileMenu");
-  if (mobileMenu.style.display === "block") {
-    mobileMenu.style.display = "none";
-  } else {
-    mobileMenu.style.display = "block";
-  }
 }
 
-// =================== Dynamic Content Loading ===================
-$(document).ready(function () {
-  // Default content
-  $("#dynamicContent").load("home.html");
+// ------------------------------------- Home js ------------------------------------- //
 
-  // Standard navigation (non-research)
-  $(".nav_menu a").on("click", function (e) {
-    e.preventDefault(); // Prevent default link behavior
+let slideIndex = 1;
 
-    // Check if it's a people-nav link
-    if ($(this).hasClass("people-nav")) {
-      var section = $(this).data("section");
-      // Pass the section as a query param to people.html
-      $("#dynamicContent").load("people.html?section=" + section, function () {
-        // After people.html loads, trigger the correct section
-        setTimeout(function () {
-          if (window.handleNavigation) {
-            handleNavigation(section);
-          }
-        }, 50);
-      });
-    } else {
-      var url = $(this).attr("href"); // Get the URL from the link
-      $("#dynamicContent").load(url); // Load the content dynamically
-    }
+// Next/previous controls
+function plusSlides(n) {
+  showSlides((slideIndex += n));
+}
 
-    // Close dropdowns after clicking
-    document.querySelectorAll(".dropdown-menu").forEach(function (menu) {
-      menu.classList.remove("show");
-    });
-  });
+// Thumbnail image controls
+function currentSlide(n) {
+  showSlides((slideIndex = n));
+}
 
-  // Research tab (desktop)
-  $(".research-nav").on("click", function (e) {
-    e.preventDefault();
-    const sectionId = $(this).data("section");
-    $("#dynamicContent").load(
-      "research.html #" + sectionId,
-      function (response, status) {
-        if (status === "error") {
-          $("#dynamicContent").html(
-            "<p>Sorry, content could not be loaded.</p>"
-          );
-        }
-        document
-          .querySelectorAll(".dropdown-menu")
-          .forEach((menu) => menu.classList.remove("show"));
-        $("html, body").animate(
-          { scrollTop: $("#dynamicContent").offset().top },
-          400
-        );
-      }
-    );
-  });
+function showSlides(n) {
+  let i;
+  let slides = document.getElementsByClassName("carousel-item");
+  let dots = document.getElementsByClassName("dot");
+  if (n > slides.length) {
+    slideIndex = 1;
+  }
+  if (n < 1) {
+    slideIndex = slides.length;
+  }
+  for (i = 0; i < slides.length; i++) {
+    slides[i].className = slides[i].className.replace(" active", "");
+  }
+  for (i = 0; i < dots.length; i++) {
+    dots[i].className = dots[i].className.replace(" active", "");
+  }
+  slides[slideIndex - 1].className += " active";
+  dots[slideIndex - 1].className += " active";
+}
 
-  // Research tab (mobile)
-  $(".mobile-research-nav").on("click", function (e) {
-    e.preventDefault();
-    const sectionId = $(this).data("section");
-    $("#dynamicContent").load(
-      "research.html #" + sectionId,
-      function (response, status) {
-        if (status === "error") {
-          $("#dynamicContent").html(
-            "<p>Sorry, content could not be loaded.</p>"
-          );
-        }
-        document.getElementById("mobileMenu").style.display = "none";
-        document.querySelector(".hamburger").classList.remove("change");
-        $("html, body").animate(
-          { scrollTop: $("#dynamicContent").offset().top },
-          400
-        );
-      }
-    );
-  });
-});
+function prevSlide() {
+  plusSlides(-1);
+}
+
+function nextSlide() {
+  plusSlides(1);
+}
+
+// Automatic slideshow
+setInterval(function () {
+  plusSlides(1);
+}, 3000); // Change image every 3 seconds
+
+showSlides(slideIndex);

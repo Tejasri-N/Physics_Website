@@ -1,164 +1,58 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Programs - Department of Physics</title>
-    <link rel="stylesheet" href="programs.css">
+    <link rel="stylesheet" href="programs.css" />
+    <link rel="stylesheet" href="header.css" />
+    <link rel="stylesheet" href="footer.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
+    />
     <!-- Import Source Sans Pro from Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@400;600&display=swap" rel="stylesheet">
-</head>
-<body>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@400;600&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://unicons.iconscout.com/release/v4.0.8/css/line.css"
+    />
+  </head>
+  <body>
+    <header class="header"></header>
     <div class="wrapper">
-        <!-- Header -->
-        <header class="header">
-            <div class="container">
-                <h1 class="logo"><a href="https://www.iith.ac.in/" target="_blank" style="color: inherit; text-decoration: none;">Department of Physics</a></h1>
-                <nav class="navbar">
-                    <ul>
-                        <li><a href="#programs">Programs</a></li>
-                        <li><a href="#about">About Us</a></li>
-                        <li><a href="#contact">Contact</a></li>
-                    </ul>
-                </nav>
-            </div>
-        </header>
+      <!-- Programs Section -->
+      <section id="programs" class="section">
+        <!-- Program Buttons at the Top -->
+        <div class="program-buttons">
+          <button class="btn program-btn" data-program="btech">B.Tech</button>
+          <button class="btn program-btn" data-program="msc">M.Sc</button>
+          <button class="btn program-btn" data-program="mtech">M.Tech</button>
+          <button class="btn program-btn" data-program="phd">Ph.D</button>
+        </div>
 
-        <!-- Programs Section -->
-        <section id="programs" class="section">
-            <!-- Program Buttons at the Top -->
-            <div class="program-buttons">
-                <button class="btn program-btn" data-program="btech">B.Tech</button>
-                <button class="btn program-btn" data-program="msc">M.Sc</button>
-                <button class="btn program-btn" data-program="mtech">M.Tech</button>
-                <button class="btn program-btn" data-program="phd">Ph.D</button>
-            </div>
+        <!-- Left Details and Right Content -->
+        <div class="details-and-content">
+          <!-- Details Section -->
+          <div id="details-section" class="details-section">
+            <!-- Dynamic buttons for programs or courses will be inserted here -->
+            <!-- Back button will also be dynamically added here -->
+          </div>
 
-            <!-- Left Details and Right Content -->
-            <div class="details-and-content">
-                <!-- Details Section -->
-                <div id="details-section" class="details-section">
-                    <!-- Dynamic buttons for programs or courses will be inserted here -->
-                </div>
-
-                <!-- Content Section -->
-                <div id="content-section" class="content-section">
-                    <p>Select a program to view details.</p>
-                </div>
-            </div>
-        </section>
-
-        <!-- Footer -->
-        <footer class="footer">
-            <div class="container">
-                <p>&copy; 2025 Department of Physics - IIT Hyderabad</p>
-            </div>
-        </footer>
+          <!-- Content Section -->
+          <div id="content-section" class="content-section">
+            <!-- Dynamic content for selected details will be displayed here -->
+            <p>Select a program to view details.</p>
+          </div>
+        </div>
+      </section>
     </div>
+    <footer class="footer"></footer>
+    <script src="main.js"></script>
 
-    <!-- JavaScript directly in HTML: -->
-    <script>
-    document.addEventListener("DOMContentLoaded", () => {
-        const programButtons = document.querySelectorAll(".program-btn");
-        const detailsSection = document.getElementById("details-section");
-        const contentSection = document.getElementById("content-section");
-
-        let currentProgram = null;
-
-        const programDetails = {
-            btech: ["About", "Curriculum", "Academic Options", "Internship", "Placement", "Research Areas + Facilities", "Brochure"],
-            msc: ["Physics", "Quantum Semiconductors"],
-            mtech: ["Physics", "Quantum Semiconductors"],
-            phd: ["About", "Research Areas + Facilities", "Brochure"]
-        };
-
-        const courseDetails = {
-            physics: ["About", "Curriculum", "Academic Options", "Internship", "Placement"],
-            quantumsemiconductors: ["About", "Curriculum", "Research Areas + Facilities", "Internship", "Placement"]
-        };
-
-        // Show B.Tech by default
-        displayProgramDetails("btech");
-
-        // Handle top-level program button clicks
-        programButtons.forEach((button) => {
-            button.addEventListener("click", () => {
-                const program = button.dataset.program;
-                currentProgram = program;
-                displayProgramDetails(program);
-                contentSection.innerHTML = "<p>Select a section to view details.</p>";
-            });
-        });
-
-        function displayProgramDetails(program) {
-            detailsSection.innerHTML = `<h3>${program.toUpperCase()} Program Details</h3>`;
-            if (program === "msc" || program === "mtech") {
-                programDetails[program].forEach((course) => {
-                    const courseKey = course.toLowerCase().replace(/ /g, "");
-                    detailsSection.innerHTML += `<button class="course-btn btn" data-course="${courseKey}">${course}</button>`;
-                });
-                attachCourseListeners(program);
-            } else {
-                programDetails[program].forEach((detail) => {
-                    const detailKey = detail.toLowerCase().replace(/ /g, "");
-                    detailsSection.innerHTML += `<button class="detail-btn btn" data-detail="${detailKey}">${detail}</button>`;
-                });
-                attachDetailListeners(program);
-            }
-        }
-
-        function attachCourseListeners(program) {
-            const courseButtons = document.querySelectorAll(".course-btn");
-            courseButtons.forEach((button) => {
-                button.addEventListener("click", () => {
-                    const course = button.dataset.course;
-                    detailsSection.innerHTML = `<h3>${course.toUpperCase()} Course Details (${program.toUpperCase()})</h3>`;
-                    courseDetails[course].forEach((detail) => {
-                        const detailKey = detail.toLowerCase().replace(/ /g, "");
-                        detailsSection.innerHTML += `<button class="detail-btn btn" data-detail="${detailKey}" data-course="${course}">${detail}</button>`;
-                    });
-                    attachDetailListeners(program, course);
-                    detailsSection.innerHTML += `<button class="back-btn btn">Back</button>`;
-                    document.querySelector(".back-btn").addEventListener("click", () => {
-                        displayProgramDetails(program);
-                        contentSection.innerHTML = "<p>Select a section to view details.</p>";
-                    });
-                });
-            });
-        }
-
-        function attachDetailListeners(program, course = null) {
-            const detailButtons = document.querySelectorAll(".detail-btn");
-            detailButtons.forEach((button) => {
-                button.addEventListener("click", () => {
-                    const detail = button.dataset.detail;
-                    let filePath = "";
-                    if (!course) {
-                        filePath = `programs/${program}-${detail}.html`;
-                    } else {
-                        filePath = `programs/${program}-${course}-${detail}.html`;
-                    }
-                    console.log(filePath);
-                    loadContent(filePath);
-                });
-            });
-        }        
-        
-
-        function loadContent(file) {
-            fetch(file)
-                .then(response => {
-                    if (!response.ok) throw new Error("Not found");
-                    return response.text();
-                })
-                .then(html => {
-                    contentSection.innerHTML = html;
-                })
-                .catch(() => {
-                    contentSection.innerHTML = "<p>Content not available for this section.</p>";
-                });
-        }
-    });
-    </script>
-</body>
+    <script src="programs.js"></script>
+  </body>
 </html>

@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Students Directory</title>
+    <link rel="stylesheet" href="al_students.css" />
+    <link rel="stylesheet" href="header.css" />
+    <link rel="stylesheet" href="footer.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://unicons.iconscout.com/release/v4.0.8/css/line.css"
+    />
+  </head>
+  <body>
+    <header class="header"></header>
+    <!-- Side Navigation -->
+    <nav class="side-nav">
+      <h1 class="department-title">Physics Department</h1>
+      <ul class="nav-menu">
+        <li><a href="faculty.html">Faculty</a></li>
+        <li><a href="hod.html">HOD</a></li>
+        <li><a href="staff.html">Staff</a></li>
+        <li><a href="students.html">Students</a></li>
+        <li><a href="alumni.html" class="active">Alumni</a></li>
+      </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="main-content">
+      <header>
+        <h2 class="main-title">Students Directory</h2>
+      </header>
+
+      <!-- Main Courses -->
+      <nav class="course-nav" id="courseNav">
+        <div class="course-pill" data-course="btech">B.Tech</div>
+        <div class="course-pill" data-course="msc">M.Sc</div>
+        <div class="course-pill" data-course="mtech">M.Tech</div>
+        <div class="course-pill" data-course="phd">PhD</div>
+      </nav>
+
+      <!-- Sub-courses -->
+      <div class="subcourse-nav hidden" id="subcourseNav"></div>
+
+      <!-- Years Scroll Section -->
+      <div
+        class="year-scroll-wrapper"
+        id="yearScrollWrapper"
+        style="display: none"
+      >
+        <button
+          class="scroll-arrow left"
+          id="yearLeftArrow"
+          onclick="scrollYears(-1)"
+        >
+          ‹
+        </button>
+        <div class="year-container" id="yearContainer"></div>
+        <button
+          class="scroll-arrow right"
+          id="yearRightArrow"
+          onclick="scrollYears(1)"
+        >
+          ›
+        </button>
+      </div>
+
+      <!-- Table -->
+      <div class="table-container hidden" id="tableContainer">
+        <table id="studentTable">
+          <caption id="tableCaption"></caption>
+          <thead>
+            <tr>
+              <th>Serial No.</th>
+              <th>Student Name</th>
+              <th>Enrollment Number</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody"></tbody>
+        </table>
+      </div>
+
+      <!-- Data -->
+      <div id="studentData" style="display: none">
+        <!-- B.Tech -->
+        <div data-course="btech" data-year="2026">
+          <div data-name="Niladri" data-enroll="ph23mscst14001"></div>
+          <div data-name="karmakar" data-enroll="Ph23mscst14005"></div>
+          <div data-name="Niladri" data-enroll="ph23mscst14001"></div>
+          <div data-name="karmakar" data-enroll="Ph23mscst14005"></div>
+        </div>
+        <div
+          data-course="btech"
+          data-subcourse="engineering-physics"
+          data-year="2025"
+        >
+          <div data-name="niladri" data-enroll="ph23mscst14006"></div>
+          <div data-name="Niladri" data-enroll="ph23mscst14001"></div>
+          <div data-name="karmakar" data-enroll="Ph23mscst14005"></div>
+        </div>
+        <div
+          data-course="btech"
+          data-subcourse="engineering-physics"
+          data-year="2024"
+        >
+          <div data-name="niladri" data-enroll="ph23mscst14006"></div>
+          <div data-name="Niladri" data-enroll="ph23mscst14001"></div>
+          <div data-name="karmakar" data-enroll="Ph23mscst14005"></div>
+        </div>
+        <div
+          data-course="btech"
+          data-subcourse="engineering-physics"
+          data-year="2023"
+        >
+          <div data-name="niladri" data-enroll="ph23mscst14006"></div>
+          <div data-name="Niladri" data-enroll="ph23mscst14001"></div>
+          <div data-name="karmakar" data-enroll="Ph23mscst14005"></div>
+        </div>
+        <div
+          data-course="btech"
+          data-subcourse="engineering-physics"
+          data-year="2022"
+        >
+          <div data-name="niladri" data-enroll="ph23mscst14006"></div>
+          <div data-name="Niladri" data-enroll="ph23mscst14001"></div>
+          <div data-name="karmakar" data-enroll="Ph23mscst14005"></div>
+        </div>
+        <div
+          data-course="btech"
+          data-subcourse="engineering-physics"
+          data-year="2021"
+        >
+          <div data-name="niladri" data-enroll="ph23mscst14006"></div>
+          <div data-name="Niladri" data-enroll="ph23mscst14001"></div>
+          <div data-name="karmakar" data-enroll="Ph23mscst14005"></div>
+        </div>
+        <div
+          data-course="btech"
+          data-subcourse="engineering-physics"
+          data-year="2020"
+        >
+          <div data-name="niladri" data-enroll="ph23mscst14006"></div>
+        </div>
+        <div
+          data-course="btech"
+          data-subcourse="engineering-physics"
+          data-year="2019"
+        >
+          <div data-name="niladri" data-enroll="ph23mscst14006"></div>
+        </div>
+        <div
+          data-course="btech"
+          data-subcourse="engineering-physics"
+          data-year="2018"
+        >
+          <div data-name="niladri" data-enroll="ph23mscst14006"></div>
+          <div data-name="Niladri" data-enroll="ph23mscst14001"></div>
+          <div data-name="karmakar" data-enroll="Ph23mscst14005"></div>
+        </div>
+        <div
+          data-course="btech"
+          data-subcourse="engineering-physics"
+          data-year="2017"
+        >
+          <div data-name="niladri" data-enroll="ph23mscst14006"></div>
+        </div>
+        <div
+          data-course="btech"
+          data-subcourse="engineering-physics"
+          data-year="2016"
+        >
+          <div data-name="niladri" data-enroll="ph23mscst14006"></div>
+        </div>
+        <div
+          data-course="btech"
+          data-subcourse="engineering-physics"
+          data-year="2015"
+        >
+          <div data-name="niladri" data-enroll="ph23mscst14006"></div>
+        </div>
+        <div
+          data-course="btech"
+          data-subcourse="engineering-physics"
+          data-year="2014"
+        >
+          <div data-name="niladri" data-enroll="ph23mscst14006"></div>
+        </div>
+
+        <!-- MSc Physics -->
+        <div data-course="msc" data-subcourse="physics" data-year="2025">
+          <div data-name="Niladri" data-enroll="PH23MSCST14005"></div>
+        </div>
+
+        <!-- MSc Medical Physics -->
+        <div
+          data-course="msc"
+          data-subcourse="medical-physics"
+          data-year="2025"
+        >
+          <div data-name="Niladri" data-enroll="PH23MSCST140051"></div>
+        </div>
+
+        <!-- M.Tech Quantum -->
+        <div data-course="mtech" data-subcourse="quantum" data-year="2025">
+          <div data-name="Niladri" data-enroll="PH23MSCST14005"></div>
+        </div>
+
+        <!-- M.Tech Semiconductor -->
+        <div
+          data-course="mtech"
+          data-subcourse="semiconductor"
+          data-year="2025"
+        >
+          <div data-name="Niladri" data-enroll="PH23MSCST14005"></div>
+        </div>
+
+        <!-- PhD Research -->
+        <div data-course="phd" data-subcourse="research" data-year="2025">
+          <div data-name="Niladri" data-enroll="PH23MSCST14005"></div>
+        </div>
+
+        <!-- PhD JRF -->
+        <div data-course="phd" data-subcourse="jrf" data-year="2025">
+          <div data-name="Niladri" data-enroll="PH23MSCST14005"></div>
+        </div>
+
+        <!-- PhD SRF -->
+        <div data-course="phd" data-subcourse="srf" data-year="2025">
+          <div data-name="Niladri" data-enroll="PH23mscst14005"></div>
+        </div>
+      </div>
+    </div>
+    <footer class="footer"></footer>
+    <script src="main.js"></script>
+    <script src="al_students.js"></script>
+  </body>
+</html>

@@ -104,6 +104,61 @@ td {
   border-color: var(--accent-blue);
 }
 
+
+
+@media (max-width: 768px) {
+  .side-nav {
+    width: 100%;
+    height: auto;
+    position: fixed;
+    left: 0;
+    top: 0;
+    padding: 1rem 0.5rem 0.5rem 0.5rem;
+    border-right: none;
+    border-bottom: 1px solid var(--border-color);
+    box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    z-index: 1000;
+  }
+  .department-title {
+    margin-bottom: 1rem;
+    font-size: 1.2rem;
+    padding-bottom: 0.2rem;
+  }
+  .nav-menu {
+    flex-direction: row;
+    gap: 0.5rem;
+    width: 100%;
+    justify-content: center;
+  }
+  .nav-menu a {
+    font-size: 0.98rem;
+    padding: 0.7rem 0.8rem;
+    border-radius: 6px;
+    border-width: 1.5px;
+    min-width: 80px;
+  }
+  .main-content {
+    margin-left: 0;
+    padding: 5.5rem 0.5rem 2rem 0.5rem; 
+  }
+}
+
+@media (max-width: 480px) {
+  .nav-menu {
+    flex-direction: column;
+    gap: 0.4rem;
+    align-items: stretch;
+  }
+  .main-content {
+    padding-top: 7.5rem;
+  }
+}
+
+
+
 /* Main Content */
 .main-content {
   margin-left: 300px;

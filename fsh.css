@@ -38,7 +38,7 @@ td {
 
 /* Side Navigation */
 .side-nav {
-  position: relative;
+  position: absolute;
   /* left: 0;
   top: 0; */
   width: 250px;
@@ -48,7 +48,6 @@ td {
   border-right: 1px solid var(--border-color);
   box-shadow: 2px 0 15px rgba(0, 0, 0, 0.03);
   z-index: 100;
-  float: left;
 }
 
 .department-title {
@@ -104,23 +103,28 @@ td {
   border-color: var(--accent-blue);
 }
 
-
-
 @media (max-width: 768px) {
+  .fsh-content {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
   .side-nav {
     width: 100%;
     height: auto;
     position: fixed;
     left: 0;
     top: 0;
+    /* margin-left: 20px; */
     padding: 1rem 0.5rem 0.5rem 0.5rem;
     border-right: none;
     border-bottom: 1px solid var(--border-color);
-    box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
     display: flex;
     flex-direction: column;
     align-items: center;
-    z-index: 1000;
+    z-index: 100;
   }
   .department-title {
     margin-bottom: 1rem;
@@ -141,12 +145,12 @@ td {
     min-width: 80px;
   }
   .main-content {
-    margin-left: 0;
-    padding: 5.5rem 0.5rem 2rem 0.5rem; 
+    margin-left: 10px;
+    padding: 5.5rem 0.5rem 2rem 0.5rem;
   }
 }
 
-@media (max-width: 480px) {
+@media (max-width: 640px) {
   .nav-menu {
     flex-direction: column;
     gap: 0.4rem;
@@ -156,8 +160,6 @@ td {
     padding-top: 7.5rem;
   }
 }
-
-
 
 /* Main Content */
 .main-content {

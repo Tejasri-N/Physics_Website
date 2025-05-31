@@ -108,7 +108,7 @@ td {
 .main-content {
   margin-left: 270px;
   padding: 0 1.5rem;
-  height: 500px;
+  min-height: 500px;
 }
 
 @media (max-width: 900px) {
@@ -178,7 +178,7 @@ td {
 }
 
 .course-pill:hover,
-.subcourse-nav:hover,
+.subcourse-pill:hover,
 .year-pill:hover {
   scale: 1.1;
   transition: var(--transition);

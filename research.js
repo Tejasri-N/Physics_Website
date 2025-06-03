@@ -16,6 +16,8 @@ function openTab(tabId) {
     "Quantum_information_technology",
   ];
 
+  const facilitiesSubTabIds = ["Physics", "Central_Facilities"];
+
   // Hide all main content divs, except Research__areas if a sub-tab is selected
   mainContents.forEach((content) => {
     if (content.id === "Research__areas" && subTabIds.includes(tabId)) {
@@ -34,6 +36,14 @@ function openTab(tabId) {
   const selectedContent = document.getElementById(tabId);
   if (selectedContent) {
     selectedContent.style.display = "block";
+  } else {
+    console.warn(
+      `Tab with ID ${tabId} not found. Falling back to Research__areas.`
+    );
+    const defaultContent = document.getElementById("Research__areas");
+    if (defaultContent) {
+      defaultContent.style.display = "block";
+    }
   }
 
   // Update active class on main navigators
@@ -49,12 +59,22 @@ function openTab(tabId) {
   if (clickedNavigator) {
     clickedNavigator.classList.add("active");
   } else {
-    // If a sub-tab is clicked, activate the "Research Areas" main tab
-    const researchAreasNavigator = Array.from(navigators).find(
-      (nav) => nav.getAttribute("onclick") === `openTab('Research__areas')`
-    );
-    if (researchAreasNavigator) {
-      researchAreasNavigator.classList.add("active");
+    if (subTabIds.includes(tabId)) {
+      const researchAreasNavigator = Array.from(navigators).find(
+        (nav) => nav.getAttribute("onclick") === `openTab('Research__areas')`
+      );
+      if (researchAreasNavigator) {
+        researchAreasNavigator.classList.add("active");
+      }
+    } else if (facilitiesSubTabIds.includes(tabId)) {
+      const facilitiesNavigator = Array.from(navigators).find(
+        (nav) =>
+          nav.getAttribute("onclick") ===
+          `toggleResearchDropdown('facilities-dropdown')`
+      );
+      if (facilitiesNavigator) {
+        facilitiesNavigator.classList.add("active");
+      }
     }
   }
 
@@ -73,11 +93,29 @@ function openTab(tabId) {
   if (clickedSubTab) {
     clickedSubTab.classList.add("active");
   }
+
+  const dropdownItems = document.querySelectorAll(".research__dropdown__item");
+  dropdownItems.forEach((item) => {
+    item.classList.remove("active");
+  });
+
+  const clickedDropdownItem = Array.from(dropdownItems).find(
+    (item) => item.getAttribute("onclick") === `openTab('${tabId}')`
+  );
+  if (clickedDropdownItem) {
+    clickedDropdownItem.classList.add("active");
+  }
 }
 
 // Function to open external link in a new tab
 function openExternalLink(url) {
   window.open(url, "_blank");
+}
+
+function toggleResearchDropdown(dropdownId) {
+  const dropdown = document.getElementById(dropdownId);
+  const isVisible = dropdown.style.display === "block";
+  dropdown.style.display = isVisible ? "none" : "block";
 }
 
 // Show the tab clicked when the page loads

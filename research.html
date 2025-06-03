@@ -4,41 +4,31 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Department of Physics| Research</title>
-    <!-- <link rel="stylesheet" href="style.css" /> -->
+    <!-- <link rel="stylesheet" href="style.css"> -->
     <link rel="stylesheet" href="research.css" />
     <link rel="stylesheet" href="header.css" />
     <link rel="stylesheet" href="footer.css" />
     <link
       rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
+      href="https://unicons.iconscout.com/release/v4.0.8/css/line.css"
     />
     <link
       rel="stylesheet"
-      href="https://unicons.iconscout.com/release/v4.0.8/css/line.css"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
     />
   </head>
   <body>
     <header class="header"></header>
     <div class="research__container">
       <div class="research__container__left">
-        <div class="research__navigator" onclick="openTab('Admission')">
-          Admission
-        </div>
-        <div class="research__navigator" onclick="openTab('TT1')">
-          Academic Calender (Jul-Dec)
-        </div>
-        <div class="research__navigator" onclick="openTab('TT2')">
-          Academic Calender (Jan-Jul)
-        </div>
-        <div class="research__navigator" onclick="openTab('TT3')">
-          Time Table
-        </div>
-        <div class="research__navigator" onclick="openTab('PHD')">Ph.D.</div>
-        <div class="research__navigator" onclick="openTab('Research__areas')">
+        <div
+          class="research__navigator active"
+          onclick="openTab('Research__areas')"
+        >
           Research Areas
         </div>
-        <div class="research__navigator" onclick="openTab('Lab__facilities')">
-          Labs and Facilities
+        <div class="research__navigator" onclick="openTab('Research__Labs')">
+          Research Labs
         </div>
         <div
           class="research__navigator"
@@ -48,119 +38,32 @@
         </div>
         <div
           class="research__navigator"
-          onclick="openTab('Research__projects')"
+          onclick="toggleResearchDropdown('facilities-dropdown')"
         >
-          Research Projects
+          Facilities <i class="uil uil-angle-down"></i>
+        </div>
+        <div
+          id="facilities-dropdown"
+          class="dropdown__container"
+          style="display: none"
+        >
+          <div
+            class="research__navigator dropdown__item"
+            onclick="openTab('Physics')"
+          >
+            Physics
+          </div>
+          <div
+            class="research__navigator dropdown__item"
+            onclick="openTab('Central_Facilities')"
+          >
+            Central Facilities
+          </div>
         </div>
       </div>
 
       <div class="research__container__right">
-        <!--===========Admission section starts form here=============-->
-
-        <div id="Admission" class="research__content">
-          <h1>Ph.D. Admissions</h1>
-
-          <div class="Admission__announcement">
-            <div class="Admission__announcements__title">
-              <h2>Announcements</h2>
-            </div>
-
-            <!--=====================Announcements regarding Admissions to be put here========================-->
-            <div class="Admission__announcement__content">
-              Lorem ipsum dolor sit, amet consectetur adipisicing elit. Vitae
-              esse itaque voluptates, facere beatae dolor ducimus omnis
-              doloremque totam reiciendis sunt provident numquam expedita sit
-              excepturi maxime nulla laudantium adipisci inventore nisi
-              voluptatum. Aspernatur voluptas beatae numquam atque rem
-              laudantium aut nisi laborum consectetur, est nihil blanditiis
-              minus fuga provident.
-            </div>
-
-            <div class="Dept__info">
-              The Department of Mechanical and Aerospace Engineering aims at
-              pushing the frontiers of modern science and engineering through
-              quality teaching and cutting edge research. In order to make the
-              nation self-sufficient, it is highly motivated to invest in
-              state-of-the-art manufacturing technology and address the issue of
-              energy in the context of global energy environment.
-              <br /><br />
-
-              Right from its inception in 2008, it has attracted a rich and
-              diverse set of talented individuals, currently nurturing 120
-              undergraduates and 70 postgraduates, who are trained in the
-              nuances of the field by highly qualified faculty. The faculty is
-              well experienced and very enthusiastic about research and
-              practical learning. All of them are at the foremost in their field
-              of research. Major areas of faculty expertise includes CFD,
-              Acoustics and Vibration, Dynamics and controls, Mechatronics,
-              Thermodynamics, Multiphase flows, Process Modeling and
-              Optimization, Manufacturing, Linear and Nonlinear Vibrations, FEM,
-              Fracture Mechanics, Rapid Prototyping, MEMS, NEMS and CNC
-              Machining. The faculty has been actively involved with industry
-              and research organizations with work experience in DRDO, DST,
-              BHEL, NRB, GM etc.
-              <br /><br />
-
-              For research areas and research interest visit:
-              <a href="#" id="Faculty__directory__btn">Faculty Directory</a>
-
-              <br /><br />
-              <h2>Eligibility</h2>
-              <br />
-              Candidates with a MTech/ME degree in Mechanical or related
-              disciplines are eligible to apply. A valid GATE score is not a
-              pre-requisite for such candidates. Candidates without a Master's
-              degree, but a valid GATE score and a BTech/BE in Mechanical,
-              Aeronautical/Aerospace, Automobile Manufacturing, Machine Tool,
-              Production, Production & Industrial Engineering, are also eligible
-              to apply for the Ph.D. program (the GATE criterion is not
-              mandatory for a IIT BTech student with a CGPA of 8.0 or above).
-              Candidates working in reputed research organizations may also
-              apply under external Ph.D. program (candidates from external
-              program are not eligible for any stipend).
-
-              <br /><br />
-              <h2>How to apply?</h2>
-              <br />
-              Interested candidates can apply for Ph.D. through the online
-              portal of IITH:
-              <a href="#" id="Faculty__directory__btn">Online Portal</a>
-
-              <br /><br />
-              <h2>Useful informations</h2>
-              <br />
-              <a href="#" id="Faculty__directory__btn">Ph.D. Brochure</a>
-              <a href="#" id="Faculty__directory__btn">FAQs</a>
-              <br /><br />
-              <a href="#" id="Faculty__directory__btn"
-                >Sample question papers for Ph.D. admission written test for
-                both regular and sponcered candidates</a
-              >
-
-              <br /><br />
-              <h2>Selection Process</h2>
-              <br />
-              The shortlisted candidates from the applications will be invited
-              for a two stage selection process. The first stage is a written
-              test. The purpose of this test is to gauge the fundamental
-              knowledge of the candidate in Mechanical Engineering. Selected
-              candidates in the written test will have to appear for an
-              interview.
-              <br /><br />
-
-              <h3>contact details:</h3>
-              <div class="contact__details">
-                PhD Admissions <br />
-                Department of Physics <br />
-                Indian Institute of Technology Hyderabad, Kandi Sangareddy -
-                502284 <br />
-                Telangana State <br />
-                Phone: xxx-xxxxxxxxxx <br />
-                Email: contact mail id to be added here.
-              </div>
-            </div>
-          </div>
-        </div>
+        <!--===============Research areas starts here=====================-->
 
         <div id="Research__areas" class="research__content">
           <h1>Research Areas</h1>
@@ -221,73 +124,9 @@
           </div>
         </div>
 
-        <!--==================Academic Calender for July-December semester=================-->
-        <div id="TT1" class="research__content">
-          <h1>Academic Calender (Jul-Dec)</h1>
-          <object
-            data="pdfs/Academic_Calendar_Jul-Dec_2024.pdf"
-            type="application/pdf"
-            width="100%"
-            style="aspect-ratio: 1/0.8"
-          >
-            Your browser does not support PDFs. Please download the PDF
-            <a href="path/to/your/pdf.pdf">here</a>.
-          </object>
-        </div>
-
-        <!--==================Academic Calender for January-June semester=================-->
-        <div id="TT2" class="research__content">
-          <h1>Academic Calender (Jan-Jul)</h1>
-          <object
-            data="pdfs/IITH-Academic_Calendar_Jan-Apr-2025.pdf"
-            type="application/pdf"
-            width="100%"
-            style="aspect-ratio: 1/0.8"
-          >
-            Your browser does not support PDFs. Please download the PDF
-            <a href="path/to/your/pdf.pdf">here</a>.
-          </object>
-        </div>
-
-        <!--==================Time Table=================-->
-        <div id="TT3" class="research__content">
-          <h1>Time Table</h1>
-          <object
-            data="pdfs/PHTT-2025-even.pdf"
-            type="application/pdf"
-            width="100%"
-            style="aspect-ratio: 1/0.8"
-          >
-            Your browser does not support PDFs. Please download the PDF
-            <a href="path/to/your/pdf.pdf">here</a>.
-          </object>
-        </div>
-
-        <!--================Ph.D. related information=============-->
-        <div id="PHD" class="research__content">
-          <h1>Ph.D. in Physics</h1>
-          <br />
-          <h2 style="color: var(--color-bg1)">Course requirements</h2>
-          <div class="horizontal_rule"></div>
-
-          <p>
-            1. A minimum of 12 credits needs to be completed. For January
-            admits, the ME5010 course is not available in the first semester.
-            <br /><br />
-
-            2. Taking 9 credits in the first semester helps in managing the
-            comprehensive exam and research proposal seminar timelines.
-            <br /><br />
-
-            3. For direct PhD (with B.Tech. degree), 24 Credits of course-work
-            need to completed. They need to complete 18 credits to be eligible
-            for comprehensive exam.
-          </p>
-        </div>
-
-        <!--==================Labs and Facilities==================-->
-        <div id="Lab__facilities" class="research__content">
-          <h2>Labs and Facilities</h2>
+        <!--==================Research labs here==================-->
+        <div id="Research__Labs" class="research__content">
+          <h1>Research Labs</h1>
           <div class="table-container">
             <table class="equipment-table">
               <thead>
@@ -367,71 +206,15 @@
           </div>
         </div>
 
-        <!--==========================Research Projects here=======================-->
-        <div id="Research__projects" class="research__content">
-          <h2>Research Projects</h2>
-          <div class="table-container">
-            <table class="equipment-table">
-              <thead>
-                <tr>
-                  <th>Sr. No.</th>
-                  <th>Title</th>
-                  <th>PI</th>
-                  <th>Co-PI</th>
-                  <th>Funding agency</th>
-                  <th>Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td data-label="Sr. No.">01</td>
-                  <td data-label="Title">
-                    Magnetization Dynamics in Ferrimagnetic Heterostructure with
-                    Domain Wall Junctions(USD3500)
-                  </td>
-                  <td data-label="PI">Dr. Jyoti Ranjan Mohanty</td>
-                  <td data-label="Co-PI">-</td>
-                  <td data-label="Funding agency">IEEE MAGNETIC Society</td>
-                  <td data-label="Status">On going</td>
-                </tr>
-                <tr>
-                  <td data-label="Sr. No.">02</td>
-                  <td data-label="Title">
-                    Fabrication of encapsulated cavities for bulk micromachined
-                    gyroscope structures
-                  </td>
-                  <td data-label="PI">Prof. Prem Pal</td>
-                  <td data-label="Co-PI">Dr. Ashok Kumar Pandey</td>
-                  <td data-label="Funding agency">CARS</td>
-                  <td data-label="Status">-</td>
-                </tr>
-                <tr>
-                  <td data-label="Sr. No.">03</td>
-                  <td data-label="Title">
-                    3D Imaging based Vein Intrusion Guide System for Pediatric
-                    and Geriatric Healthcare
-                  </td>
-                  <td data-label="PI">Dr. Vandana Sharma</td>
-                  <td data-label="Co-PI">-</td>
-                  <td data-label="Funding agency">
-                    Sree Padmavathi Venkateswara Foundation
-                  </td>
-                  <td data-label="Status">On giong</td>
-                </tr>
-                <tr>
-                  <td data-label="Sr. No.">04</td>
-                  <td data-label="Title">
-                    Bandgap Engineered Lead-free Halide Double perovskites with
-                    enhanced emission properties
-                  </td>
-                  <td data-label="PI">Dr. Sai Santosh Kumar Raavi</td>
-                  <td data-label="Co-PI">Dr.Venkat Rao Kotagiri</td>
-                  <td data-label="Funding agency">DAE-BRNS</td>
-                  <td data-label="Status">On giong</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+        <!--==============Facilities>>>>>Physics=============-->
+
+        <div id="Physics" class="research__content">
+          <h1>Facilities in Physics Department</h1>
+        </div>
+
+        <!--=============Facilities>>>>>>>Central Facilities===============-->
+        <div id="Central_Facilities" class="research__content">
+          <h1>Central Facilities</h1>
         </div>
       </div>
     </div>
@@ -1232,9 +1015,9 @@
         </div>
       </div>
     </div>
-    <footer class="footer"></footer>
   </body>
 
+  <footer class="footer"></footer>
   <script src="main.js"></script>
 
   <script src="research.js"></script>

@@ -26,10 +26,10 @@ body {
   border: 0.5px solid var(--color-bg1);
   color: var(--color-bg1);
   font-weight: bold;
-  /* font-size: 18px; */
+  font-size: 18px;
   height: fit-content;
   position: sticky;
-  top: 50px;
+  top: 2rem;
   padding: 0;
 }
 
@@ -63,43 +63,6 @@ body {
   margin: 0;
 }
 
-.Admission__announcements__title {
-  background-color: var(--color-danger);
-  color: white;
-  display: flex;
-  justify-content: center;
-  padding: 1rem;
-}
-
-.Admission__announcement__content {
-  padding: 2rem;
-  border-bottom: 0.5px solid grey;
-}
-
-.Dept__info {
-  padding: 2rem;
-}
-
-#Faculty__directory__btn {
-  color: var(--color-bg1);
-  padding: 0.5rem 1rem;
-  background-color: white;
-  border: 1px solid var(--color-bg1);
-  border-radius: 2px;
-  text-decoration: none;
-  display: inline-block;
-  margin: 0.5rem 0;
-}
-
-#Faculty__directory__btn:hover {
-  color: white;
-  background-color: var(--color-bg1);
-}
-
-.contact__details {
-  padding: 1rem 2rem;
-}
-
 .Research__areas__links {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -113,7 +76,7 @@ body {
   border-radius: 3px;
   text-align: center;
   color: var(--color-bg1);
-  /* font-size: 20px; */
+  font-size: 20px;
   cursor: pointer;
 }
 
@@ -176,6 +139,56 @@ body {
 .member__info {
   padding: 1rem;
   text-align: center;
+}
+
+.table-container {
+  width: 100%;
+  margin-top: 20px;
+}
+
+/* Table Styles */
+.equipment-table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: var(--color-white);
+  table-layout: auto;
+}
+
+.equipment-table th,
+.equipment-table td {
+  border: 1px solid var(--color-bg1);
+  text-align: left;
+  padding: 12px 10px;
+  vertical-align: top;
+  font-size: 16px;
+  white-space: normal;
+}
+
+.equipment-table th {
+  background-color: var(--color-bg1);
+  color: var(--color-white);
+  font-weight: bold;
+}
+
+.equipment-table td {
+  color: var(--color-bg1);
+}
+
+.equipment-table tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+.equipment-table tr:hover {
+  background-color: #f1f1f1;
+}
+
+.equipment-table a {
+  color: var(--color-danger);
+  text-decoration: none;
+}
+
+.equipment-table a:hover {
+  text-decoration: underline;
 }
 
 /* Extra Small Devices (Phones, less than 576px) */
@@ -248,15 +261,6 @@ body {
   }
 
   .member__info {
-    padding: 0.5rem;
-  }
-
-  .Admission__announcement__content,
-  .Dept__info {
-    padding: 1rem;
-  }
-
-  .Admission__announcements__title {
     padding: 0.5rem;
   }
 
@@ -337,15 +341,6 @@ body {
     padding: 0.75rem;
   }
 
-  .Admission__announcement__content,
-  .Dept__info {
-    padding: 1.5rem;
-  }
-
-  .Admission__announcements__title {
-    padding: 0.75rem;
-  }
-
   .horizontal_rule {
     margin: 0.75rem 0;
   }
@@ -420,15 +415,6 @@ body {
   }
 
   .member__info {
-    padding: 0.75rem;
-  }
-
-  .Admission__announcement__content,
-  .Dept__info {
-    padding: 1.5rem;
-  }
-
-  .Admission__announcements__title {
     padding: 0.75rem;
   }
 
@@ -509,15 +495,6 @@ body {
     padding: 0.75rem;
   }
 
-  .Admission__announcement__content,
-  .Dept__info {
-    padding: 1.5rem;
-  }
-
-  .Admission__announcements__title {
-    padding: 0.75rem;
-  }
-
   .horizontal_rule {
     margin: 0.75rem 0;
   }
@@ -525,6 +502,10 @@ body {
 
 /* Extra Large Devices (Large Desktops, 1200px and up) */
 @media only screen and (min-width: 1200px) {
+  body {
+    font-size: 20px;
+  }
+
   .research__container {
     grid-template-columns: 25% 72%;
     padding: 2rem 5rem;
@@ -591,70 +572,12 @@ body {
     padding: 1rem;
   }
 
-  .Admission__announcement__content,
-  .Dept__info {
-    padding: 2rem;
-  }
-
-  .Admission__announcements__title {
-    padding: 1rem;
-  }
-
   .horizontal_rule {
     margin: 1rem 0;
   }
 }
 
 /* Table Container */
-.table-container {
-  width: 100%;
-  margin-top: 20px;
-}
-
-/* Table Styles */
-.equipment-table {
-  width: 100%;
-  border-collapse: collapse;
-  background-color: var(--color-white);
-  table-layout: auto;
-}
-
-.equipment-table th,
-.equipment-table td {
-  border: 1px solid var(--color-bg1);
-  text-align: left;
-  padding: 12px 10px;
-  vertical-align: top;
-  font-size: 16px;
-  white-space: normal;
-}
-
-.equipment-table th {
-  background-color: var(--color-bg1);
-  color: var(--color-white);
-  font-weight: bold;
-}
-
-.equipment-table td {
-  color: var(--color-bg1);
-}
-
-.equipment-table tr:nth-child(even) {
-  background-color: #f9f9f9;
-}
-
-.equipment-table tr:hover {
-  background-color: #f1f1f1;
-}
-
-.equipment-table a {
-  color: var(--color-danger);
-  text-decoration: none;
-}
-
-.equipment-table a:hover {
-  text-decoration: underline;
-}
 
 /* Stacked Layout for Medium, Small, and Extra Small Screens */
 @media only screen and (max-width: 991.98px) {

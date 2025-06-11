@@ -1,0 +1,47 @@
+body {
+  margin: 0;
+  font-family: "Segoe UI", Arial, sans-serif;
+}
+
+.contact-us-about {
+  margin: 0 100px 0 100px;
+}
+h2 {
+  margin-top: 40px;
+  border-bottom: 2px solid #003366;
+  padding-bottom: 5px;
+}
+.person {
+  display: flex;
+  margin-bottom: 30px;
+}
+.person img {
+  width: 150px;
+  height: 160px;
+  object-fit: cover;
+  margin-right: 20px;
+  border-radius: 4px;
+}
+.person-details {
+  max-width: 600px;
+}
+.person-details h3 {
+  margin: 0;
+  font-weight: bold;
+  font-size: 1.2em;
+}
+.person-details .title {
+  font-style: italic;
+  margin: 5px 0 10px 0;
+}
+.person-details p {
+  margin: 3px 0;
+  line-height: 1.3em;
+}
+.person-details a {
+  color: #003366;
+  text-decoration: none;
+}
+.person-details a:hover {
+  text-decoration: underline;
+}

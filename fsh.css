@@ -227,17 +227,14 @@ td {
   color: var(--primary-blue);
   font-weight: 700;
   word-break: break-word;
+  margin: 0;
 }
 
 .designation {
   color: var(--accent-blue);
   font-weight: 600;
   font-size: 1.1rem;
-}
-
-.department {
-  color: var(--text-secondary);
-  font-size: 0.97rem;
+  margin: 0;
 }
 
 .research-areas {

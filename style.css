@@ -194,9 +194,11 @@ hr {
 
 .spotlight-carousel-item img {
   width: 100%;
-  height: 50%; /* Adjust image height */
-  object-fit: cover;
+  height: 300px; /* or 100% of the spotlight-carousel height */
+  object-fit: contain;  /* OR 'cover' if you want background-like fill */
+  object-position: center;
 }
+
 
 .spotlight-carousel-item p {
   padding: 10px;

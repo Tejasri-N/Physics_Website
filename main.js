@@ -149,10 +149,10 @@ function spotlightPrevSlide() {
   showSpotlightSlide(spotlightIndex);
 }
 
-// Optional: Auto slide spotlight every 7 seconds
+// Optional: Auto slide spotlight every 4 seconds
 setInterval(() => {
   spotlightNextSlide();
-}, 2000);
+}, 4000);
 
 // Initialize spotlight carousel
 document.addEventListener("DOMContentLoaded", function () {

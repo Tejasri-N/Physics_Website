@@ -119,3 +119,43 @@ setInterval(function () {
 }, 3000); // Change image every 3 seconds
 
 showSlides(slideIndex);
+
+// --------------------------- Spotlight Carousel --------------------------- //
+let spotlightIndex = 0;
+
+function showSpotlightSlide(index) {
+  const spotlightItems = document.querySelectorAll(".spotlight-carousel-item");
+  const spotlightDots = document.querySelectorAll(".spotlight-dot");
+
+  if (index >= spotlightItems.length) spotlightIndex = 0;
+  if (index < 0) spotlightIndex = spotlightItems.length - 1;
+
+  spotlightItems.forEach((item, i) => {
+    item.classList.remove("active");
+    spotlightDots[i]?.classList.remove("active");
+  });
+
+  spotlightItems[spotlightIndex].classList.add("active");
+  spotlightDots[spotlightIndex]?.classList.add("active");
+}
+
+function spotlightNextSlide() {
+  spotlightIndex++;
+  showSpotlightSlide(spotlightIndex);
+}
+
+function spotlightPrevSlide() {
+  spotlightIndex--;
+  showSpotlightSlide(spotlightIndex);
+}
+
+// Optional: Auto slide spotlight every 7 seconds
+setInterval(() => {
+  spotlightNextSlide();
+}, 7000);
+
+// Initialize spotlight carousel
+document.addEventListener("DOMContentLoaded", function () {
+  showSpotlightSlide(spotlightIndex);
+});
+

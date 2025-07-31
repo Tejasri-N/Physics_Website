@@ -139,20 +139,30 @@ function showSpotlightSlide(index) {
   spotlightDots[spotlightIndex]?.classList.add("active");
 }
 
+function resetSpotlightTimer() {
+  clearInterval(spotlightTimer);
+  spotlightTimer = setInterval(() => {
+    spotlightNextSlide();
+  }, 4000); // same as your auto-slide interval
+}
+
 function spotlightNextSlide() {
   spotlightIndex++;
   showSpotlightSlide(spotlightIndex);
+  resetSpotlightTimer(); // resets auto-timer on click
 }
 
 function spotlightPrevSlide() {
   spotlightIndex--;
   showSpotlightSlide(spotlightIndex);
+  resetSpotlightTimer(); // resets auto-timer on click
 }
 
-// Optional: Auto slide spotlight every 4 seconds
-setInterval(() => {
+
+let spotlightTimer = setInterval(() => {
   spotlightNextSlide();
-}, 4000);
+}, 4000); // auto-slide every 4 seconds
+
 
 // Initialize spotlight carousel
 document.addEventListener("DOMContentLoaded", function () {

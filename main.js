@@ -167,5 +167,8 @@ let spotlightTimer = setInterval(() => {
 // Initialize spotlight carousel
 document.addEventListener("DOMContentLoaded", function () {
   showSpotlightSlide(spotlightIndex);
+  const spotlightArea = document.querySelector(".spotlight-carousel");
+  spotlightArea.addEventListener("mouseenter", () => clearInterval(spotlightTimer));
+  spotlightArea.addEventListener("mouseleave", () => resetSpotlightTimer());
 });
 

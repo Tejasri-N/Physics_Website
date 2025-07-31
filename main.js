@@ -1,3 +1,5 @@
+console.log("main.js is loaded");
+
 function loadHTML(selector, url) {
   fetch(url)
     .then((response) => {

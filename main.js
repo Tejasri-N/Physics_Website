@@ -152,7 +152,7 @@ function spotlightPrevSlide() {
 // Optional: Auto slide spotlight every 7 seconds
 setInterval(() => {
   spotlightNextSlide();
-}, 7000);
+}, 2000);
 
 // Initialize spotlight carousel
 document.addEventListener("DOMContentLoaded", function () {

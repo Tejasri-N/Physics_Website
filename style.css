@@ -49,14 +49,13 @@ body {
   overflow: hidden;
 }
 
+/* ===== Carousel Image Styling ===== */
 .carousel-item {
-  position: absolute;
-  top: 0;
-  left: 0;
+  position: relative;
   width: 100%;
-  height: 100%;
-  opacity: 0;
-  transition: opacity 0.5s ease;
+  padding-top: 56.25%; /* 16:9 aspect ratio */
+  overflow: hidden;
+  border-radius: 10px;
 }
 
 .carousel-item.active {
@@ -64,11 +63,21 @@ body {
 }
 
 .carousel-item img {
-  width: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
   height: 100%;
-  object-fit: contain;
+  width: 100%;
+  object-fit: cover; /* crop if needed to fill */
+  border-radius: 10px;
 }
 
+/* Mobile Adjustments */
+@media (max-width: 768px) {
+  .carousel-item {
+    padding-top: 66.66%; /* 3:2 ratio on small screens */
+  }
+}
 .prev-button,
 .next-button {
   position: absolute;

@@ -122,12 +122,13 @@ body {
 }
 
 .announcements {
-  width: 20%;
   padding: 20px;
-  border: 1px solid #1f4e79;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-  overflow: hidden;
-  /* background-color: #f0f0f0;*/
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  max-height: 450px;  /* Set a max height if needed */
+  overflow-y: auto;
+  box-sizing: border-box;
 }
 
 .announcements h2 {
@@ -135,6 +136,8 @@ body {
 }
 
 .announcement-list {
+  margin: 0;
+  padding-right: 10px; /* To avoid text cutoff */
   max-height: 300px; /* Adjust height as needed */
   overflow-y: auto;
   scrollbar-color: #1f4e79 #fff; /* For Chrome, Safari, and Edge */
@@ -351,8 +354,12 @@ hr {
   }
 
   .main-carousel-announcements {
-    flex-direction: column;
-  }
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+}
 
   .carousel-container {
     width: 100%;

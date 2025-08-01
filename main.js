@@ -79,17 +79,28 @@ let slideIndex = 0;
 let carouselItems = [];
 let dots = [];
 
-function showSlides(index) {
-  carouselItems.forEach((item, i) => {
-    item.classList.remove("active");
-    dots[i]?.classList.remove("active");
-  });
+function showSlides(n) {
+  const slides = document.getElementsByClassName("carousel-item");
+  const dots = document.getElementsByClassName("dot");
 
-  slideIndex = (index + carouselItems.length) % carouselItems.length;
+  if (n > slides.length) {
+    slideIndex = 1;
+  }
+  if (n < 1) {
+    slideIndex = slides.length;
+  }
 
-  carouselItems[slideIndex].classList.add("active");
-  dots[slideIndex]?.classList.add("active");
+  for (let i = 0; i < slides.length; i++) {
+    slides[i].classList.remove("active");
+  }
+  for (let i = 0; i < dots.length; i++) {
+    dots[i].classList.remove("active");
+  }
+
+  slides[slideIndex - 1].classList.add("active");
+  dots[slideIndex - 1].classList.add("active");
 }
+
 
 function nextSlide() {
   showSlides(slideIndex + 1);

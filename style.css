@@ -38,45 +38,44 @@ body {
 }
 
 .carousel-container {
-  width: 70%;
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
   position: relative;
 }
 
 .carousel {
-  position: relative;
+  display: flex;
+  transition: transform 0.5s ease;
   width: 100%;
-  height: 400px; /* Adjust height as needed */
-  overflow: hidden;
 }
 
-/* ===== Carousel Image Styling ===== */
 .carousel-item {
+  flex: 0 0 100%;
+  display: none;
+  align-items: center;
+  justify-content: center;
   position: relative;
-  width: 100%;
-  padding-top: 56.25%; /* 16:9 aspect ratio */
-  overflow: hidden;
-  border-radius: 10px;
 }
 
 .carousel-item.active {
-  opacity: 1;
+  display: flex;
 }
 
 .carousel-item img {
-  position: absolute;
-  top: 0;
-  left: 0;
-  height: 100%;
   width: 100%;
-  object-fit: cover; /* crop if needed to fill */
+  height: auto;
+  object-fit: cover; /* Maintain aspect ratio and crop if needed */
   border-radius: 10px;
+  max-height: 60vh; /* Limit height on mobile */
 }
 
-/* Mobile Adjustments */
 @media (max-width: 768px) {
-  .carousel-item {
-    padding-top: 66.66%; /* 3:2 ratio on small screens */
+  .carousel-item img {
+    max-height: 40vh; /* Reduce height for smaller phones */
   }
+
+
 }
 .prev-button,
 .next-button {

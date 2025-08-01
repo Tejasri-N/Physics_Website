@@ -30,64 +30,22 @@ body {
   justify-content: space-between;
   padding: 30px;
 }
-/* ================= Responsive Layout Fix ================= */
 
-@media (min-width: 1024px) {
-  .main-columns {
-    display: flex;
-    flex-wrap: nowrap;
-    gap: 20px;
-    align-items: flex-start;
-  }
-
-  .main-carousel-announcements {
-    flex: 2;
-    min-width: 600px;
-  }
-
-  .spotlight-section {
-    flex: 1;
-    min-width: 320px;
-  }
-
-  .announcements {
-    max-height: 450px;
-    overflow-y: auto;
-  }
-
-  .spotlight,
-  .seminars-events,
-  .latest-publications {
-    width: 100%;
-    margin-bottom: 20px;
-    padding: 20px;
-  }
+.main-carousel-announcements {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
 }
 
-@media (max-width: 1023px) {
-  .main-columns {
-    flex-direction: column;
-  }
-
-  .main-carousel-announcements,
-  .spotlight-section {
-    width: 100%;
-  }
-
-  .announcements,
-  .spotlight,
-  .seminars-events,
-  .latest-publications {
-    width: 100%;
-    margin-bottom: 20px;
-  }
+.carousel-container {
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
+  position: relative;
 }
-
-
 
 .carousel {
   display: flex;
-  flex: 2;
   transition: transform 0.5s ease;
   width: 100%;
 }
@@ -163,15 +121,20 @@ body {
   background-color: #333;
 }
 
-
+.announcements {
+  width: 20%;
+  padding: 20px;
+  border: 1px solid #1f4e79;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+  /* background-color: #f0f0f0;*/
+}
 
 .announcements h2 {
   text-align: center;
 }
 
 .announcement-list {
-  margin: 0;
-  padding-right: 10px; /* To avoid text cutoff */
   max-height: 300px; /* Adjust height as needed */
   overflow-y: auto;
   scrollbar-color: #1f4e79 #fff; /* For Chrome, Safari, and Edge */
@@ -197,7 +160,11 @@ hr {
   border-color: #1f4e79;
 }
 
-
+.spotlight-section {
+  display: flex;
+  justify-content: space-between;
+  padding-top: 20px;
+}
 
 .spotlight-section h2 {
   text-align: center;
@@ -378,20 +345,14 @@ hr {
 } */
 
 /* Responsive adjustments */
-@media (min-width: 1024px) {
-  .announcements {
-    max-height: none;
-    overflow-y: visible;
+@media (max-width: 768px) {
+  .main-columns {
+    flex-direction: column;
   }
-}
 
   .main-carousel-announcements {
-  display: flex;
-  gap: 20px;
-  flex-wrap: wrap;
-  align-items: flex-start;
-  justify-content: space-between;
-}
+    flex-direction: column;
+  }
 
   .carousel-container {
     width: 100%;

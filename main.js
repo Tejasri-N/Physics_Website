@@ -120,7 +120,9 @@ function initMainCarousel() {
   });
 
   // Initial show
+  document.addEventListener("DOMContentLoaded", function () {
   showSlides(slideIndex);
+});
 
   // Auto-slide
   setInterval(nextSlide, 4000);

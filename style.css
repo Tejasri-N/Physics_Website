@@ -46,6 +46,7 @@ body {
 
 .carousel {
   display: flex;
+  flex: 2;
   transition: transform 0.5s ease;
   width: 100%;
 }
@@ -123,6 +124,8 @@ body {
 
 .announcements {
   padding: 20px;
+  flex: 1; /* Less space */
+  min-width: 300px;
   background-color: #fff;
   border: 1px solid #ccc;
   border-radius: 8px;
@@ -348,10 +351,12 @@ hr {
 } */
 
 /* Responsive adjustments */
-@media (max-width: 768px) {
-  .main-columns {
-    flex-direction: column;
+@media (min-width: 1024px) {
+  .announcements {
+    max-height: none;
+    overflow-y: visible;
   }
+}
 
   .main-carousel-announcements {
   display: flex;

@@ -75,7 +75,7 @@ function toggleResponsiveNav() {
 
 // ------------------------------------- Main Carousel ------------------------------------- //
 
-let slideIndex = 0;
+let slideIndex = 1;
 let carouselItems = [];
 let dots = [];
 
@@ -120,9 +120,7 @@ function initMainCarousel() {
   });
 
   // Initial show
-  document.addEventListener("DOMContentLoaded", function () {
-  showSlides(slideIndex);
-});
+ showSlides(slideIndex);
 
   // Auto-slide
   setInterval(nextSlide, 4000);

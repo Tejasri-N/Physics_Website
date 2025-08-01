@@ -103,12 +103,15 @@ function showSlides(n) {
 
 
 function nextSlide() {
-  showSlides(slideIndex + 1);
+  slideIndex++;
+  showSlides(slideIndex);
 }
 
 function prevSlide() {
-  showSlides(slideIndex - 1);
+  slideIndex--;
+  showSlides(slideIndex);
 }
+
 
 function initMainCarousel() {
   carouselItems = Array.from(document.querySelectorAll(".carousel-item"));
@@ -116,7 +119,11 @@ function initMainCarousel() {
 
   // Attach dot click events
   dots.forEach((dot, index) => {
-    dot.addEventListener("click", () => showSlides(index));
+   dot.addEventListener("click", () => {
+  slideIndex = index + 1;
+  showSlides(slideIndex);
+});
+
   });
 
   // Initial show

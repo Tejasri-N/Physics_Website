@@ -30,19 +30,60 @@ body {
   justify-content: space-between;
   padding: 30px;
 }
+/* ================= Responsive Layout Fix ================= */
 
-.main-carousel-announcements {
-  width: 100%;
-  display: flex;
-  justify-content: space-between;
+@media (min-width: 1024px) {
+  .main-columns {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 20px;
+    align-items: flex-start;
+  }
+
+  .main-carousel-announcements {
+    flex: 2;
+    min-width: 600px;
+  }
+
+  .spotlight-section {
+    flex: 1;
+    min-width: 320px;
+  }
+
+  .announcements {
+    max-height: 450px;
+    overflow-y: auto;
+  }
+
+  .spotlight,
+  .seminars-events,
+  .latest-publications {
+    width: 100%;
+    margin-bottom: 20px;
+    padding: 20px;
+  }
 }
 
-.carousel-container {
-  width: 100%;
-  max-width: 100%;
-  overflow: hidden;
-  position: relative;
+@media (max-width: 1023px) {
+  .main-columns {
+    flex-direction: column;
+  }
+
+  .main-carousel-announcements,
+  .spotlight-section {
+    width: 100%;
+  }
+
+  .announcements,
+  .spotlight,
+  .seminars-events,
+  .latest-publications {
+    width: 100%;
+    margin-bottom: 20px;
+  }
 }
+
+
 
 .carousel {
   display: flex;
@@ -122,17 +163,7 @@ body {
   background-color: #333;
 }
 
-.announcements {
-  padding: 20px;
-  flex: 1; /* Less space */
-  min-width: 300px;
-  background-color: #fff;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  max-height: 450px;  /* Set a max height if needed */
-  overflow-y: auto;
-  box-sizing: border-box;
-}
+
 
 .announcements h2 {
   text-align: center;
@@ -166,11 +197,7 @@ hr {
   border-color: #1f4e79;
 }
 
-.spotlight-section {
-  display: flex;
-  justify-content: space-between;
-  padding-top: 20px;
-}
+
 
 .spotlight-section h2 {
   text-align: center;

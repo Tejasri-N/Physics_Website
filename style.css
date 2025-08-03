@@ -127,6 +127,9 @@ body {
   border: 1px solid #1f4e79;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
   overflow: hidden;
+  width: 25%;                /* Or reduce to 20% */
+  max-height: 430px;         /* Lower than current */
+  overflow-y: auto;
   /* background-color: #f0f0f0;*/
 }
 

@@ -400,19 +400,16 @@ hr {
 .main-carousel-announcements {
   display: flex;
   gap: 20px;
-  align-items: flex-start;
-  flex-wrap: nowrap;
+  justify-content: space-between;
+  align-items: stretch;
 }
-
 .carousel-container {
   flex: 2;
-  min-width: 0;
+  max-width: 70%;
 }
 
 .announcements {
   flex: 1;
-  max-width: 350px;
-  min-width: 300px;
-  box-sizing: border-box;
+  max-width: 30%;
 }
 

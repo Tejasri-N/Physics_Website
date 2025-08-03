@@ -386,3 +386,30 @@ hr {
     padding: 10px;
   } */
 }
+
+.page-container {
+  max-width: 1200px;
+  margin: auto;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.main-carousel-announcements {
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+  flex-wrap: nowrap;
+}
+
+.carousel-container {
+  flex: 2;
+  min-width: 0;
+}
+
+.announcements {
+  flex: 1;
+  max-width: 350px;
+  min-width: 300px;
+  box-sizing: border-box;
+}
+

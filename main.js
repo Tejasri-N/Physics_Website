@@ -75,31 +75,6 @@ function toggleResponsiveNav() {
 
 // ------------------------------------- Main Carousel ------------------------------------- //
 
-const carouselItems = document.querySelectorAll(".carousel-item");
-const dots = document.querySelectorAll(".dot");
-let carouselTimer;
-
-function updateCarousel(index) {
-  currentIndex = (index + carouselItems.length) % carouselItems.length;
-
-  carouselItems.forEach((item, i) => {
-    item.classList.toggle("active", i === currentIndex);
-    dots[i]?.classList.toggle("active", i === currentIndex);
-  });
-}
-
-function nextSlide() {
-  updateCarousel(currentIndex + 1);
-}
-
-function prevSlide() {
-  updateCarousel(currentIndex - 1);
-}
-
-function resetCarouselTimer() {
-  clearInterval(carouselTimer);
-  carouselTimer = setInterval(nextSlide, 4000);
-}
 
 function initMainCarousel() {
   const carousel = document.querySelector(".carousel");
@@ -111,6 +86,9 @@ function initMainCarousel() {
 
   carousel.setAttribute("data-initialized", "true");
 
+  let currentIndex = 0; // ✅ This is critical
+  let carouselTimer;
+
   function updateCarousel(index) {
     currentIndex = (index + carouselItems.length) % carouselItems.length;
 
@@ -119,6 +97,40 @@ function initMainCarousel() {
       dots[i]?.classList.toggle("active", i === currentIndex);
     });
   }
+
+  function nextSlide() {
+    updateCarousel(currentIndex + 1);
+  }
+
+  function prevSlide() {
+    updateCarousel(currentIndex - 1);
+  }
+
+  function resetCarouselTimer() {
+    clearInterval(carouselTimer);
+    carouselTimer = setInterval(nextSlide, 4000);
+  }
+
+  dots.forEach((dot, index) => {
+    dot.addEventListener("click", () => {
+      updateCarousel(index);
+      resetCarouselTimer();
+    });
+  });
+
+  document.querySelector(".prev-button")?.addEventListener("click", () => {
+    prevSlide();
+    resetCarouselTimer();
+  });
+
+  document.querySelector(".next-button")?.addEventListener("click", () => {
+    nextSlide();
+    resetCarouselTimer();
+  });
+
+  updateCarousel(currentIndex);
+  carouselTimer = setInterval(nextSlide, 4000);
+}
 
 
 

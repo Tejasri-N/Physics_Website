@@ -54,7 +54,9 @@ body {
   width: 100%;
 }
 .carousel-container .carousel {
-  width: 10000px; /* Or something large enough for all images in row */
+  width: 100%; /* Prevents all items stacking in a horizontal row */
+  display: flex;
+  overflow: hidden;
 }
 
 

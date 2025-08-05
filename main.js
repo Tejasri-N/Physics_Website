@@ -75,43 +75,38 @@ function toggleResponsiveNav() {
 
 // ------------------------------------- Main Carousel ------------------------------------- //
 let currentIndex = 0;
-const carousel = document.querySelector(".carousel");
 const carouselItems = document.querySelectorAll(".carousel-item");
 const dots = document.querySelectorAll(".dot");
 
 function updateCarousel(index) {
-  const itemWidth = document.querySelector(".carousel-container").offsetWidth;
-  carousel.style.transform = `translateX(-${index * itemWidth}px)`;
+  // Circular indexing
+  currentIndex = (index + carouselItems.length) % carouselItems.length;
 
-  dots.forEach((dot, i) => {
-    dot.classList.toggle("active", i === index);
+  // Hide all items and deactivate all dots
+  carouselItems.forEach((item, i) => {
+    item.classList.toggle("active", i === currentIndex);
+    dots[i]?.classList.toggle("active", i === currentIndex);
   });
 }
 
 function nextSlide() {
-  currentIndex = (currentIndex + 1) % carouselItems.length;
-  updateCarousel(currentIndex);
+  updateCarousel(currentIndex + 1);
 }
 
 function prevSlide() {
-  currentIndex = (currentIndex - 1 + carouselItems.length) % carouselItems.length;
-  updateCarousel(currentIndex);
+  updateCarousel(currentIndex - 1);
 }
 
 function initMainCarousel() {
   dots.forEach((dot, index) => {
-    dot.addEventListener("click", () => {
-      currentIndex = index;
-      updateCarousel(currentIndex);
-    });
+    dot.addEventListener("click", () => updateCarousel(index));
   });
 
-  updateCarousel(currentIndex); // show first slide
-  setInterval(nextSlide, 4000); // auto slide every 4 sec
-
-  // You can also hook button clicks:
   document.querySelector(".prev-button")?.addEventListener("click", prevSlide);
   document.querySelector(".next-button")?.addEventListener("click", nextSlide);
+
+  updateCarousel(currentIndex); // Show first slide
+  setInterval(nextSlide, 4000); // Auto slide
 }
 
 document.addEventListener("DOMContentLoaded", initMainCarousel);

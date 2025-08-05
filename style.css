@@ -412,7 +412,7 @@ hr {
   width: 100%;
   max-width: 70%;
   overflow: hidden;  /* 👈 This keeps extra images hidden */
-  height: 430px;
+
   display: flex;
   flex-direction: column;
   justify-content: space-between;

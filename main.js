@@ -74,7 +74,7 @@ function toggleResponsiveNav() {
 // ------------------------------------- Home js ------------------------------------- //
 
 // ------------------------------------- Main Carousel ------------------------------------- //
-let currentIndex = 0;
+
 const carouselItems = document.querySelectorAll(".carousel-item");
 const dots = document.querySelectorAll(".dot");
 let carouselTimer;
@@ -110,9 +110,6 @@ function initMainCarousel() {
   if (carousel.dataset.initialized) return;
 
   carousel.setAttribute("data-initialized", "true");
-
-
-  
 
   function updateCarousel(index) {
     currentIndex = (index + carouselItems.length) % carouselItems.length;

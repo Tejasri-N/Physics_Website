@@ -74,66 +74,48 @@ function toggleResponsiveNav() {
 // ------------------------------------- Home js ------------------------------------- //
 
 // ------------------------------------- Main Carousel ------------------------------------- //
+let currentIndex = 0;
+const carousel = document.querySelector(".carousel");
+const carouselItems = document.querySelectorAll(".carousel-item");
+const dots = document.querySelectorAll(".dot");
 
-let slideIndex = 1;
-let carouselItems = [];
-let dots = [];
+function updateCarousel(index) {
+  const itemWidth = document.querySelector(".carousel-container").offsetWidth;
+  carousel.style.transform = `translateX(-${index * itemWidth}px)`;
 
-function showSlides(n) {
-  const slides = document.getElementsByClassName("carousel-item");
-  const dots = document.getElementsByClassName("dot");
-
-  if (n > slides.length) {
-    slideIndex = 1;
-  }
-  if (n < 1) {
-    slideIndex = slides.length;
-  }
-
-  for (let i = 0; i < slides.length; i++) {
-    slides[i].classList.remove("active");
-  }
-  for (let i = 0; i < dots.length; i++) {
-    dots[i].classList.remove("active");
-  }
-
-  slides[slideIndex - 1].classList.add("active");
-  dots[slideIndex - 1].classList.add("active");
+  dots.forEach((dot, i) => {
+    dot.classList.toggle("active", i === index);
+  });
 }
 
-
 function nextSlide() {
-  slideIndex++;
-  showSlides(slideIndex);
+  currentIndex = (currentIndex + 1) % carouselItems.length;
+  updateCarousel(currentIndex);
 }
 
 function prevSlide() {
-  slideIndex--;
-  showSlides(slideIndex);
+  currentIndex = (currentIndex - 1 + carouselItems.length) % carouselItems.length;
+  updateCarousel(currentIndex);
 }
 
-
 function initMainCarousel() {
-  carouselItems = Array.from(document.querySelectorAll(".carousel-item"));
-  dots = Array.from(document.querySelectorAll(".carousel-dots .dot"));
-
-  // Attach dot click events
   dots.forEach((dot, index) => {
-   dot.addEventListener("click", () => {
-  slideIndex = index + 1;
-  showSlides(slideIndex);
-});
-
+    dot.addEventListener("click", () => {
+      currentIndex = index;
+      updateCarousel(currentIndex);
+    });
   });
 
-  // Initial show
- showSlides(slideIndex);
+  updateCarousel(currentIndex); // show first slide
+  setInterval(nextSlide, 4000); // auto slide every 4 sec
 
-  // Auto-slide
-  setInterval(nextSlide, 4000);
+  // You can also hook button clicks:
+  document.querySelector(".prev-button")?.addEventListener("click", prevSlide);
+  document.querySelector(".next-button")?.addEventListener("click", nextSlide);
 }
 
 document.addEventListener("DOMContentLoaded", initMainCarousel);
+
 
 // --------------------------- Spotlight Carousel --------------------------- //
 let spotlightIndex = 0;

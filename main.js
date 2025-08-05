@@ -98,10 +98,9 @@ function prevSlide() {
 
 function resetCarouselTimer() {
   clearInterval(carouselTimer);
-  setTimeout(() => {
-    carouselTimer = setInterval(nextSlide, 4000);
-  }, 500); // ⏱ Delay gives time for click to complete before auto triggers
+  carouselTimer = setInterval(nextSlide, 4000);
 }
+
 
 
 function initMainCarousel() {

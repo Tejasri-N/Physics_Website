@@ -49,12 +49,13 @@ body {
 
 
 .carousel-item {
-  flex: 0 0 100%;
-  display: none;
+  flex: 1; /* 👈 Add this */
+  display: flex;
   align-items: center;
   justify-content: center;
   position: relative;
 }
+
 
 .carousel-item.active {
   display: flex;
@@ -360,10 +361,13 @@ hr {
   .carousel-container {
     width: 100%;
     margin-bottom: 20px;
+    height: 430px;
   }
 
   .announcements {
     width: 90%;
+    height: 430px;
+    
   }
 
   .spotlight-section {

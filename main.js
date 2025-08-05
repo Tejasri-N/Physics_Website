@@ -101,31 +101,64 @@ function resetCarouselTimer() {
   carouselTimer = setInterval(nextSlide, 4000);
 }
 
-
-
 function initMainCarousel() {
+  const carousel = document.querySelector(".carousel");
+  const carouselItems = document.querySelectorAll(".carousel-item");
+  const dots = document.querySelectorAll(".dot");
+
+  if (!carousel || !carouselItems.length) return;
+  if (carousel.dataset.initialized) return;
+
+  carousel.setAttribute("data-initialized", "true");
+
+
+  let carouselTimer;
+
+  function updateCarousel(index) {
+    currentIndex = (index + carouselItems.length) % carouselItems.length;
+
+    carouselItems.forEach((item, i) => {
+      item.classList.toggle("active", i === currentIndex);
+      dots[i]?.classList.toggle("active", i === currentIndex);
+    });
+  }
+
+  function nextSlide() {
+    updateCarousel(currentIndex + 1);
+  }
+
+  function prevSlide() {
+    updateCarousel(currentIndex - 1);
+  }
+
+  function resetCarouselTimer() {
+    clearInterval(carouselTimer);
+    carouselTimer = setInterval(nextSlide, 4000);
+  }
+
   dots.forEach((dot, index) => {
     dot.addEventListener("click", () => {
       updateCarousel(index);
-      resetCarouselTimer(); // 👈 reset timer on dot click
+      resetCarouselTimer();
     });
   });
 
   document.querySelector(".prev-button")?.addEventListener("click", () => {
     prevSlide();
-    resetCarouselTimer(); // 👈 reset timer on arrow click
+    resetCarouselTimer();
   });
 
   document.querySelector(".next-button")?.addEventListener("click", () => {
     nextSlide();
-    resetCarouselTimer(); // 👈 reset timer on arrow click
+    resetCarouselTimer();
   });
 
-  updateCarousel(currentIndex); // initial display
-  carouselTimer = setInterval(nextSlide, 4000); // auto-slide
+  updateCarousel(currentIndex);
+  carouselTimer = setInterval(nextSlide, 4000);
 }
 
-document.addEventListener("DOMContentLoaded", initMainCarousel);
+// ✅ Properly initialize only after page is fully loaded
+window.addEventListener("load", initMainCarousel);
 
 
 // --------------------------- Spotlight Carousel --------------------------- //
@@ -165,6 +198,7 @@ function spotlightPrevSlide() {
   showSpotlightSlide(spotlightIndex);
   resetSpotlightTimer(); // resets auto-timer on click
 }
+
 
 
 let spotlightTimer = setInterval(() => {

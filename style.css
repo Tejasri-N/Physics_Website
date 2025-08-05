@@ -39,11 +39,12 @@ body {
 
 .carousel-item {
   flex: 0 0 100%;
+  display: none;
   align-items: center;
   justify-content: center;
   position: relative;
-  display: none;         /* 👈 Hides all slides by default */
 }
+
 
 
 
@@ -66,12 +67,12 @@ body {
 
 .carousel-item img {
   width: 100%;
-  height: 100%;
-  object-fit: cover;
+  height: auto;   /* ✅ */
+  max-height: 100%;  /* ✅ */
+  object-fit: contain;
   border-radius: 10px;
-  /* REMOVE or COMMENT */
-  /* max-height: 60vh; */
 }
+
 
 
 @media (max-width: 768px) {

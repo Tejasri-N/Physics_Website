@@ -53,7 +53,9 @@ body {
   transition: transform 0.5s ease;
   width: 100%;
 }
-
+.carousel-container .carousel {
+  width: 10000px; /* Or something large enough for all images in row */
+}
 
 
 
@@ -72,7 +74,7 @@ body {
 
 
 @media (max-width: 768px) {
-  .carousel-item img {
+   img {
     max-height: 40vh; /* Reduce height for smaller phones */
   }
 

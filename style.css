@@ -410,7 +410,7 @@ hr {
 .carousel-container {
   flex: 2;
   max-width: 70%;
-  height: 100%; /* 👈 ADD this */
+  height: 430px; /* 👈 ADD this */
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -420,5 +420,6 @@ hr {
 .announcements {
   flex: 1;
   max-width: 30%;
+  height: 430px;
 }
 

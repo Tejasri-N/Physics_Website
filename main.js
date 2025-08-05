@@ -77,12 +77,11 @@ function toggleResponsiveNav() {
 let currentIndex = 0;
 const carouselItems = document.querySelectorAll(".carousel-item");
 const dots = document.querySelectorAll(".dot");
+let carouselTimer;
 
 function updateCarousel(index) {
-  // Circular indexing
   currentIndex = (index + carouselItems.length) % carouselItems.length;
 
-  // Hide all items and deactivate all dots
   carouselItems.forEach((item, i) => {
     item.classList.toggle("active", i === currentIndex);
     dots[i]?.classList.toggle("active", i === currentIndex);
@@ -97,16 +96,31 @@ function prevSlide() {
   updateCarousel(currentIndex - 1);
 }
 
+function resetCarouselTimer() {
+  clearInterval(carouselTimer);
+  carouselTimer = setInterval(nextSlide, 4000);
+}
+
 function initMainCarousel() {
   dots.forEach((dot, index) => {
-    dot.addEventListener("click", () => updateCarousel(index));
+    dot.addEventListener("click", () => {
+      updateCarousel(index);
+      resetCarouselTimer(); // 👈 reset timer on dot click
+    });
   });
 
-  document.querySelector(".prev-button")?.addEventListener("click", prevSlide);
-  document.querySelector(".next-button")?.addEventListener("click", nextSlide);
+  document.querySelector(".prev-button")?.addEventListener("click", () => {
+    prevSlide();
+    resetCarouselTimer(); // 👈 reset timer on arrow click
+  });
 
-  updateCarousel(currentIndex); // Show first slide
-  setInterval(nextSlide, 4000); // Auto slide
+  document.querySelector(".next-button")?.addEventListener("click", () => {
+    nextSlide();
+    resetCarouselTimer(); // 👈 reset timer on arrow click
+  });
+
+  updateCarousel(currentIndex); // initial display
+  carouselTimer = setInterval(nextSlide, 4000); // auto-slide
 }
 
 document.addEventListener("DOMContentLoaded", initMainCarousel);

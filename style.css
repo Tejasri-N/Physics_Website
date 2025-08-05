@@ -47,14 +47,15 @@ body {
   width: 100%;
 }
 
-
 .carousel-item {
-  flex: 1; /* 👈 Add this */
+  flex: 0 0 100%;
   display: flex;
   align-items: center;
   justify-content: center;
   position: relative;
 }
+
+
 
 
 .carousel-item.active {

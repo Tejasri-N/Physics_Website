@@ -38,13 +38,12 @@ body {
 }
 
 .carousel-item {
-  flex: 0 0 100%;  /* 👈 Each item takes full container width */
-  display: flex;
+  flex: 0 0 100%;
   align-items: center;
   justify-content: center;
   position: relative;
+  display: none;         /* 👈 Hides all slides by default */
 }
-
 
 
 

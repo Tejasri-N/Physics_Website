@@ -112,7 +112,7 @@ function initMainCarousel() {
   carousel.setAttribute("data-initialized", "true");
 
 
-  let carouselTimer;
+  
 
   function updateCarousel(index) {
     currentIndex = (index + carouselItems.length) % carouselItems.length;

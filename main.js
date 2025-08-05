@@ -120,18 +120,7 @@ function initMainCarousel() {
     });
   }
 
-  function nextSlide() {
-    updateCarousel(currentIndex + 1);
-  }
 
-  function prevSlide() {
-    updateCarousel(currentIndex - 1);
-  }
-
-  function resetCarouselTimer() {
-    clearInterval(carouselTimer);
-    carouselTimer = setInterval(nextSlide, 4000);
-  }
 
   dots.forEach((dot, index) => {
     dot.addEventListener("click", () => {

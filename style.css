@@ -69,12 +69,11 @@ body {
   border-radius: 15px;
 }
 
-
 @media (max-width: 768px) {
-   img {
-    max-height: 40vh; /* Reduce height for smaller phones */
+  .carousel-item img {
+    max-height: 40vh;
   }
-
+}
 
 }
 .prev-button,
@@ -397,9 +396,10 @@ hr {
   width: 100%;
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
+  align-items: stretch; /* ensures equal height */
   gap: 20px;
 }
+
 
 .carousel-container {
   position: relative;

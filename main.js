@@ -134,26 +134,6 @@ function initMainCarousel() {
 
 
 
-  dots.forEach((dot, index) => {
-    dot.addEventListener("click", () => {
-      updateCarousel(index);
-      resetCarouselTimer();
-    });
-  });
-
-  document.querySelector(".prev-button")?.addEventListener("click", () => {
-    prevSlide();
-    resetCarouselTimer();
-  });
-
-  document.querySelector(".next-button")?.addEventListener("click", () => {
-    nextSlide();
-    resetCarouselTimer();
-  });
-
-  updateCarousel(currentIndex);
-  carouselTimer = setInterval(nextSlide, 4000);
-}
 
 // ✅ Properly initialize only after page is fully loaded
 window.addEventListener("load", initMainCarousel);

@@ -69,6 +69,13 @@ body {
   border-radius: 15px;
 }
 
+.main-carousel-announcements {
+  display: flex;
+  justify-content: space-between;
+  align-items: stretch;
+  gap: 20px;
+}
+
 .prev-button,
 .next-button {
   position: absolute;

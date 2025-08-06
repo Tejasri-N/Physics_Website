@@ -41,7 +41,16 @@ body {
   position: relative;
 }
 
-
+.carousel-container {
+  position: relative;
+  width: 100%;
+  max-width: 72%;
+  height: 430px;  /* Lock height */
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
 
 
 .carousel {
@@ -74,6 +83,7 @@ body {
   justify-content: space-between;
   align-items: flex-start;
   gap: 20px;
+  flex-wrap: wrap;
 }
 
 .prev-button,
@@ -347,7 +357,7 @@ hr {
   width: 100%;
   display: flex;
   justify-content: space-between;
-  align-items: stretch;
+  align-items: flex-start;
   gap: 20px;
   flex-wrap: wrap; /* ✅ added */
 }
@@ -408,5 +418,6 @@ hr {
 .announcements {
  width: 27%;
   height: 430px;
+  overflow-y: auto
 }
 

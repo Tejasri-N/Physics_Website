@@ -137,15 +137,7 @@ body {
   height: 430px;
   overflow-y: auto;
   box-sizing: border-box;
-
-  /* These apply to all screen sizes */
-  border: 1px solid #1f4e79;
-  border-radius: 8px;
-  padding: 15px;
-  background-color: #ffffff;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
-
 
 
 .announcements h2 {
@@ -421,7 +413,17 @@ hr {
   height: auto !important;
   margin-bottom: 0;
 }
-
+  
+.announcements {
+    width: 100% !important;
+    height: auto !important;
+    padding: 15px;
+    border: 1px solid #1f4e79;
+    border-radius: 8px;
+    background-color: #fff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    box-sizing: border-box;
+  }
 
 
   .announcement-list {

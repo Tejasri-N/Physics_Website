@@ -150,11 +150,13 @@ body {
 }
 
 .announcement-list {
-  max-height: 300px; /* Adjust height as needed */
+  max-height: 300px;
   overflow-y: auto;
-  scrollbar-color: #1f4e79 #fff; /* For Chrome, Safari, and Edge */
+  scrollbar-color: #1f4e79 #fff;
   scrollbar-width: auto;
+  padding-right: 12px; /* 👈 Add this */
 }
+
 
 .announcement-list * {
   text-align: justify;

@@ -133,7 +133,7 @@ body {
 }
 
 .announcements {
-  width: 25%;
+  width: 23%;
   height: 430px;
 
   overflow-y: auto;
@@ -154,8 +154,14 @@ body {
   overflow-y: auto;
   scrollbar-color: #1f4e79 #fff; /* For Chrome, Safari, and Edge */
   scrollbar-width: auto;
-   text-align: justify;
 }
+
+.announcement-list * {
+  text-align: justify;
+  line-height: 1.6;
+  word-break: break-word;
+}
+
 
 .announcement-list::-webkit-scrollbar {
   width: 10px;
@@ -512,15 +518,5 @@ hr {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-}
-
-
-
-
-.announcements {
- width: 23%;
-  height: 430px;
-  overflow-y: auto;
-  box-sizing: border-box;
 }
 

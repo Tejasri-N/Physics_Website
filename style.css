@@ -459,6 +459,39 @@ hr {
     object-fit: cover;
   }
 }
+@media (max-width: 1024px) {
+  .main-carousel-announcements {
+    flex-direction: column;
+    gap: 20px;
+    width: 100%;
+    align-items: center;
+  }
+
+  .carousel-container {
+    width: 100% !important;
+    max-width: 100% !important;
+    height: auto !important;
+  }
+
+  .announcements {
+    width: 100% !important;
+    height: auto !important;
+    padding: 15px;
+    border: 2px solid #1f4e79;
+    border-radius: 8px;
+    background-color: #ffffff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    box-sizing: border-box;
+    margin-bottom: 20px;
+  }
+
+  .carousel-item img {
+    max-height: 50vh;
+    object-fit: cover;
+  }
+}
+
+
 
 .page-container {
   max-width: 1200px;

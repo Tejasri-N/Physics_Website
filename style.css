@@ -164,9 +164,15 @@ body {
 
 .announcement-list a {
   word-break: break-word;
+  overflow-wrap: anywhere;     /* <-- Handles unbreakable chunks */
   white-space: normal;
   line-height: 1.5;
+  display: inline;
+  text-decoration: none;
+  color: #1f4e79;
 }
+
+
 .announcement-list p, .announcement-list span, .announcement-list div {
   line-height: 1.5;
   margin-bottom: 8px;

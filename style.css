@@ -172,6 +172,12 @@ body {
   margin-bottom: 8px;
 }
 
+.announcement-list > div {
+  margin-bottom: 12px;
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 8px;
+}
+
 
 .announcement-list::-webkit-scrollbar {
   width: 10px;

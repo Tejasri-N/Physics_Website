@@ -452,7 +452,7 @@ hr {
 }
 
   .carousel-item img {
-    max-height: 250px;
+    max-height: 55vh;
     object-fit: cover;
   }
 }

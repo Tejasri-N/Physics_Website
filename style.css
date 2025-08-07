@@ -373,14 +373,19 @@ hr {
   flex-wrap: wrap; /* ✅ added */
    flex-direction: column;
 }
+
+ .announcements {
+  width: 25%;
+  padding: 10px;
+   height: auto;
+  border: 1px solid #1f4e79;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+    margin-top: 20px;
+  /* background-color: #f0f0f0; */
+}
+
  
-  .announcements {
-      width: 100%;
-      height: auto;
-      margin-top: 20px;
-    
-  }
-  
 .carousel-item img {
     max-height: 40vh;
   }
@@ -418,16 +423,17 @@ hr {
   height: auto !important;
   margin-bottom: 0;
 }
+
   
 
   .announcements {
     width: 100% !important;
     height: auto !important;
-    padding: 15px;
+    padding: 10px;
     border: 1px solid #1f4e79;
     border-radius: 8px;
     background-color: #ffffff;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
     box-sizing: border-box;
   }
 

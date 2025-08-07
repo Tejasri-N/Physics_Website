@@ -162,6 +162,16 @@ body {
   word-break: break-word;
 }
 
+.announcement-list a {
+  word-break: break-word;
+  white-space: normal;
+  line-height: 1.5;
+}
+.announcement-list p, .announcement-list span, .announcement-list div {
+  line-height: 1.5;
+  margin-bottom: 8px;
+}
+
 
 .announcement-list::-webkit-scrollbar {
   width: 10px;

@@ -435,8 +435,9 @@ hr {
 
 
 .announcements {
- width: 27%;
+ width: 23%;
   height: 430px;
-  overflow-y: auto
+  overflow-y: auto;
+  box-sizing: border-box;
 }
 

@@ -400,11 +400,12 @@ hr {
     box-sizing: border-box;
   }
 
-  .carousel-container {
-    width: 100% !important;
-    max-width: 100%;
-    height: auto;
-  }
+ .carousel-container {
+  width: 100% !important;
+  max-width: 100% !important;
+  height: auto !important;
+  margin-bottom: 0;
+}
 
   .announcements {
     width: 100% !important;
@@ -420,13 +421,11 @@ hr {
   }
 
   .carousel-item img {
-    max-height: 40vh;
+    max-height: 250px;
     object-fit: cover;
   }
 }
 
-
- 
 .page-container {
   max-width: 1200px;
   margin: auto;

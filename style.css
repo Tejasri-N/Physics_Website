@@ -475,6 +475,7 @@ hr {
 
   .announcements {
     width: 100% !important;
+    max-width: 100% !important;
     height: auto !important;
     padding: 15px;
     border: 2px solid #1f4e79;
@@ -482,7 +483,7 @@ hr {
     background-color: #ffffff;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
     box-sizing: border-box;
-    margin-bottom: 20px;
+    display: block; /* ensure no shrinking */
   }
 
   .carousel-item img {

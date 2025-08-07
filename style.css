@@ -136,8 +136,14 @@ body {
   width: 23%;
   height: 430px;
   overflow-y: auto;
+  padding: 15px;
+  border: 1px solid #1f4e79;
+  border-radius: 8px;
+  background-color: #ffffff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
   box-sizing: border-box;
 }
+
 
 
 .announcements h2 {
@@ -414,16 +420,18 @@ hr {
   margin-bottom: 0;
 }
   
-.announcements {
+
+  .announcements {
     width: 100% !important;
     height: auto !important;
     padding: 15px;
     border: 1px solid #1f4e79;
     border-radius: 8px;
-    background-color: #fff;
+    background-color: #ffffff;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
     box-sizing: border-box;
   }
+
 
 
   .announcement-list {

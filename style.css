@@ -154,6 +154,7 @@ body {
   overflow-y: auto;
   scrollbar-color: #1f4e79 #fff; /* For Chrome, Safari, and Edge */
   scrollbar-width: auto;
+   text-align: justify;
 }
 
 .announcement-list::-webkit-scrollbar {

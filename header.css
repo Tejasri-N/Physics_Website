@@ -26,7 +26,7 @@
   align-items: center;
   justify-content: space-between;
   /* background: #1a1b2b; */
-background: linear-gradient(90deg, #0052D4, #00c6ff, #ffa500);
+background: linear-gradient(to right, #f26a1b, #f7b733); /* orange gradient */
   color: var(--color-white);
   padding: 10px;
   margin-bottom: 10px;

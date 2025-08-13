@@ -348,14 +348,32 @@ hr {
 }
 
 .seminars-events-list a {
-  text-decoration: none;      /* Removes underline */
-  color: #1f4e79;              /* Matches announcements text color */
-  display: inline;             /* Keeps inline flow, so box remains unchanged */
+  position: relative;
+  text-decoration: none;          /* Remove default underline */
+  color: #1f4e79;                  /* Original link color */
+  display: inline-block;
+  padding-bottom: 2px;
   transition: color 0.3s ease;
 }
 
+.seminars-events-list a::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  width: 0;
+  height: 2px;                     /* Underline thickness */
+  background-color: #f75842;       /* Accent underline color */
+  transition: width 0.3s ease, left 0.3s ease;
+}
+
 .seminars-events-list a:hover {
-  color: #f75842;              /* Hover color (same as announcements hover) */
+  color: #f75842;                  /* Text color change on hover */
+}
+
+.seminars-events-list a:hover::after {
+  width: 100%;
+  left: 0;                         /* Center-to-full animation */
 }
 
 

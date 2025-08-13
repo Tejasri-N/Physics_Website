@@ -172,8 +172,30 @@ body {
   display: inline;
   text-decoration: none;
   color: #1f4e79;
+  position: relative;
+  color: #1f4e79;
+  text-decoration: none;
+  transition: color 0.25s ease;
 }
 
+.announcement-list a::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -2px;
+  width: 0%;
+  height: 2px;
+  background-color: #00bf8e; /* Fresh accent color */
+  transition: width 0.3s ease;
+}
+
+.announcement-list a:hover {
+  color: #00bf8e;
+}
+
+.announcement-list a:hover::after {
+  width: 100%;
+}
 
 .announcement-list p, .announcement-list span, .announcement-list div {
   line-height: 1.5;

@@ -347,6 +347,18 @@ hr {
   /* background-color: #f0f0f0; */
 }
 
+.seminars-events-list a {
+  text-decoration: none;      /* Removes underline */
+  color: #1f4e79;              /* Matches announcements text color */
+  display: inline;             /* Keeps inline flow, so box remains unchanged */
+  transition: color 0.3s ease;
+}
+
+.seminars-events-list a:hover {
+  color: #f75842;              /* Hover color (same as announcements hover) */
+}
+
+
 .latest-publications {
   width: 30%;
   padding: 10px;

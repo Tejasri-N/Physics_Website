@@ -175,7 +175,7 @@ body {
   position: relative;
   color: #1f4e79;
   text-decoration: none;
-  transition: color 0.25s ease;
+  transition: color 0.3s ease, text-shadow 0.3s ease;
 }
 
 .announcement-list a::after {
@@ -190,7 +190,23 @@ body {
 }
 
 .announcement-list a:hover {
-  color: #00bf8e;
+  color: #ff7b00; /* Attractive accent color */
+  text-shadow: 0 2px 8px rgba(255, 123, 0, 0.4); /* Glow */
+}
+
+.announcement-list a::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -2px;
+  width: 0%;
+  height: 2px;
+  background: linear-gradient(90deg, #ff7b00, transparent);
+  transition: width 0.3s ease;
+}
+
+.announcement-list a:hover::before {
+  width: 100%;
 }
 
 .announcement-list a:hover::after {

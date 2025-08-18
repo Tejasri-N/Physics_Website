@@ -139,6 +139,20 @@ body {
   transform: translateY(-50%) scale(1.08);
 }
 
+.carousel-container:hover .prev-button,
+.carousel-container:hover .next-button {
+  top: 50%;                   /* Center vertically */
+  transform: translateY(-50%);/* Align exactly in the middle */
+  opacity: 0.6;               /* Become visible on hover */
+}
+
+.carousel-container .prev-button,
+.carousel-container .next-button {
+  opacity: 0;                 /* Hidden by default */
+  transition: opacity 0.3s, transform 0.3s;
+}
+
+
 .carousel-dots {
   position: relative;
   text-align: center;

@@ -431,6 +431,7 @@ hr {
   overflow-y: auto;
   scrollbar-color: #1f4e79 #fff; /* For Chrome, Safari, and Edge */
   scrollbar-width: auto;
+  margin-bottom: 10px;
 }
 
 .spotlight-list::-webkit-scrollbar,

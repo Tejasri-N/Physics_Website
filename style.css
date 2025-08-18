@@ -60,6 +60,7 @@ body {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  margin-bottom: 0 !important;
 }
 
 
@@ -156,7 +157,8 @@ body {
 .carousel-dots {
   position: relative;
   text-align: center;
-  margin-top: 5px;
+  margin-top: 2px;
+   margin-bottom: 0;
     
 }
 

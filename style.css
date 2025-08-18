@@ -107,22 +107,38 @@ body {
   flex-wrap: wrap;
 }
 
+/* === Carousel Arrow Redesign === */
 .prev-button,
 .next-button {
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  background-color: transparent;
+  width: 48px;
+  height: 48px;
   border: none;
-  font-size: 40px;
-  cursor: pointer;
-  align-items: center;
-  padding: 3px 10px;
+  background: rgba(255,255,255,0.2);
+  color: #1f4e79;
   border-radius: 50%;
-  background-color: white;
-  color: #333;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  font-size: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.3;
+  transition: opacity 0.3s ease, transform 0.3s ease, background 0.3s ease;
+  cursor: pointer;
+  z-index: 3;
 }
+.prev-button { left: 10px; }
+.next-button { right: 10px; }
+.prev-button:hover,
+.next-button:hover {
+  opacity: 1;
+  background: #ff7b00;
+  color: #fff;
+  transform: translateY(-50%) scale(1.1);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+
 
 .prev-button {
   left: 0;

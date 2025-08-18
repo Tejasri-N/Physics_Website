@@ -645,15 +645,3 @@ hr {
   padding: 20px;
   box-sizing: border-box;
 }
-
-
-.carousel-container {
-  position: relative;
-  width: 100%;
-  max-width: 72%;
-  height: 430px;         /* 👈 lock height */
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-}

@@ -652,4 +652,20 @@ hr {
   flex-direction: column;
   justify-content: space-between;
 }
+/* ——— Perfectly centre carousel arrows vertically on hover ——— */
+
+.carousel-container .prev-button,
+.carousel-container .next-button {
+  top: 50%;                     /* force center vertically */
+  transform: translateY(-50%);  /* exact centering */
+  opacity: 0;                   /* hidden by default */
+  pointer-events: none;         /* avoid click when invisible */
+  transition: opacity 0.3s ease;
+}
+
+.carousel-container:hover .prev-button,
+.carousel-container:hover .next-button {
+  opacity: 0.85;                /* visible only when hovering over carousel */
+  pointer-events: auto;         /* enable click */
+}
 

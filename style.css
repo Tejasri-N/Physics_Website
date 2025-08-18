@@ -652,19 +652,3 @@ hr {
   flex-direction: column;
   justify-content: space-between;
 }
-/* ——— Perfectly centre carousel arrows vertically on hover ——— */
-
-/* Ensure arrows are perfectly center-aligned vertically */
-.carousel-container .prev-button,
-.carousel-container .next-button {
-  top: 50%;
-  transform: translateY(-50%);     /* exact centering */
-  line-height: 0;                  /* removes internal vertical shift caused by font */
-  padding: 0;                      /* remove extra padding */
-}
-
-.carousel-container .prev-button i,
-.carousel-container .next-button i {
-  line-height: 0;                  /* if you're using <i class="..."> for icons */
-}
-

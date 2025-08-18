@@ -39,6 +39,7 @@ body {
   align-items: center;
   justify-content: center;
   position: relative;
+  transition: box-shadow 0.4s ease;
 }
 
 .carousel-container {
@@ -81,6 +82,9 @@ body {
 
 .carousel-item img:hover {
   transform: scale(1.03);              /* subtle zoom on hover */
+}
+.carousel-item:hover {
+  box-shadow: 0 0 15px rgba(31, 78, 121, 0.4);  /* soft blue glow */
 }
 
 .main-carousel-announcements {

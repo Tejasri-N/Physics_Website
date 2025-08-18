@@ -432,6 +432,7 @@ hr {
   scrollbar-color: #1f4e79 #fff; /* For Chrome, Safari, and Edge */
   scrollbar-width: auto;
   margin-bottom: 10px;
+  word-break: break-word;
 }
 
 .spotlight-list::-webkit-scrollbar,

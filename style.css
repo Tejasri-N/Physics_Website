@@ -127,9 +127,12 @@ body {
   transition: opacity 0.3s ease, transform 0.3s ease, background 0.3s ease;
   cursor: pointer;
   z-index: 3;
+  pointer-events:auto;
 }
+
 .prev-button { left: 10px; }
 .next-button { right: 10px; }
+
 .prev-button:hover,
 .next-button:hover {
   opacity: 1;

@@ -654,18 +654,17 @@ hr {
 }
 /* ——— Perfectly centre carousel arrows vertically on hover ——— */
 
+/* Ensure arrows are perfectly center-aligned vertically */
 .carousel-container .prev-button,
 .carousel-container .next-button {
-  top: 50%;                     /* force center vertically */
-  transform: translateY(-50%);  /* exact centering */
-  opacity: 0;                   /* hidden by default */
-  pointer-events: none;         /* avoid click when invisible */
-  transition: opacity 0.3s ease;
+  top: 50%;
+  transform: translateY(-50%);     /* exact centering */
+  line-height: 0;                  /* removes internal vertical shift caused by font */
+  padding: 0;                      /* remove extra padding */
 }
 
-.carousel-container:hover .prev-button,
-.carousel-container:hover .next-button {
-  opacity: 0.85;                /* visible only when hovering over carousel */
-  pointer-events: auto;         /* enable click */
+.carousel-container .prev-button i,
+.carousel-container .next-button i {
+  line-height: 0;                  /* if you're using <i class="..."> for icons */
 }
 

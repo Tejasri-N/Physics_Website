@@ -76,6 +76,11 @@ body {
   object-fit: cover;
   max-height: 430px;
   border-radius: 15px;
+  transition: transform 0.4s ease;
+}
+
+.carousel-item img:hover {
+  transform: scale(1.03);              /* subtle zoom on hover */
 }
 
 .main-carousel-announcements {

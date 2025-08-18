@@ -143,7 +143,7 @@ body {
 .carousel-container:hover .next-button {
   top: 50%;                   /* Center vertically */
   transform: translateY(-50%);/* Align exactly in the middle */
-  opacity: 0.6;               /* Become visible on hover */
+  opacity: 0.85;               /* Become visible on hover */
 }
 
 .carousel-container .prev-button,

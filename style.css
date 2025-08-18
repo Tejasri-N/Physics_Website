@@ -55,7 +55,7 @@ body {
   position: relative;
   width: 100%;
   max-width: 72%;
-  height: 400px;  /* Lock height */
+  height: 500px;  /* Lock height */
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -87,7 +87,7 @@ body {
   width: 100%;
   height: auto;
   object-fit: cover;
-  max-height: 400px;
+  max-height: 500px;
   border-radius: 15px;
   transition: transform 0.4s ease, box-shadow 0.4s ease;
 }

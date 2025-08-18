@@ -79,13 +79,13 @@ body {
   border-radius: 15px;
   transition: transform 0.4s ease;
 }
-
+/* Glow on image hover instead of wrapper */
 .carousel-item img:hover {
-  transform: scale(1.03);              /* subtle zoom on hover */
-}
-.carousel-item:hover {
+  transform: scale(1.03);
   box-shadow: 0 0 15px rgba(31, 78, 121, 0.4);  /* soft blue glow */
+  border-radius: 15px;
 }
+
 
 .main-carousel-announcements {
   display: flex;

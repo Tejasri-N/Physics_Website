@@ -107,6 +107,7 @@ body {
   align-items: flex-end;
   gap: 20px;
   flex-wrap: wrap;
+  min-height: 430px;
 }
 
 /* === Carousel Arrow Redesign === */

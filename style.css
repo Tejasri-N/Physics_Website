@@ -542,7 +542,7 @@ hr {
 }
 
 /* Prevent overlap of Spotlight / Seminars / Publications on narrow tablets */
-@media (max-width: 950px) {
+@media (max-width: 1000px) {
   .spotlight-section {
     flex-direction: column;
     align-items: center;

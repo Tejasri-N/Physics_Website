@@ -645,6 +645,6 @@ hr {
 .page-container {
   max-width: 1200px;
   margin: auto;
-  padding: 20px;
+  padding: 0px;
   box-sizing: border-box;
 }

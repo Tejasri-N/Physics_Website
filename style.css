@@ -506,7 +506,7 @@ hr {
 /* Responsive adjustments */
 
 /* ✅ Tablet view — scrollable announcements box under carousel */
-@media (min-width: 481px) and (max-width: 768px) {
+@media (min-width: 481px) and (max-width: 1050px) {
   .main-carousel-announcements {
     flex-direction: column;
     align-items: center;

@@ -104,7 +104,7 @@ body {
 .main-carousel-announcements {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
   gap: 20px;
   flex-wrap: wrap;
 }
@@ -569,7 +569,8 @@ hr {
   width: 100% !important;
   max-width: 100% !important;
   height: auto !important;
-  margin-bottom: 0;
+  margin-top: -10px;
+  margin-bottom: 10px;
   flex: 1;
 }
 

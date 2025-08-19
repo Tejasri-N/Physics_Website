@@ -179,13 +179,13 @@ body {
 
 .announcements {
   width: 23%;
-  height: 500px;
+  height: 100%;          /* take full height of the carousel container */
   overflow-y: auto;
   padding: 10px;
-   border: 2px solid #1f4e79;
+  border: 2px solid #1f4e79;
   border-radius: 8px;
   background-color: #ffffff;
- box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
   box-sizing: border-box;
 }
 

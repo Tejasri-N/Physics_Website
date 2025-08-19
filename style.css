@@ -41,6 +41,7 @@ body {
   position: relative;
   transition: box-shadow 0.4s ease;
   border-radius: 15px;
+  margin: 0;
 }
 .carousel-item:hover::after {
   content: "";
@@ -192,6 +193,7 @@ body {
 
 .announcements h2 {
   text-align: center;
+  margin: 0;
 }
 
 .announcement-list {

@@ -475,6 +475,37 @@ hr {
   scrollbar-width: auto;
 }
 
+/* Hover effects for Latest Publications links */
+.latest-publications-list a {
+  position: relative;
+  text-decoration: none;
+  color: #1f4e79;            /* default link color */
+  display: inline-block;
+  padding-bottom: 2px;
+  transition: color 0.3s ease;
+}
+
+.latest-publications-list a::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  width: 0;
+  height: 2px;
+  background-color: #6c63ff;  /* blue accent */
+  transition: width 0.3s ease, left 0.3s ease;
+}
+
+.latest-publications-list a:hover {
+  color: #6c63ff;
+}
+
+.latest-publications-list a:hover::after {
+  width: 100%;
+  left: 0;
+}
+
+
 /* match scrollbar styling with the rest */
 .latest-publications-list::-webkit-scrollbar {
   width: 10px;

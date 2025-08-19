@@ -54,7 +54,7 @@ body {
 .carousel-container {
   position: relative;
   width: 100%;
-  max-width: 72%;
+  max-width: 74%;
   height: 430px;  /* Lock height */
   overflow: hidden;
   display: flex;
@@ -107,7 +107,7 @@ body {
   align-items: flex-end;
   gap: 20px;
   flex-wrap: wrap;
-  min-height: 430px;
+  height: 430px;
 }
 
 /* === Carousel Arrow Redesign === */

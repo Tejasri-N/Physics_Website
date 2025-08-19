@@ -194,8 +194,8 @@ body {
 }
 
 .announcement-list {
-  max-height: calc(500px - 60px);
-  overflow: hidden;
+  max-height: calc(100% - 60px);
+  overflow-y: auto;
   scrollbar-color: #1f4e79 #fff;
   scrollbar-width: auto;
   padding-right: 12px; /* 👈 Add this */

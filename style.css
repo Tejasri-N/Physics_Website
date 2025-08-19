@@ -541,6 +541,22 @@ hr {
   }
 }
 
+/* Prevent overlap of Spotlight / Seminars / Publications on narrow tablets */
+@media (max-width: 650px) {
+  .spotlight-section {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .spotlight,
+  .seminars-events,
+  .latest-publications {
+    width: 100%;
+    margin-bottom: 20px;
+  }
+}
+
+
 @media (max-width: 480px) {
   body {
     overflow-x: hidden;

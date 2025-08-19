@@ -556,51 +556,33 @@ hr {
   }
 
   .main-carousel-announcements {
-    flex-direction: column;
+    flex-direction: column;      /* stack vertically */
     align-items: center;
     gap: 30px;
     width: 100%;
     padding: 0 10px;
     box-sizing: border-box;
     margin-bottom: 0;
+    height: auto !important;     /* override the fixed height */
   }
 
- .carousel-container {
-  width: 100% !important;
-  max-width: 100% !important;
-  height: auto !important;
-  margin-top: -10px;
-  margin-bottom: 10px;
-  flex: 1;
-}
-
-  
-
- /* 📌 updated */
-  .announcements {
+  .carousel-container {
     width: 100% !important;
-    height: auto !important;        /* let it grow naturally */
-    padding: 20px;
-    border: 2px solid #1f4e79;
-    border-radius: 8px;
-    background-color: #ffffff;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-    box-sizing: border-box;
-    overflow: visible !important;   /* no inner scroll */
-    align-self: flex-end;
+    max-width: 100% !important;
+    height: auto !important;
+    margin: 0 auto 10px auto;
   }
 
- /* 📌 updated */
+  .announcements {
+    width: 100% !important;      /* full width */
+    height: auto !important;     /* let it grow */
+    overflow: visible !important;
+    align-self: stretch !important;
+  }
+
   .announcement-list {
-    max-height: none !important;    /* remove height cap */
-    overflow: visible !important;   /* remove inner scrollbar */
-    width: 100%;
-  }
-
-  .announcement-list hr {
-    margin: 10px 0;
-    border: 0;
-    border-top: 1px solid #ccc;
+    max-height: none !important;
+    overflow: visible !important;
   }
 
   .carousel-item img {
@@ -608,6 +590,7 @@ hr {
     object-fit: cover;
   }
 }
+
 @media (max-width: 1024px) {
   .main-carousel-announcements {
     flex-direction: column;

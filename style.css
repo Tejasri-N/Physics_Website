@@ -718,3 +718,16 @@ hr {
   color: #222;         /* darker text */
   font-weight: 500;    /* slightly bolder */
 }
+
+/* Darker link color inside content boxes */
+.announcement-list a,
+.seminars-events-list a,
+.latest-publications-list a {
+    color: #333;
+}
+
+.announcement-list a:hover,
+.seminars-events-list a:hover,
+.latest-publications-list a:hover {
+    color: #000;
+}

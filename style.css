@@ -687,11 +687,25 @@ hr {
   }
 }
 
-
-
 .page-container {
   max-width: 1200px;
   margin: auto;
   padding: 0 20px 20px 20px;
   box-sizing: border-box;
+}
+
+/* Soft hover effect for content boxes (no layout shift) */
+.announcements,
+.spotlight,
+.seminars-events,
+.latest-publications {
+  transition: background-color 0.3s ease, border-radius 0.3s ease;
+}
+
+.announcements:hover,
+.spotlight:hover,
+.seminars-events:hover,
+.latest-publications:hover {
+  background-color: #f5f7ff; /* subtle light shade */
+  border-radius: 12px;       /* rounded corners on hover */
 }

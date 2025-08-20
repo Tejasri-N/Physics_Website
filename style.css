@@ -709,3 +709,12 @@ hr {
   background-color: #fff4e5; /* subtle light shade */
   border-radius: 12px;       /* rounded corners on hover */
 }
+
+/* Darker text inside all four boxes */
+.announcement-list,
+.spotlight,
+.seminars-events-list,
+.latest-publications-list {
+  color: #222;         /* darker text */
+  font-weight: 500;    /* slightly bolder */
+}

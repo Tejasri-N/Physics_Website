@@ -706,6 +706,6 @@ hr {
 .spotlight:hover,
 .seminars-events:hover,
 .latest-publications:hover {
-  background-color: #f5f7ff; /* subtle light shade */
+  background-color: #fff4e5; /* subtle light shade */
   border-radius: 12px;       /* rounded corners on hover */
 }

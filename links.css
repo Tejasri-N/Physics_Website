@@ -157,9 +157,14 @@ body {
 
 /* responsive */
 @media (max-width: 900px) {
-  .table-header,
+  /* Top header: 3 columns (S.No | Section | Email) */
+  .table-header {
+    grid-template-columns: 50px 1fr 120px;
+  }
+
+  /* Row header: 4 columns (S.No | Section | Email | arrow) */
   .links-header {
-    grid-template-columns: 50px 1fr 120px 28px; /* compact */
+    grid-template-columns: 50px 1fr 120px 28px;
   }
 
   .table-header .col-sno,
@@ -176,3 +181,13 @@ body {
     padding: 8px 6px;
   }
 }
+/* Wrap long URLs nicely */
+.links-table a {
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  text-decoration: none;
+}
+.links-table a:hover {
+  text-decoration: underline;
+}
+

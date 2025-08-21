@@ -1,0 +1,178 @@
+/* =================== Links page (links.css) =================== */
+body {
+  font-family: "Segoe UI", Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  background: #ffffff;
+  color: #143f4e;
+  min-height: 100vh;
+}
+
+.com-container {
+  max-width: 1100px;
+  margin: 0 auto;
+  margin-bottom: 30px;
+}
+
+.main-title {
+  text-align: center;
+  color: #0d2b36;
+  margin-bottom: 40px;
+  font-weight: 400;
+  letter-spacing: 2px;
+  border-bottom: 4px solid #004080;
+  padding-bottom: 12px;
+}
+
+/* wrapper replacing .committees-table */
+.links-table-wrapper {
+  background: #e3f6f5;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 8px 32px rgba(44, 62, 80, 0.08);
+  border: 1.5px solid #b2dfdb;
+}
+
+/* header row at the top of the list */
+.table-header {
+  display: grid;
+  grid-template-columns: 80px 1fr 340px; /* S.No | Section | Email (optional) */
+  padding: 18px 0;
+  background: #b2ebf2;
+  font-weight: bold;
+  border-bottom: 2px solid #00458f;
+}
+
+.table-header .col-sno {
+  padding: 0 24px;
+  border-right: 2px solid #00458f;
+}
+.table-header .col-name {
+  padding: 0 24px;
+  border-right: 2px solid #00458f;
+}
+.table-header .col-email {
+  padding: 0 24px;
+}
+
+/* collapsible row header (replaces .committee-header) */
+.links-header {
+  display: grid;
+  grid-template-columns: 80px 1fr 300px 40px; /* S.No | Section | Email | arrow */
+  align-items: center;
+  padding: 16px 0;
+  border-bottom: 1.5px solid #00458f;
+  cursor: pointer;
+  background: #f2f2f2;
+  transition: border-color 0.3s, background 0.3s;
+}
+
+.links-header .col-sno {
+  padding: 0 24px;
+  border-right: 2px solid #00458f;
+}
+.links-header .col-name {
+  padding: 0 24px;
+  border-right: 2px solid #00458f;
+}
+.links-header .col-email {
+  padding: 0 24px;
+}
+
+.links-header:hover,
+.links-header.active {
+  border-bottom: 1.5px solid #43cea2;
+  background: #e0f2f1;
+}
+
+.arrow {
+  transition: transform 0.3s;
+  font-size: 16px;
+  color: #008080;
+  justify-self: center;
+}
+
+.links-header.active .arrow {
+  transform: rotate(180deg);
+}
+
+/* email link (replaces .committee-mail) */
+.links-mail {
+  color: #008080;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s;
+  word-break: break-all;
+}
+.links-mail:hover {
+  color: #43cea2;
+  text-decoration: underline;
+}
+
+/* collapsible content (replaces .committee-content) */
+.links-content {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  background: #fafdfe;
+}
+
+/* inner table (replaces .members-table) */
+.links-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fafdfe;
+}
+
+.links-table th,
+.links-table td {
+  border-right: 1.5px solid #b2dfdb;
+  border-bottom: 1.5px solid #b2dfdb;
+  padding: 12px 18px;
+  text-align: left;
+}
+
+.links-table th {
+  background: #018799;
+  color: #ffffff;
+  font-weight: 500;
+}
+
+.links-table tr:last-child td {
+  border-bottom: none;
+}
+
+.links-table th:last-child,
+.links-table td:last-child {
+  border-right: none;
+}
+
+.links-table tr:hover {
+  background: #e0f2f1;
+}
+
+.links-table tbody tr:nth-child(even) {
+  background: #eaf4fb;
+}
+
+/* responsive */
+@media (max-width: 900px) {
+  .table-header,
+  .links-header {
+    grid-template-columns: 50px 1fr 120px 28px; /* compact */
+  }
+
+  .table-header .col-sno,
+  .links-header .col-sno,
+  .table-header .col-name,
+  .links-header .col-name,
+  .table-header .col-email,
+  .links-header .col-email {
+    padding: 0 10px;
+  }
+
+  .links-table th,
+  .links-table td {
+    padding: 8px 6px;
+  }
+}

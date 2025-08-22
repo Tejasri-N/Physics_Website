@@ -300,6 +300,7 @@ hr {
 }
 
 .spotlight {
+  height: 360px;
   width: 25%;
   padding: 10px;
   border: 1px solid #1f4e79;

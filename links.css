@@ -151,9 +151,20 @@ body {
   background: #e0f2f1;
 }
 
-.links-table tbody tr:nth-child(even) {
-  background: #eaf4fb;
+/* Alternating row colors with orange tint */
+.links-table tbody tr:nth-child(odd) {
+  background-color: #fff8f0; /* very light orange background */
 }
+
+.links-table tbody tr:nth-child(even) {
+  background-color: #ffeedd; /* slightly deeper tint */
+}
+
+/* Hover effect */
+.links-table tbody tr:hover {
+  background-color: #ffe1c4; /* highlight shade */
+}
+
 
 /* responsive */
 @media (max-width: 900px) {

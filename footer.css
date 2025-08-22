@@ -90,3 +90,104 @@
   .footer-container { grid-template-columns: 1fr; }
   .footer-map iframe { height:200px; }
 }
+
+/* --- Footer link polish: underline + chevron + focus ring --- */
+
+/* generic footer anchors */
+.footer a{
+  color: var(--color-white);
+  text-decoration: none;
+  opacity:.92;
+  transition: color .2s ease, opacity .2s ease, transform .2s ease;
+}
+.footer a:hover{ color:#fff; opacity:1; }
+
+/* QUICK LINKS: animated underline + sliding chevron */
+.footer-links ul{ list-style:none; margin:0; padding:0; }
+.footer-links li{ margin:8px 0; }
+
+.footer-links a{
+  position:relative;
+  display:inline-flex;
+  align-items:center;
+  gap:.5rem;
+  font-weight:500;
+  letter-spacing:.2px;
+}
+
+/* underline */
+.footer-links a::before{
+  content:"";
+  position:absolute;
+  left:0; bottom:-2px;
+  width:100%; height:2px;
+  background: linear-gradient(90deg, var(--color-primary), var(--color-bg2));
+  transform: scaleX(0);
+  transform-origin:left;
+  transition: transform .25s ease;
+  border-radius:2px;
+}
+
+/* chevron */
+.footer-links a::after{
+  content:"›";
+  font-size:14px; line-height:1;
+  transform: translateX(-4px);
+  opacity:.6;
+  transition: transform .25s ease, opacity .25s ease;
+}
+
+.footer-links a:hover::before,
+.footer-links a:focus-visible::before{ transform: scaleX(1); }
+
+.footer-links a:hover::after,
+.footer-links a:focus-visible::after{
+  transform: translateX(0);
+  opacity:1;
+}
+
+/* keyboard focus ring */
+.footer a:focus-visible{
+  outline:2px solid color-mix(in srgb, var(--color-primary) 65%, #fff 35%);
+  outline-offset:3px;
+  border-radius:6px;
+}
+
+/* compact two-column list on wide screens */
+@media (min-width: 900px){
+  .footer-links ul{ columns:2; column-gap:24px; }
+  .footer-links li{ break-inside:avoid; }
+}
+
+/* section title accent line */
+.footer-col h4{
+  position:relative;
+  padding-bottom:6px;
+}
+.footer-col h4::after{
+  content:"";
+  position:absolute; left:0; bottom:0;
+  width:48px; height:3px; border-radius:3px;
+  background: linear-gradient(90deg, var(--color-primary), var(--color-bg2));
+  opacity:.9;
+}
+
+/* optional subtle cards for columns & map */
+.footer-col,
+.footer-map .map-wrap{
+  background: rgba(255,255,255,.02);
+  border: 1px solid rgba(255,255,255,.06);
+  border-radius:10px;
+  padding:12px;
+  box-shadow:0 6px 20px rgba(0,0,0,.25);
+}
+
+/* social icons: tidy spacing */
+.footer-social a{ margin-right:10px; font-size:18px; opacity:.9; }
+.footer-social a:hover{ opacity:1; }
+
+/* respect reduced motion */
+@media (prefers-reduced-motion: reduce){
+  .footer *{ transition:none !important; }
+}
+

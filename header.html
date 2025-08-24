@@ -12,6 +12,28 @@
         ><h2>Indian Institute of Technology Hyderabad</h2></span
       >
     </div>
+<!-- Site Search (header or homepage) -->
+<form id="site-search" action="/search.html" method="get" role="search" style="position:relative;max-width:520px">
+  <input
+    type="search"
+    id="search-input"
+    name="q"
+    placeholder="Search the Physics website…"
+    autocomplete="off"
+    aria-label="Search the Physics website"
+    style="width:100%;padding:10px 14px;border:1px solid #ccc;border-radius:8px"
+  />
+  <!-- (Optional) live suggestions: remove this div if you don't want it -->
+  <div id="search-suggest" style="display:none;position:absolute;left:0;right:0;top:42px;background:#fff;border:1px solid #ddd;border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,.08);z-index:1000;max-height:320px;overflow:auto;"></div>
+</form>
+
+<!-- Fuse.js (fuzzy search) -->
+<script src="https://cdn.jsdelivr.net/npm/fuse.js@7.0.0"></script>
+<!-- Our search logic (you’ll create /js/search.js in step 3) -->
+<script src="/js/search.js" defer></script>
+
+
+    
     <div class="mobile-title">
       <span class="dept"><h1>Dept of Physics</h1></span>
       <span class="inst"><h2>IITH</h2></span>

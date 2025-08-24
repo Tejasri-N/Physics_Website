@@ -14,7 +14,6 @@
     if (indexData) return indexData;
     // js/search.js
 const res = await fetch('searchIndex.json', { cache: 'no-store' });
-
     indexData = await res.json();
     fuse = new Fuse(indexData, {
       includeScore:true,

@@ -303,19 +303,19 @@
     </main>
     <footer class="footer"></footer>
 <!-- Welcome audio (plays once per browser, user-friendly) -->
-<audio id="welcome-audio" preload="auto" playsinline muted>
-  <source src="assets/audio/welcome.mp3" type="audio/mpeg">
+<audio id="Welcome-audio" preload="auto" playsinline muted>
+  <source src="assets/audio/Welcome.mp3" type="audio/mpeg">
 </audio>
 
-<button id="welcome-chip" aria-label="Play welcome message" title="Play welcome message" style="display:none">
+<button id="Welcome-chip" aria-label="Play Welcome message" title="Play Welcome message" style="display:none">
   🔊 Play Welcome
 </button>
 
 <script>
 (function () {
-  const audio = document.getElementById('welcome-audio');
-  const chip  = document.getElementById('welcome-chip');
-  const KEY   = 'iith-physics-welcome-played-v1';
+  const audio = document.getElementById('Welcome-audio');
+  const chip  = document.getElementById('Welcome-chip');
+  const KEY   = 'iith-physics-Welcome-played-v1';
 
   // Set a comfortable default volume (0.0–1.0)
   audio.volume = 0.6;

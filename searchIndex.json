@@ -1,0 +1,163 @@
+[
+  {
+    "title": "Home",
+    "url": "/index.html",
+    "tags": ["department", "physics", "iith", "welcome"],
+    "snippet": "Welcome to the Department of Physics at IIT Hyderabad.",
+    "content": "Welcome to the Department of Physics at IIT Hyderabad. This page highlights announcements, seminars/events, and recent publications."
+  },
+  {
+    "title": "Announcements",
+    "url": "/index.html#announcements",
+    "tags": ["announcements", "news", "updates"],
+    "snippet": "Latest announcements including RA/JRF positions, Ph.D. admissions, and new course offerings.",
+    "content": "Advertisement for RA (Microwave Devices), JRF in DRDO and MoE-STARS projects, Ph.D. selected candidates (July 2025), Introduction to General Relativity (Jul–Oct 2025), Rolling Ph.D. admissions."
+  },
+  {
+    "title": "Seminars & Events",
+    "url": "/index.html#seminars-events",
+    "tags": ["seminars", "events", "conferences"],
+    "snippet": "Department seminars and major events.",
+    "content": "WHEPP XVIII, International Conference on Nanotechnology for Better Living (NBL-25), Phoenix 2025, CMS Data Analysis School 2025."
+  },
+  {
+    "title": "Recent Publications",
+    "url": "/index.html#publications",
+    "tags": ["research", "publications", "papers"],
+    "snippet": "Recent papers from the department.",
+    "content": "Highlights across ACS Applied Electronic Materials, PRL, Advanced Functional Materials, Physics of the Dark Universe, PCCP, PRB, EPJ C, JINST."
+  },
+  {
+    "title": "About: Physics at a Glance",
+    "url": "/about-glance.html",
+    "tags": ["about", "overview", "department"],
+    "snippet": "Overview of the Department of Physics at IITH.",
+    "content": "Vision, mission, brief history, strengths, academic programs and research focus areas."
+  },
+  {
+    "title": "About: HoD Desk",
+    "url": "/hod-desk.html",
+    "tags": ["about", "hod", "message"],
+    "snippet": "Message from the Head of Department.",
+    "content": "Welcome note, departmental highlights, opportunities for students and researchers."
+  },
+  {
+    "title": "About: Physics Brochure (PDF)",
+    "url": "/assets/Physics_Brochure.pdf",
+    "tags": ["about", "brochure", "pdf"],
+    "snippet": "Download the department brochure (PDF).",
+    "content": "Department overview, programs, research, facilities and contact information."
+  },
+  {
+    "title": "About: Physics Video",
+    "url": "https://youtu.be/0_-P6tQ0x8Y?si=JOtgwI7DvesFuCUs",
+    "tags": ["about", "video", "youtube"],
+    "snippet": "Department video on YouTube.",
+    "content": "A short video introduction to the Department of Physics, IIT Hyderabad."
+  },
+  {
+    "title": "People: Faculty",
+    "url": "/faculty.html",
+    "tags": ["people", "faculty", "research", "profiles"],
+    "snippet": "Faculty profiles and research areas.",
+    "content": "Faculty list with research interests, publications, labs and contact details."
+  },
+  {
+    "title": "People: HoD",
+    "url": "/hod.html",
+    "tags": ["people", "hod"],
+    "snippet": "Head of Department profile.",
+    "content": "Current HoD biography, role, research area and contact information."
+  },
+  {
+    "title": "People: Staff",
+    "url": "/staff.html",
+    "tags": ["people", "staff", "administration"],
+    "snippet": "Administrative and technical staff.",
+    "content": "Department staff directory with roles and contact details."
+  },
+  {
+    "title": "People: Students",
+    "url": "/students.html",
+    "tags": ["people", "students"],
+    "snippet": "Student information and lists.",
+    "content": "Current students, student resources and useful links."
+  },
+  {
+    "title": "People: Alumni",
+    "url": "/alumni.html",
+    "tags": ["people", "alumni", "graduates"],
+    "snippet": "Alumni of the department.",
+    "content": "Alumni highlights and graduating cohorts."
+  },
+  {
+    "title": "Research: Areas",
+    "url": "/research.html?tab=Research__areas",
+    "tags": ["research", "areas", "themes"],
+    "snippet": "Research themes in the department.",
+    "content": "Condensed Matter, High Energy Physics, Materials Science, Nanoscience and related areas."
+  },
+  {
+    "title": "Research: Labs",
+    "url": "/research.html?tab=Research__Labs",
+    "tags": ["research", "labs", "facilities"],
+    "snippet": "Research laboratories.",
+    "content": "Research labs, groups and experimental/theoretical infrastructures."
+  },
+  {
+    "title": "Research: Facilities",
+    "url": "/research.html?tab=Physics",
+    "tags": ["research", "facilities", "equipment"],
+    "snippet": "Major facilities and instrumentation.",
+    "content": "Key instruments and facilities supporting research and teaching."
+  },
+  {
+    "title": "Academics: Programs",
+    "url": "/programs.html",
+    "tags": ["academics", "programs", "courses"],
+    "snippet": "Academic programs offered.",
+    "content": "B.Tech, M.Sc, M.Tech and Ph.D programs; curriculum and structure."
+  },
+  {
+    "title": "Academics: Academic Documents",
+    "url": "/academic_docs.html",
+    "tags": ["academics", "documents", "forms"],
+    "snippet": "Academic documents and forms.",
+    "content": "Handbooks, syllabi, regulations and other academic resources."
+  },
+  {
+    "title": "Opportunities: Recruitment",
+    "url": "/opportunities.html",
+    "tags": ["opportunities", "jobs", "recruitment"],
+    "snippet": "Open positions and recruitment.",
+    "content": "Faculty and staff recruitment notices, application instructions."
+  },
+  {
+    "title": "Resources: Useful Links",
+    "url": "/links.html",
+    "tags": ["resources", "links"],
+    "snippet": "Useful institute and external links.",
+    "content": "Quick links to IITH resources, portals and related sites."
+  },
+  {
+    "title": "Resources: Documents",
+    "url": "/documents.html",
+    "tags": ["resources", "documents"],
+    "snippet": "Department documents.",
+    "content": "Guidelines, templates and downloadable resources."
+  },
+  {
+    "title": "Resources: Gallery",
+    "url": "/gallery.html",
+    "tags": ["resources", "gallery", "photos"],
+    "snippet": "Photo gallery.",
+    "content": "Events, labs, campus and department photos."
+  },
+  {
+    "title": "Committees",
+    "url": "/committees.html",
+    "tags": ["governance", "committees"],
+    "snippet": "Department committees and roles.",
+    "content": "List of committees, coordinators and responsibilities."
+  }
+]

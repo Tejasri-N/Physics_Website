@@ -105,11 +105,100 @@
     };
   };
 
-  const extractPeople = (doc, pageHref) => {
-    // Works for faculty/staff/students if they share card-like markup
-    const cards = doc.querySelectorAll(
-      '.faculty-card, .faculty-member, .profile-card, .person, .member, .card, .profile, .fac-card'
-    );
+   // Helpers (put these above extractPeople)
+const cleanText = s => (s || '').replace(/\s+/g,' ').trim();
+const isNameish = s => {
+  // catches Dr./Prof. or 2–4 capitalized words: "Prem Pal", "Manish K. Niranjan"
+  if (/^\s*(prof|professor|dr|sir|madam)\b/i.test(s)) return true;
+  const parts = s.replace(/[(),;:/\-]+/g,' ').trim().split(/\s+/).filter(Boolean);
+  const caps  = parts.filter(w => /^[A-Z][a-zA-Z.\-']+$/.test(w));
+  return caps.length >= 2 && caps.length <= 4;
+};
+   
+ // REPLACE your extractPeople with this:
+const extractPeople = (doc, pageHref) => {
+  const list = [];
+  const pageURL = pageHref.split('#')[0];
+
+  // 1) Card-like containers (fast path)
+  const cards = doc.querySelectorAll(
+    '.faculty-card, .faculty-member, .profile-card, .person, .member, .card, .profile, .fac-card, .member-card'
+  );
+  cards.forEach((card, i) => {
+    const nameEl = card.querySelector('h1,h2,h3,h4,h5,.member-name,.name');
+    const name   = cleanText(nameEl ? nameEl.textContent : card.textContent);
+    if (!name || !isNameish(name)) return;
+
+    const role   = cleanText(card.querySelector('.role,.designation,.title')?.textContent);
+    const areas  = cleanText(card.querySelector('.areas,.research,.research-areas,.interests')?.textContent);
+    const firstP = cleanText(card.querySelector('p')?.textContent);
+
+    const snippet = (role || areas || firstP || `Profile of ${name}.`).slice(0, 160);
+    const content = [role, areas, firstP].filter(Boolean).join(' ').slice(0, 900);
+
+    list.push({
+      title: `Faculty: ${name}`,
+      url: pageURL,              // fragment may not exist; keep it simple & reliable
+      tags: Array.from(new Set(['faculty', ...name.toLowerCase().split(/\s+/),
+        ...(areas ? areas.toLowerCase().split(/[,;/]\s*|\s+/) : [])])),
+      snippet, content
+    });
+  });
+
+  if (list.length) return list; // we found cards—done.
+
+  // 2) Fallback: scan tables and lists
+  //    - Looks for rows/items with a "name-ish" first cell/line
+  const rows = doc.querySelectorAll('table tr');
+  rows.forEach((tr) => {
+    // prefer the first non-empty cell as "name"
+    const cells = Array.from(tr.querySelectorAll('th,td')).map(td => cleanText(td.textContent)).filter(Boolean);
+    if (!cells.length) return;
+    const first = cells[0];
+    if (!isNameish(first)) return;
+
+    const name   = first;
+    const role   = cells.slice(1).find(t => /(prof|assistant|associate|lecturer|scientist|postdoc|staff)/i.test(t)) || '';
+    const areas  = cells.slice(1).find(t => /(research|area|interests|topics|group)/i.test(t)) || '';
+    const extra  = cells.slice(1).join(' ').slice(0, 600);
+
+    const snippet = cleanText([role, areas].filter(Boolean).join(' ')).slice(0, 160) || `Profile of ${name}.`;
+    const content = cleanText([role, areas, extra].filter(Boolean).join(' ')).slice(0, 900);
+
+    list.push({
+      title: `Faculty: ${name}`,
+      url: pageURL,
+      tags: Array.from(new Set(['faculty', ...name.toLowerCase().split(/\s+/),
+        ...(areas ? areas.toLowerCase().split(/[,;/]\s*|\s+/) : [])])),
+      snippet, content
+    });
+  });
+
+  // 3) Also scan bullet lists if present
+  const items = doc.querySelectorAll('ul li, ol li');
+  items.forEach(li => {
+    const line = cleanText(li.textContent);
+    if (!line || line.length < 5) return;
+    const firstChunk = cleanText(line.split(/[–—\-•|:;]\s*/)[0]); // part before separators
+    if (!isNameish(firstChunk)) return;
+
+    const name   = firstChunk;
+    const rest   = cleanText(line.slice(firstChunk.length));
+    const snippet = rest.slice(0, 160) || `Profile of ${name}.`;
+    const content = rest.slice(0, 900);
+
+    list.push({
+      title: `Faculty: ${name}`,
+      url: pageURL,
+      tags: Array.from(new Set(['faculty', ...name.toLowerCase().split(/\s+/)])),
+      snippet, content
+    });
+  });
+
+  return list;
+};  
+
+
     const list = [];
     cards.forEach(card => {
       const nameEl = card.querySelector('h1,h2,h3,h4,h5');

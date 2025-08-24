@@ -303,11 +303,11 @@
     </main>
     <footer class="footer"></footer>
 <!-- Welcome audio (plays once per browser, user-friendly) -->
-<audio id="welcome-audio" preload="auto">
+<audio id="welcome-audio" preload="auto" playsinline muted>
   <source src="assets/audio/welcome.mp3" type="audio/mpeg">
 </audio>
 
-<button id="welcome-chip" aria-label="Play welcome message" style="display:none">
+<button id="welcome-chip" aria-label="Play welcome message" title="Play welcome message" style="display:none">
   🔊 Play Welcome
 </button>
 
@@ -315,39 +315,39 @@
 (function () {
   const audio = document.getElementById('welcome-audio');
   const chip  = document.getElementById('welcome-chip');
-  const KEY   = 'iith-physics-welcome-played-v1';   // change version to reset for all visitors
+  const KEY   = 'iith-physics-welcome-played-v1';
 
-  // Chip styling (no extra CSS file needed)
+  // Set a comfortable default volume (0.0–1.0)
+  audio.volume = 0.6;
+
+  // If the audio file fails to load, hide the chip gracefully
+  audio.addEventListener('error', () => { chip.style.display = 'none'; });
+
   Object.assign(chip.style, {
     position:'fixed', right:'16px', bottom:'16px',
     padding:'10px 14px', border:'none', borderRadius:'999px',
     background:'#1f4e79', color:'#fff', cursor:'pointer',
-    boxShadow:'0 4px 12px rgba(0,0,0,.2)', zIndex:'9999', font:'600 14px/1.1 Segoe UI, Arial, sans-serif'
+    boxShadow:'0 4px 12px rgba(0,0,0,.2)', zIndex:'9999',
+    font:'600 14px/1.1 Segoe UI, Arial, sans-serif'
   });
-
-  // Respect reduced motion (don’t auto-play at all)
-  const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   // Show chip only if not played before
   if (!localStorage.getItem(KEY)) {
     chip.style.display = 'block';
 
-    // Try muted autoplay (allowed in some browsers). On first page click, unmute.
-    if (!prefersReduced) {
-      audio.muted = true;
-      audio.play().then(() => {
-        const unmute = () => {
-          audio.muted = false;
-          audio.play().catch(()=>{});
-          localStorage.setItem(KEY, '1');
-          chip.style.display = 'none';
-          document.removeEventListener('click', unmute);
-        };
-        document.addEventListener('click', unmute, { once: true });
-      }).catch(() => {
-        // Autoplay blocked; user will press the chip
-      });
-    }
+    // Try muted autoplay (iOS/Chrome allow muted autoplay more reliably with the 'muted' attribute)
+    audio.play().then(() => {
+      const unmute = () => {
+        audio.muted = false;
+        audio.play().catch(()=>{});
+        localStorage.setItem(KEY, '1');
+        chip.style.display = 'none';
+        document.removeEventListener('click', unmute);
+      };
+      document.addEventListener('click', unmute, { once: true });
+    }).catch(() => {
+      // Autoplay blocked; user will press the chip
+    });
   }
 
   chip.addEventListener('click', () => {
@@ -356,11 +356,11 @@
     audio.play().then(() => {
       localStorage.setItem(KEY, '1');
       chip.style.display = 'none';
-    }).catch(()=>{ /* gesture may still be required */ });
+    }).catch(()=>{ /* still needs a gesture on some setups */ });
   });
-
 })();
 </script>
+
 
     
     <script src="main.js"></script>

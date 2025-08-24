@@ -4,7 +4,8 @@
   const input   = document.getElementById('search-input');
   const suggest = document.getElementById('search-suggest');
 
-  const isResultsPage = location.pathname.endsWith('/search.html') || location.pathname === '/search.html';
+ const isResultsPage = /\/?search\.html$/.test(location.pathname);
+
   const outEl   = document.getElementById('srch-out');
   const qEl     = document.getElementById('srch-q');
 

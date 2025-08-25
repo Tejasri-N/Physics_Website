@@ -41,84 +41,106 @@
   }
 
   function extractPeople(doc, pageHref) {
-    const list = [];
-    const pageURL = pageHref.split('#')[0];
+  const list = [];
+  const pageURL = pageHref.split('#')[0];
 
-    // 1) Cards
-    const cards = doc.querySelectorAll(
-      '.faculty-card, .faculty-member, .profile-card, .person, .member, .card, .profile, .fac-card, .member-card'
-    );
-    cards.forEach(card => {
-      const nameEl = card.querySelector('h1,h2,h3,h4,h5,.member-name,.name');
-      const name   = cleanText(nameEl ? nameEl.textContent : card.textContent);
-      if (!name || !isNameish(name)) return;
+  const slug = s =>
+    (s || '')
+      .normalize('NFKD').replace(/[\u0300-\u036f]/g, '')
+      .replace(/&/g, ' and ')
+      .replace(/[^a-z0-9\s-]/gi, '')
+      .trim()
+      .replace(/\s+/g, '-')
+      .replace(/-+/g, '-')
+      .toLowerCase();
 
-      const role   = cleanText(card.querySelector('.role,.designation,.title')?.textContent);
-      const areas  = cleanText(card.querySelector('.areas,.research,.research-areas,.interests')?.textContent);
-      const firstP = cleanText(card.querySelector('p')?.textContent);
+  const cleanText = s => (s || '').replace(/\s+/g,' ').trim();
+  const isNameish = s => {
+    if (/^\s*(prof|professor|dr|sir|madam)\b/i.test(s)) return true;
+    const parts = s.replace(/[(),;:/\-]+/g,' ').trim().split(/\s+/).filter(Boolean);
+    const caps  = parts.filter(w => /^[A-Z][a-zA-Z.\-']+$/.test(w));
+    return caps.length >= 2 && caps.length <= 4;
+  };
 
-      const snippet = (role || areas || firstP || `Profile of ${name}.`).slice(0, 160);
-      const content = [role, areas, firstP].filter(Boolean).join(' ').slice(0, 900);
+  // 1) Card-like containers
+  const cards = doc.querySelectorAll(
+    '.faculty-card, .faculty-member, .profile-card, .person, .member, .card, .profile, .fac-card, .member-card'
+  );
+  cards.forEach(card => {
+    const nameEl = card.querySelector('h1,h2,h3,h4,h5,.member-name,.name');
+    const name   = cleanText(nameEl ? nameEl.textContent : card.textContent);
+    if (!name || !isNameish(name)) return;
 
-      list.push({
-        title: `Faculty: ${name}`,
-        url: pageURL,
-        tags: Array.from(new Set(['faculty', ...name.toLowerCase().split(/\s+/),
-          ...(areas ? areas.toLowerCase().split(/[,;/]\s*|\s+/) : [])])),
-        snippet, content
-      });
+    // use existing id if present, otherwise the slug we would assign
+    const id     = card.id || ('person-' + slug(name));
+    const role   = cleanText(card.querySelector('.role,.designation,.title')?.textContent);
+    const areas  = cleanText(card.querySelector('.areas,.research,.research-areas,.interests')?.textContent);
+    const firstP = cleanText(card.querySelector('p')?.textContent);
+
+    const snippet = (role || areas || firstP || `Profile of ${name}.`).slice(0,160);
+    const content = [role, areas, firstP].filter(Boolean).join(' ').slice(0,900);
+
+    list.push({
+      title: `Faculty: ${name}`,
+      url: `${pageURL}#${id}`,
+      tags: Array.from(new Set(['faculty', ...name.toLowerCase().split(/\s+/),
+        ...(areas ? areas.toLowerCase().split(/[,;/]\s*|\s+/) : [])])),
+      snippet, content
     });
-    if (list.length) return list;
+  });
+  if (list.length) return list;
 
-    // 2) Tables
-    const rows = doc.querySelectorAll('table tr');
-    rows.forEach(tr => {
-      const cells = Array.from(tr.querySelectorAll('th,td'))
-        .map(td => cleanText(td.textContent)).filter(Boolean);
-      if (!cells.length) return;
-      const first = cells[0];
-      if (!isNameish(first)) return;
+  // 2) Table rows
+  const rows = doc.querySelectorAll('table tr');
+  rows.forEach(tr => {
+    const cells = Array.from(tr.querySelectorAll('th,td'))
+      .map(td => cleanText(td.textContent)).filter(Boolean);
+    if (!cells.length) return;
+    const first = cells[0];
+    if (!isNameish(first)) return;
 
-      const name   = first;
-      const role   = cells.slice(1).find(t => /(prof|assistant|associate|lecturer|scientist|postdoc|staff)/i.test(t)) || '';
-      const areas  = cells.slice(1).find(t => /(research|area|interests|topics|group)/i.test(t)) || '';
-      const extra  = cells.slice(1).join(' ').slice(0, 600);
+    const name   = first;
+    const id     = tr.id || ('person-' + slug(name));
+    const role   = cells.slice(1).find(t => /(prof|assistant|associate|lecturer|scientist|postdoc|staff)/i.test(t)) || '';
+    const areas  = cells.slice(1).find(t => /(research|area|interests|topics|group)/i.test(t)) || '';
+    const extra  = cells.slice(1).join(' ').slice(0,600);
 
-      const snippet = cleanText([role, areas].filter(Boolean).join(' ')).slice(0, 160) || `Profile of ${name}.`;
-      const content = cleanText([role, areas, extra].filter(Boolean).join(' ')).slice(0, 900);
+    const snippet = (role || areas || '').slice(0,160) || `Profile of ${name}.`;
+    const content = [role, areas, extra].filter(Boolean).join(' ').slice(0,900);
 
-      list.push({
-        title: `Faculty: ${name}`,
-        url: pageURL,
-        tags: Array.from(new Set(['faculty', ...name.toLowerCase().split(/\s+/),
-          ...(areas ? areas.toLowerCase().split(/[,;/]\s*|\s+/) : [])])),
-        snippet, content
-      });
+    list.push({
+      title: `Faculty: ${name}`,
+      url: `${pageURL}#${id}`,
+      tags: Array.from(new Set(['faculty', ...name.toLowerCase().split(/\s+/),
+        ...(areas ? areas.toLowerCase().split(/[,;/]\s*|\s+/) : [])])),
+      snippet, content
     });
+  });
 
-    // 3) Bullet lists
-    const items = doc.querySelectorAll('ul li, ol li');
-    items.forEach(li => {
-      const line = cleanText(li.textContent);
-      if (!line || line.length < 5) return;
-      const firstChunk = cleanText(line.split(/[–—\-•|:;]\s*/)[0]);
-      if (!isNameish(firstChunk)) return;
+  // 3) Bullet lists
+  const items = doc.querySelectorAll('ul li, ol li');
+  items.forEach(li => {
+    const line = cleanText(li.textContent);
+    if (!line || line.length < 5) return;
+    const firstChunk = cleanText(line.split(/[–—\-•|:;]\s*/)[0]);
+    if (!isNameish(firstChunk)) return;
 
-      const name    = firstChunk;
-      const rest    = cleanText(line.slice(firstChunk.length));
-      const snippet = rest.slice(0, 160) || `Profile of ${name}.`;
-      const content = rest.slice(0, 900);
+    const name = firstChunk;
+    const id   = 'person-' + slug(name);
+    const rest = cleanText(line.slice(firstChunk.length));
+    const snippet = rest.slice(0,160) || `Profile of ${name}.`;
+    const content = rest.slice(0,900);
 
-      list.push({
-        title: `Faculty: ${name}`,
-        url: pageURL,
-        tags: Array.from(new Set(['faculty', ...name.toLowerCase().split(/\s+/)])),
-        snippet, content
-      });
+    list.push({
+      title: `Faculty: ${name}`,
+      url: `${pageURL}#${id}`,
+      tags: Array.from(new Set(['faculty', ...name.toLowerCase().split(/\s+/)])),
+      snippet, content
     });
+  });
 
-    return list;
-  }
+  return list;
+}
 
   // Loaders
   function loadDynamicPage(url, timeoutMs = 8000) {

@@ -1,6 +1,6 @@
-// /js/search.js
+<!-- /js/search.js -->
+<script>
 (function () {
-  // ---------- DOM refs ----------
   const form    = document.getElementById('site-search');
   const input   = document.getElementById('search-input');
   const suggest = document.getElementById('search-suggest');
@@ -13,34 +13,22 @@
 
   // ---------- helpers ----------
   const cleanText = s => (s || '').replace(/\s+/g, ' ').trim();
-
+  const getText   = el => el ? el.textContent.replace(/\s+/g, ' ').trim() : '';
   const slug = s => (s || '')
     .normalize('NFKD').replace(/[\u0300-\u036f]/g, '')
     .replace(/&/g, ' and ')
     .replace(/[^a-z0-9\s-]/gi, '')
-    .trim()
-    .replace(/\s+/g, '-')
-    .replace(/-+/g, '-')
+    .trim().replace(/\s+/g, '-').replace(/-+/g, '-')
     .toLowerCase();
 
-  // Loosened so we catch "T Chengappa", "shivaram Lakum", etc.
   const isNameish = s => {
-    if (!s) return false;
-    // Honorifics always pass
+    // allow titles OR 2–4 tokens that look like names (case-insensitive for students)
     if (/^\s*(prof|professor|dr|mr|mrs|ms|shri|smt|sir|madam)\b/i.test(s)) return true;
-
-    const words = s.trim().split(/\s+/);
-    if (words.length < 2) return false; // need at least two tokens
-
-    // Count capitalized tokens (T, Prem, K., Niranjan etc.)
-    const capCount = words.filter(w => /^[A-Z][a-zA-Z.'-]*$/.test(w)).length;
-
-    // Accept if we have at least ONE capitalized token (previously required 2–4)
-    return capCount >= 1;
+    const parts = s.replace(/[(),;:/\-]+/g, ' ').trim().split(/\s+/).filter(Boolean);
+    return parts.length >= 2 && parts.length <= 4;
   };
 
-  const getText = el => el ? cleanText(el.textContent) : '';
-
+  // ---------- generic extractor ----------
   function extractGeneric(doc, url) {
     const rawTitle = getText(doc.querySelector('title')) || url;
     const title    = rawTitle.replace(/\s*\|\s*.*$/, '');
@@ -51,7 +39,7 @@
     const content  = [metaDesc, h1, p].filter(Boolean).join(' ').slice(0, 900);
     return {
       title,
-      url: url.replace(/^\/+/, ''), // keep relative
+      url: url.replace(/^\/+/, ''),
       tags: Array.from(new Set([
         ...title.toLowerCase().split(/\W+/).slice(0, 8),
         ...((h1 || '').toLowerCase().split(/\W+/).slice(0, 8))
@@ -61,12 +49,13 @@
     };
   }
 
-  // Unified people extractor for faculty, staff, students
+  // ---------- people extractors ----------
   function extractPeople(doc, pageHref, baseTag, titlePrefix) {
     const list = [];
     const pageURL = pageHref.split('#')[0];
 
     const pushItem = (name, id, role, areas, extra='') => {
+      if (!name) return;
       const snippet = (role || areas || extra || `Profile of ${name}.`).slice(0,160);
       const content = [role, areas, extra].filter(Boolean).join(' ').slice(0,900);
       list.push({
@@ -78,65 +67,65 @@
       });
     };
 
-    // 1) Card-like containers (most common on your site)
+    // 0) STUDENTS PAGE SPECIAL (hidden data list)
+    if (baseTag === 'student') {
+      // students.html keeps data in a hidden container like: #studentData > div[data-course...] > div[data-name][data-enroll]
+      // We'll index every data-name we can see.
+      const nodes = doc.querySelectorAll('#studentData [data-name]');
+      nodes.forEach(node => {
+        const name   = cleanText(node.getAttribute('data-name'));
+        const enroll = cleanText(node.getAttribute('data-enroll') || '');
+        if (!name) return;
+        // make a stable fragment for linking
+        const id = node.id || `student-${slug(`${name}-${enroll || ''}`)}`;
+        if (!node.id) node.id = id; // ensure anchor exists in the DOM we parsed
+        // soft “role/area” text for snippet
+        const role = enroll ? `Enrollment: ${enroll}` : '';
+        pushItem(name, id, role, '', '');
+      });
+      if (list.length) return list;
+    }
+
+    // 1) Cards (faculty/staff and any generic cards)
     const cards = doc.querySelectorAll(
       '.faculty-card, .faculty-member, .profile-card, .person, .member, .card, .profile, .fac-card, .member-card, .staff-card, .staff-member, .staff'
     );
-
     cards.forEach(card => {
-      // Prefer explicit name nodes if present
       const nameEl = card.querySelector('h1,h2,h3,h4,h5,.member-name,.name,.staff-name');
-      const raw    = nameEl ? nameEl.textContent : card.textContent;
-      const name   = cleanText(raw);
-
-      // NEW: if it came from a .member-name / .staff-name we still index even if case is funky
-      const isExplicitNameNode = !!card.querySelector('.member-name, .staff-name, .name');
-
-      if (!name) return;
-      if (!isNameish(name) && !isExplicitNameNode) return;
-
-      // Prefer existing id created by people-anchors.js, otherwise generate
+      const name   = cleanText(nameEl ? nameEl.textContent : card.textContent);
+      if (!name || !isNameish(name)) return;
       const id   = card.id || ('person-' + slug(name));
-      const role = getText(card.querySelector('.role,.designation,.title'));
-      const areas= getText(card.querySelector('.areas,.research,.research-areas,.interests'));
-      const firstP = getText(card.querySelector('p'));
-
+      const role = cleanText(card.querySelector('.role,.designation,.title')?.textContent);
+      const areas= cleanText(card.querySelector('.areas,.research,.research-areas,.interests')?.textContent);
+      const firstP = cleanText(card.querySelector('p')?.textContent);
       pushItem(name, id, role, areas, firstP);
     });
-
-    if (list.length) return list; // if we got hits from cards, we're done
+    if (list.length) return list;
 
     // 2) Tables
     const rows = doc.querySelectorAll('table tr');
     rows.forEach(tr => {
-      const cells = Array.from(tr.querySelectorAll('th,td')).map(td => getText(td)).filter(Boolean);
+      const cells = Array.from(tr.querySelectorAll('th,td')).map(td => cleanText(td.textContent)).filter(Boolean);
       if (!cells.length) return;
-
-      const first = cells[0];
-      if (!isNameish(first)) return;
-
+      const first = cells[0]; if (!isNameish(first)) return;
       const name = first;
       const id   = tr.id || ('person-' + slug(name));
-      const role = cells.slice(1).find(t => /(prof|assistant|associate|lecturer|scientist|postdoc|staff|engineer|officer|manager)/i.test(t)) || '';
-      const areas= cells.slice(1).find(t => /(research|area|interest|topics|group|lab)/i.test(t)) || '';
+      const role = cells.slice(1).find(t => /(prof|assistant|associate|lecturer|scientist|postdoc|staff|student)/i.test(t)) || '';
+      const areas= cells.slice(1).find(t => /(research|area|interests|topics|group)/i.test(t)) || '';
       const extra= cells.slice(1).join(' ').slice(0,600);
-
       pushItem(name, id, role, areas, extra);
     });
 
-    // 3) Fallback: bullet lists
+    // 3) Bullet lists
     const items = doc.querySelectorAll('ul li, ol li');
     items.forEach(li => {
-      const line = getText(li);
+      const line = cleanText(li.textContent);
       if (!line || line.length < 5) return;
-
       const firstChunk = cleanText(line.split(/[–—\-•|:;]\s*/)[0]);
       if (!isNameish(firstChunk)) return;
-
       const name = firstChunk;
       const id   = li.id || ('person-' + slug(name));
       const rest = cleanText(line.slice(firstChunk.length));
-
       pushItem(name, id, '', '', rest);
     });
 
@@ -145,28 +134,22 @@
 
   // ---------- loaders ----------
   function loadDynamicPage(url, timeoutMs = 8000) {
-    // Use an iframe for same-origin pages that might need their own JS/CSS to render
     return new Promise(resolve => {
       const iframe = document.createElement('iframe');
       iframe.style.display = 'none';
       iframe.src = url;
-
       const finish = () => {
         try {
           const doc = iframe.contentDocument;
           resolve(doc ? { url, doc } : null);
-        } catch {
-          resolve(null);
-        }
+        } catch { resolve(null); }
         requestAnimationFrame(() => iframe.remove());
       };
-
       iframe.onload = finish;
       setTimeout(finish, timeoutMs);
       document.body.appendChild(iframe);
     });
   }
-
   async function loadStaticPage(url) {
     const res = await fetch(url, { cache: 'no-store' });
     if (!res.ok) throw new Error(`Failed ${url}: ${res.status}`);
@@ -175,7 +158,7 @@
     return { url, doc };
   }
 
-  // ---------- build index ----------
+  // ---------- build index (fresh each time) ----------
   async function loadIndex() {
     if (indexData) return indexData;
 
@@ -189,7 +172,6 @@
     const DYNAMIC_PAGES = ['faculty.html','staff.html','students.html'];
 
     const index = [];
-
     for (const page of PAGES) {
       try {
         const useIframe = DYNAMIC_PAGES.some(p => page.startsWith(p));
@@ -228,16 +210,9 @@
 
     indexData = index;
     fuse = new Fuse(indexData, {
-      includeScore: true,
-      minMatchCharLength: 2,
-      threshold: 0.35,
-      keys: [
-        { name: 'title',   weight: 0.5  },
-        { name: 'content', weight: 0.35 },
-        { name: 'tags',    weight: 0.15 }
-      ]
+      includeScore: true, minMatchCharLength: 2, threshold: 0.35,
+      keys: [{ name: 'title', weight: 0.5 }, { name: 'content', weight: 0.35 }, { name: 'tags', weight: 0.15 }]
     });
-
     return indexData;
   }
 
@@ -276,7 +251,6 @@
     }).join('');
   }
 
-  // ---------- init ----------
   (async function init() {
     if (form && input) {
       await loadIndex();
@@ -292,3 +266,4 @@
     runResultsPage();
   })();
 })();
+</script>

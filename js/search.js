@@ -45,6 +45,43 @@
       'links.html','documents.html','gallery.html','committees.html'
     ];
 
+// Load a same-origin page in a hidden iframe so its JS runs, then give us its DOM
+function loadDynamicPage(url, timeoutMs = 8000) {
+  return new Promise(resolve => {
+    const iframe = document.createElement('iframe');
+    iframe.style.display = 'none';
+    iframe.src = url;
+
+    const finish = () => {
+      try {
+        const doc = iframe.contentDocument;
+        resolve({ url, doc });
+      } catch (e) {
+        console.warn('iframe read failed for', url, e);
+        resolve(null);
+      }
+      requestAnimationFrame(() => iframe.remove());
+    };
+
+    iframe.onload = finish;
+    // fallback if onload never fires
+    setTimeout(finish, timeoutMs);
+
+    document.body.appendChild(iframe);
+  });
+}
+
+// Plain fetch for simple static pages
+async function loadStaticPage(url) {
+  const res = await fetch(url, { cache: 'no-store' });
+  if (!res.ok) throw new Error(`Failed ${url}: ${res.status}`);
+  const html = await res.text();
+  const doc = new DOMParser().parseFromString(html, 'text/html');
+  return { url, doc };
+}
+
+
+    
     const fetchPage = async (url) => {
       const res = await fetch(url, { cache: 'no-store' });
       if (!res.ok) throw new Error(`Failed ${url}: ${res.status}`);

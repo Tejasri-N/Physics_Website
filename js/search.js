@@ -14,12 +14,22 @@
   const cleanText = s => (s || '').replace(/\s+/g, ' ').trim();
   const getText   = el => el ? el.textContent.replace(/\s+/g, ' ').trim() : '';
   const isNameish = s => {
-    if (/^\s*(prof|professor|dr|sir|madam)\b/i.test(s)) return true;
+   if (/^\s*(prof|professor|dr|mr|mrs|ms|shri|smt|sir|madam)\b/i.test(s)) return true;
     const parts = s.replace(/[(),;:/\-]+/g, ' ').trim().split(/\s+/).filter(Boolean);
     const caps  = parts.filter(w => /^[A-Z][a-zA-Z.\-']+$/.test(w));
     return caps.length >= 2 && caps.length <= 4;
   };
 
+const slug = s => (s || '')
+  .normalize('NFKD').replace(/[\u0300-\u036f]/g, '')
+  .replace(/&/g, ' and ')
+  .replace(/[^a-z0-9\s-]/gi, '')
+  .trim()
+  .replace(/\s+/g, '-')
+  .replace(/-+/g, '-')
+  .toLowerCase();
+
+  
   function extractGeneric(doc, url) {
     const rawTitle = getText(doc.querySelector('title')) || url;
     const title    = rawTitle.replace(/\s*\|\s*.*$/, '');
@@ -72,7 +82,7 @@
     const nameEl = card.querySelector('h1,h2,h3,h4,h5,.member-name,.name,.staff-name');
     const name = cleanText(nameEl ? nameEl.textContent : card.textContent);
     if (!name || !isNameish(name)) return;
-    const id   = card.id || ('person-' + name.toLowerCase().replace(/\s+/g,'-'));
+    const id   = card.id || ('person-' + slug(name));
     const role = cleanText(card.querySelector('.role,.designation,.title')?.textContent);
     const areas= cleanText(card.querySelector('.areas,.research,.research-areas,.interests')?.textContent);
     const firstP = cleanText(card.querySelector('p')?.textContent);
@@ -87,7 +97,7 @@
     if (!cells.length) return;
     const first = cells[0]; if (!isNameish(first)) return;
     const name = first;
-    const id   = tr.id || ('person-' + name.toLowerCase().replace(/\s+/g,'-'));
+    const id   = tr.id || ('person-' + slug(name));
     const role = cells.slice(1).find(t => /(prof|assistant|associate|lecturer|scientist|postdoc|staff)/i.test(t)) || '';
     const areas= cells.slice(1).find(t => /(research|area|interests|topics|group)/i.test(t)) || '';
     const extra= cells.slice(1).join(' ').slice(0,600);
@@ -102,7 +112,7 @@
     const firstChunk = cleanText(line.split(/[–—\-•|:;]\s*/)[0]);
     if (!isNameish(firstChunk)) return;
     const name = firstChunk;
-    const id   = li.id || ('person-' + name.toLowerCase().replace(/\s+/g,'-'));
+    const id   = li.id || ('person-' + slug(name));
     const rest = cleanText(line.slice(firstChunk.length));
     pushItem(name, id, '', '', rest);
   });

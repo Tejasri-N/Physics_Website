@@ -188,6 +188,23 @@ async function loadStaticPage(url) {
       return list;
     };
 
+
+    const DYNAMIC_PAGES = [
+  'faculty.html',
+  'staff.html',
+  'students.html'
+];
+
+
+    const loader = DYNAMIC_PAGES.some(p => page.startsWith(p))
+  ? loadDynamicPage
+  : loadStaticPage;
+
+const loaded = await loader(page);
+if (!loaded) { console.warn('Skip (load failed)', page); continue; }
+const { doc, url } = loaded;
+
+
     // Build index
     const index = [];
     for (const page of PAGES) {

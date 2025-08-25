@@ -5,8 +5,8 @@
   const suggest = document.getElementById('search-suggest');
 
   const isResultsPage = /\/?search\.html$/.test(location.pathname);
-  const outEl   = document.getElementById('srch-out');
-  const qEl     = document.getElementById('srch-q');
+  const outEl = document.getElementById('srch-out');
+  const qEl   = document.getElementById('srch-q');
 
   let fuse = null, indexData = null;
 
@@ -20,39 +20,6 @@
     return caps.length >= 2 && caps.length <= 4;
   };
 
-  // Load a same-origin page in a hidden iframe so its JS runs, then give us its DOM
-  function loadDynamicPage(url, timeoutMs = 8000) {
-    return new Promise(resolve => {
-      const iframe = document.createElement('iframe');
-      iframe.style.display = 'none';
-      iframe.src = url;
-
-      const finish = () => {
-        try {
-          const doc = iframe.contentDocument;
-          resolve(doc ? { url, doc } : null);
-        } catch (e) {
-          console.warn('iframe read failed for', url, e);
-          resolve(null);
-        }
-        requestAnimationFrame(() => iframe.remove());
-      };
-
-      iframe.onload = finish;
-      setTimeout(finish, timeoutMs); // fallback if onload never fires
-      document.body.appendChild(iframe);
-    });
-  }
-
-  // Plain fetch for simple static pages
-  async function loadStaticPage(url) {
-    const res = await fetch(url, { cache: 'no-store' });
-    if (!res.ok) throw new Error(`Failed ${url}: ${res.status}`);
-    const html = await res.text();
-    const doc = new DOMParser().parseFromString(html, 'text/html');
-    return { url, doc };
-  }
-
   function extractGeneric(doc, url) {
     const rawTitle = getText(doc.querySelector('title')) || url;
     const title    = rawTitle.replace(/\s*\|\s*.*$/, '');
@@ -63,7 +30,7 @@
     const content  = [metaDesc, h1, p].filter(Boolean).join(' ').slice(0, 900);
     return {
       title,
-      url: url.replace(/^\/+/, ''), // keep relative
+      url: url.replace(/^\/+/, ''),
       tags: Array.from(new Set([
         ...title.toLowerCase().split(/\W+/).slice(0, 8),
         ...((h1 || '').toLowerCase().split(/\W+/).slice(0, 8))
@@ -77,7 +44,7 @@
     const list = [];
     const pageURL = pageHref.split('#')[0];
 
-    // 1) Card-like containers
+    // 1) Cards
     const cards = doc.querySelectorAll(
       '.faculty-card, .faculty-member, .profile-card, .person, .member, .card, .profile, .fac-card, .member-card'
     );
@@ -153,23 +120,36 @@
     return list;
   }
 
+  // Loaders
+  function loadDynamicPage(url, timeoutMs = 8000) {
+    return new Promise(resolve => {
+      const iframe = document.createElement('iframe');
+      iframe.style.display = 'none';
+      iframe.src = url;
+      const finish = () => {
+        try {
+          const doc = iframe.contentDocument;
+          resolve(doc ? { url, doc } : null);
+        } catch { resolve(null); }
+        requestAnimationFrame(() => iframe.remove());
+      };
+      iframe.onload = finish;
+      setTimeout(finish, timeoutMs);
+      document.body.appendChild(iframe);
+    });
+  }
+  async function loadStaticPage(url) {
+    const res = await fetch(url, { cache: 'no-store' });
+    if (!res.ok) throw new Error(`Failed ${url}: ${res.status}`);
+    const html = await res.text();
+    const doc = new DOMParser().parseFromString(html, 'text/html');
+    return { url, doc };
+  }
+
+  // --------- BUILD INDEX (no prebuilt JSON) ----------
   async function loadIndex() {
     if (indexData) return indexData;
 
-    // Fast path: prebuilt JSON if you keep it updated
-    try {
-      const res = await fetch('searchIndex.json', { cache: 'no-store' });
-      if (res.ok) {
-        indexData = await res.json();
-        fuse = new Fuse(indexData, {
-          includeScore: true, minMatchCharLength: 2, threshold: 0.35,
-          keys: [{ name: 'title', weight: 0.5 }, { name: 'content', weight: 0.35 }, { name: 'tags', weight: 0.15 }]
-        });
-        return indexData;
-      }
-    } catch {}
-
-    // Auto-build on the fly
     const PAGES = [
       'index.html','about-glance.html','hod-desk.html',
       'faculty.html','staff.html','students.html','alumni.html',
@@ -220,6 +200,7 @@
     return indexData;
   }
 
+  // ---------- UI ----------
   function renderSuggestion(items) {
     if (!suggest) return;
     if (!items.length) { suggest.style.display = 'none'; suggest.innerHTML = ''; return; }

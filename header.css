@@ -22,6 +22,7 @@
 
 /* -------------------------- Header styling -------------------------- */
 .header-topbar {
+  gap: 12px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -48,7 +49,46 @@ background: linear-gradient(to right, #c0392b, #f39c12);
 .logo-vertical {
   display: none;
 }
+.header-search {
+  position: relative;
+  max-width: 520px;
+  width: 100%;
+  margin-left: auto;         /* push to the far right */
+}
+/* Search input styling (moved from inline) */
+.header-search #search-input {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+}
+
+/* Suggestions dropdown (moved from inline) */
+.header-search #search-suggest {
+  display: none;
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 42px;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0,0,0,.08);
+  z-index: 1000;
+  max-height: 320px;
+  overflow: auto;
+}
+
+/* Hide search on mobile */
+@media (max-width: 900px) {
+  .header-search {
+    display: none;
+  }
+}
+
 .header-topbar-center {
+  flex: 1; 
+  display: flex;
   justify-content: center;
   align-items: center;
   text-align: center;

@@ -41,6 +41,17 @@ background: linear-gradient(to right, #c0392b, #f39c12);
   align-items: center;
   height: 60px;
 }
+
+.logo-horizontal a,
+.logo-vertical a {
+  display: inline-flex;
+  align-items: center;
+}
+.logo-horizontal img,
+.logo-vertical img {
+  cursor: pointer;
+}
+
 .logo-horizontal img,
 .logo-vertical img {
   height: 60px;
@@ -85,6 +96,17 @@ background: linear-gradient(to right, #c0392b, #f39c12);
     display: none;
   }
 }
+
+@media (max-width: 1200px) {
+  .laptop-title h1 { font-size: 2rem; }
+  .laptop-title h2 { font-size: 1.1rem; }
+}
+@media (max-width: 1024px) {
+  .laptop-title h1 { font-size: 1.8rem; }
+  .laptop-title h2 { font-size: 1rem; }
+}
+.header-search { max-width: 550px; } /* 520px is also fine – purely taste */
+
 
 .header-topbar-center {
   flex: 1; 

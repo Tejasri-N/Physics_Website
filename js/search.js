@@ -1,5 +1,4 @@
-<!-- /js/search.js -->
-<script>
+// /js/search.js
 (function () {
   const form    = document.getElementById('site-search');
   const input   = document.getElementById('search-input');
@@ -22,13 +21,23 @@
     .toLowerCase();
 
   const isNameish = s => {
-    // allow titles OR 2–4 tokens that look like names (case-insensitive for students)
     if (/^\s*(prof|professor|dr|mr|mrs|ms|shri|smt|sir|madam)\b/i.test(s)) return true;
     const parts = s.replace(/[(),;:/\-]+/g, ' ').trim().split(/\s+/).filter(Boolean);
     return parts.length >= 2 && parts.length <= 4;
   };
 
-  // ---------- generic extractor ----------
+  // graceful error display (so the page never stays blank)
+  function showError(msg) {
+    if (!outEl) return;
+    outEl.innerHTML = `<div style="padding:12px;border:1px solid #f0c36d;background:#fff8e1;border-radius:8px">⚠️ ${msg}</div>`;
+  }
+
+  if (!window.Fuse) {
+    // Fuse failed to load: do not crash – show a helpful message and bail.
+    if (isResultsPage) showError('Search library failed to load. Please check that Fuse.js is included before js/search.js.');
+    return;
+  }
+
   function extractGeneric(doc, url) {
     const rawTitle = getText(doc.querySelector('title')) || url;
     const title    = rawTitle.replace(/\s*\|\s*.*$/, '');
@@ -49,7 +58,6 @@
     };
   }
 
-  // ---------- people extractors ----------
   function extractPeople(doc, pageHref, baseTag, titlePrefix) {
     const list = [];
     const pageURL = pageHref.split('#')[0];
@@ -67,26 +75,22 @@
       });
     };
 
-    // 0) STUDENTS PAGE SPECIAL (hidden data list)
+    // Students: look for hidden data nodes (data-name + optional data-enroll)
     if (baseTag === 'student') {
-      // students.html keeps data in a hidden container like: #studentData > div[data-course...] > div[data-name][data-enroll]
-      // We'll index every data-name we can see.
       const nodes = doc.querySelectorAll('#studentData [data-name]');
       nodes.forEach(node => {
         const name   = cleanText(node.getAttribute('data-name'));
         const enroll = cleanText(node.getAttribute('data-enroll') || '');
         if (!name) return;
-        // make a stable fragment for linking
         const id = node.id || `student-${slug(`${name}-${enroll || ''}`)}`;
-        if (!node.id) node.id = id; // ensure anchor exists in the DOM we parsed
-        // soft “role/area” text for snippet
+        if (!node.id) node.id = id;
         const role = enroll ? `Enrollment: ${enroll}` : '';
         pushItem(name, id, role, '', '');
       });
       if (list.length) return list;
     }
 
-    // 1) Cards (faculty/staff and any generic cards)
+    // Cards (faculty/staff)
     const cards = doc.querySelectorAll(
       '.faculty-card, .faculty-member, .profile-card, .person, .member, .card, .profile, .fac-card, .member-card, .staff-card, .staff-member, .staff'
     );
@@ -102,7 +106,7 @@
     });
     if (list.length) return list;
 
-    // 2) Tables
+    // Tables
     const rows = doc.querySelectorAll('table tr');
     rows.forEach(tr => {
       const cells = Array.from(tr.querySelectorAll('th,td')).map(td => cleanText(td.textContent)).filter(Boolean);
@@ -116,7 +120,7 @@
       pushItem(name, id, role, areas, extra);
     });
 
-    // 3) Bullet lists
+    // Lists
     const items = doc.querySelectorAll('ul li, ol li');
     items.forEach(li => {
       const line = cleanText(li.textContent);
@@ -132,7 +136,6 @@
     return list;
   }
 
-  // ---------- loaders ----------
   function loadDynamicPage(url, timeoutMs = 8000) {
     return new Promise(resolve => {
       const iframe = document.createElement('iframe');
@@ -158,7 +161,6 @@
     return { url, doc };
   }
 
-  // ---------- build index (fresh each time) ----------
   async function loadIndex() {
     if (indexData) return indexData;
 
@@ -216,7 +218,6 @@
     return indexData;
   }
 
-  // ---------- UI ----------
   function renderSuggestion(items) {
     if (!suggest) return;
     if (!items.length) { suggest.style.display = 'none'; suggest.innerHTML = ''; return; }
@@ -256,14 +257,26 @@
       await loadIndex();
       input.addEventListener('input', e => {
         const q = e.target.value.trim();
-        if (q.length < 2) renderSuggestion([]);
-        else renderSuggestion(fuse.search(q).slice(0, 8).map(r => r.item));
+        if (q.length < 2) { suggest.style.display='none'; suggest.innerHTML=''; }
+        else {
+          const items = fuse.search(q).slice(0, 8).map(r => r.item);
+          if (!items.length) { suggest.style.display='none'; suggest.innerHTML=''; }
+          else {
+            suggest.innerHTML = items.map(it => {
+              const s = (it.snippet || it.content || '').slice(0,120) + '…';
+              return `<a href="${it.url}" style="display:block;padding:10px;text-decoration:none;color:#222">
+                <div style="font-weight:600">${it.title}</div>
+                <div style="font-size:12px;color:#666">${s}</div>
+              </a>`;
+            }).join('');
+            suggest.style.display='block';
+          }
+        }
       });
       document.addEventListener('click', e => {
-        if (!form.contains(e.target)) renderSuggestion([]);
+        if (!form.contains(e.target)) { suggest.style.display='none'; suggest.innerHTML=''; }
       });
     }
     runResultsPage();
   })();
 })();
-</script>

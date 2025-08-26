@@ -201,6 +201,22 @@
     }
 
     indexData = index;
+
+    // ---------- Manual entries (virtual pages) ----------
+const MANUAL_ENTRIES = [
+  {
+    title: 'Room booking',
+    url: '#',   // or external link: 'https://example.com/room-booking-form'
+    tags: ['room','booking','reservation','resources'],
+    snippet: 'Reserve seminar rooms and departmental facilities.',
+    content: 'Room booking portal; reserve rooms; room reservation; departmental facilities booking.'
+  }
+];
+
+// Merge manual entries into the search index
+indexData.push(...MANUAL_ENTRIES);
+
+    
     fuse = new Fuse(indexData, {
       includeScore: true, minMatchCharLength: 2, threshold: 0.35,
       keys: [{ name: 'title', weight: 0.5 }, { name: 'content', weight: 0.35 }, { name: 'tags', weight: 0.15 }]

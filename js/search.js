@@ -10,6 +10,21 @@
 
   let fuse = null, indexData = null;
 
+  const statusEl = document.getElementById('search-status');
+
+async function runResultsPage() {
+  if (!isResultsPage) return;
+  await loadIndex();
+  const params = new URLSearchParams(location.search);
+  const query  = (params.get('q') || '').trim();
+  if (!query) { outEl.innerHTML = `<p>No query given.</p>`; return; }
+
+  statusEl.textContent = "Searching…";  // <--- show while searching
+  await new Promise(r => setTimeout(r, 50)); // let UI update
+
+  const matches = fuse.search(query, { limit: 50 });
+  statusEl.textContent = "";            // <--- clear when done
+
   // ---------- helpers ----------
   const cleanText = s => (s || '').replace(/\s+/g, ' ').trim();
   const getText   = el => el ? el.textContent.replace(/\s+/g, ' ').trim() : '';

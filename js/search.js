@@ -5,25 +5,11 @@
   const suggest = document.getElementById('search-suggest');
 
   const isResultsPage = /\/?search\.html$/.test(location.pathname);
-  const outEl = document.getElementById('srch-out');
-  const qEl   = document.getElementById('srch-q');
+  const outEl   = document.getElementById('srch-out');
+  const qEl     = document.getElementById('srch-q');
+  const statusEl= document.getElementById('search-status'); // only exists on search.html
 
   let fuse = null, indexData = null;
-
-  const statusEl = document.getElementById('search-status');
-
-async function runResultsPage() {
-  if (!isResultsPage) return;
-  await loadIndex();
-  const params = new URLSearchParams(location.search);
-  const query  = (params.get('q') || '').trim();
-  if (!query) { outEl.innerHTML = `<p>No query given.</p>`; return; }
-
-  statusEl.textContent = "Searching…";  // <--- show while searching
-  await new Promise(r => setTimeout(r, 50)); // let UI update
-
-  const matches = fuse.search(query, { limit: 50 });
-  statusEl.textContent = "";            // <--- clear when done
 
   // ---------- helpers ----------
   const cleanText = s => (s || '').replace(/\s+/g, ' ').trim();
@@ -38,21 +24,15 @@ async function runResultsPage() {
   const isNameish = s => {
     if (/^\s*(prof|professor|dr|mr|mrs|ms|shri|smt|sir|madam)\b/i.test(s)) return true;
     const parts = s.replace(/[(),;:/\-]+/g, ' ').trim().split(/\s+/).filter(Boolean);
-    return parts.length >= 2 && parts.length <= 4;
+    const caps  = parts.filter(w => /^[A-Z][a-zA-Z.\-']+$/.test(w));
+    return caps.length >= 2 && caps.length <= 4;
   };
 
-  // graceful error display (so the page never stays blank)
-  function showError(msg) {
-    if (!outEl) return;
-    outEl.innerHTML = `<div style="padding:12px;border:1px solid #f0c36d;background:#fff8e1;border-radius:8px">⚠️ ${msg}</div>`;
-  }
+  const debounce = (fn, ms=150) => {
+    let t; return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), ms); };
+  };
 
-  if (!window.Fuse) {
-    // Fuse failed to load: do not crash – show a helpful message and bail.
-    if (isResultsPage) showError('Search library failed to load. Please check that Fuse.js is included before js/search.js.');
-    return;
-  }
-
+  // ---------- extractors ----------
   function extractGeneric(doc, url) {
     const rawTitle = getText(doc.querySelector('title')) || url;
     const title    = rawTitle.replace(/\s*\|\s*.*$/, '');
@@ -60,7 +40,7 @@ async function runResultsPage() {
     const h1       = getText(doc.querySelector('h1'));
     const p        = getText(doc.querySelector('main p, .page-container p, p'));
     const snippet  = (metaDesc || p || h1 || title).slice(0, 180);
-    const content  = [metaDesc, h1, p].filter(Boolean).join(' ').slice(0, 900);
+    const content  = [metaDesc, h1, p].filter(Boolean).join(' ').slice(0, 1200);
     return {
       title,
       url: url.replace(/^\/+/, ''),
@@ -80,7 +60,7 @@ async function runResultsPage() {
     const pushItem = (name, id, role, areas, extra='') => {
       if (!name) return;
       const snippet = (role || areas || extra || `Profile of ${name}.`).slice(0,160);
-      const content = [role, areas, extra].filter(Boolean).join(' ').slice(0,900);
+      const content = [role, areas, extra].filter(Boolean).join(' ').slice(0,1200);
       list.push({
         title: `${titlePrefix}: ${name}`,
         url: `${pageURL}#${id}`,
@@ -90,36 +70,32 @@ async function runResultsPage() {
       });
     };
 
-    // Students: look for hidden data nodes (data-name + optional data-enroll)
-    if (baseTag === 'student') {
-      const nodes = doc.querySelectorAll('#studentData [data-name]');
-      nodes.forEach(node => {
-        const name   = cleanText(node.getAttribute('data-name'));
-        const enroll = cleanText(node.getAttribute('data-enroll') || '');
-        if (!name) return;
-        const id = node.id || `student-${slug(`${name}-${enroll || ''}`)}`;
-        if (!node.id) node.id = id;
-        const role = enroll ? `Enrollment: ${enroll}` : '';
-        pushItem(name, id, role, '', '');
-      });
-      if (list.length) return list;
-    }
+    // Students: optional data list (if you add it later)
+    const nodes = doc.querySelectorAll('#studentData [data-name]');
+    nodes.forEach(node => {
+      const name   = cleanText(node.getAttribute('data-name'));
+      if (!name) return;
+      const enroll = cleanText(node.getAttribute('data-enroll') || '');
+      const id     = node.id || `student-${slug(`${name}-${enroll || ''}`)}`;
+      if (!node.id) node.id = id;
+      const role   = enroll ? `Enrollment: ${enroll}` : '';
+      pushItem(name, id, role, '', '');
+    });
 
-    // Cards (faculty/staff)
+    // Cards (faculty/staff/student cards)
     const cards = doc.querySelectorAll(
-      '.faculty-card, .faculty-member, .profile-card, .person, .member, .card, .profile, .fac-card, .member-card, .staff-card, .staff-member, .staff'
+      '.faculty-card, .faculty-member, .profile-card, .person, .member, .card, .profile, .fac-card, .member-card, .staff-card, .staff-member, .staff, .student-card, .student'
     );
     cards.forEach(card => {
-      const nameEl = card.querySelector('h1,h2,h3,h4,h5,.member-name,.name,.staff-name');
+      const nameEl = card.querySelector('h1,h2,h3,h4,h5,.member-name,.name,.staff-name,.student-name');
       const name   = cleanText(nameEl ? nameEl.textContent : card.textContent);
       if (!name || !isNameish(name)) return;
-      const id   = card.id || ('person-' + slug(name));
-      const role = cleanText(card.querySelector('.role,.designation,.title')?.textContent);
-      const areas= cleanText(card.querySelector('.areas,.research,.research-areas,.interests')?.textContent);
+      const id     = card.id || ('person-' + slug(name));
+      const role   = cleanText(card.querySelector('.role,.designation,.title')?.textContent);
+      const areas  = cleanText(card.querySelector('.areas,.research,.research-areas,.interests')?.textContent);
       const firstP = cleanText(card.querySelector('p')?.textContent);
       pushItem(name, id, role, areas, firstP);
     });
-    if (list.length) return list;
 
     // Tables
     const rows = doc.querySelectorAll('table tr');
@@ -131,7 +107,7 @@ async function runResultsPage() {
       const id   = tr.id || ('person-' + slug(name));
       const role = cells.slice(1).find(t => /(prof|assistant|associate|lecturer|scientist|postdoc|staff|student)/i.test(t)) || '';
       const areas= cells.slice(1).find(t => /(research|area|interests|topics|group)/i.test(t)) || '';
-      const extra= cells.slice(1).join(' ').slice(0,600);
+      const extra= cells.slice(1).join(' ').slice(0,800);
       pushItem(name, id, role, areas, extra);
     });
 
@@ -151,6 +127,7 @@ async function runResultsPage() {
     return list;
   }
 
+  // ---------- loaders ----------
   function loadDynamicPage(url, timeoutMs = 8000) {
     return new Promise(resolve => {
       const iframe = document.createElement('iframe');
@@ -168,6 +145,7 @@ async function runResultsPage() {
       document.body.appendChild(iframe);
     });
   }
+
   async function loadStaticPage(url) {
     const res = await fetch(url, { cache: 'no-store' });
     if (!res.ok) throw new Error(`Failed ${url}: ${res.status}`);
@@ -176,6 +154,7 @@ async function runResultsPage() {
     return { url, doc };
   }
 
+  // ---------- build index (always fresh) ----------
   async function loadIndex() {
     if (indexData) return indexData;
 
@@ -208,11 +187,7 @@ async function runResultsPage() {
           ['announcements','seminars-events','publications'].forEach(id => {
             const el = doc.getElementById(id);
             if (!el) return;
-            const titleMap = {
-              'announcements': 'Announcements',
-              'seminars-events': 'Seminars & Events',
-              'publications': 'Recent Publications'
-            };
+            const titleMap = { 'announcements': 'Announcements', 'seminars-events': 'Seminars & Events', 'publications': 'Recent Publications' };
             const t = titleMap[id] || id;
             const text = getText(el).slice(0, 240);
             index.push({ title: t, url: `index.html#${id}`, tags: ['home', id], snippet: text, content: text });
@@ -227,20 +202,23 @@ async function runResultsPage() {
 
     indexData = index;
     fuse = new Fuse(indexData, {
-      includeScore: true, minMatchCharLength: 2, threshold: 0.5,
+      includeScore: true, minMatchCharLength: 2, threshold: 0.35,
       keys: [{ name: 'title', weight: 0.5 }, { name: 'content', weight: 0.35 }, { name: 'tags', weight: 0.15 }]
     });
     return indexData;
   }
 
+  // ---------- UI ----------
   function renderSuggestion(items) {
     if (!suggest) return;
     if (!items.length) { suggest.style.display = 'none'; suggest.innerHTML = ''; return; }
     suggest.innerHTML = items.map(it => {
       const s = (it.snippet || it.content || '').slice(0, 120) + '…';
-      return `<a href="${it.url}" style="display:block;padding:10px;text-decoration:none;color:#222">
+      const url = it.url || '#';
+      return `<a href="${url}" style="display:block;padding:10px;text-decoration:none;color:#222;border-bottom:1px solid #eee">
         <div style="font-weight:600">${it.title}</div>
         <div style="font-size:12px;color:#666">${s}</div>
+        <div style="font-size:11px;color:#999">${url}</div>
       </a>`;
     }).join('');
     suggest.style.display = 'block';
@@ -254,13 +232,17 @@ async function runResultsPage() {
     if (qEl) qEl.textContent = query ? `for “${query}”` : '';
     if (!query) { outEl.innerHTML = `<p>No query given.</p>`; return; }
 
+    if (statusEl) statusEl.textContent = 'Searching…';
+    await new Promise(r => setTimeout(r, 30)); // let UI paint
+
     const matches = fuse.search(query, { limit: 50 });
+    if (statusEl) statusEl.textContent = '';
     if (!matches.length) { outEl.innerHTML = `<p>No results found.</p>`; return; }
 
     outEl.innerHTML = matches.map(({ item }) => {
       const s = (item.snippet || item.content || '').slice(0, 180) + '…';
-      return `<article class="search-result">
-        <h3><a href="${item.url}">${item.title}</a></h3>
+      return `<article class="search-result" style="padding:10px 0;border-bottom:1px solid #eee">
+        <h3 style="margin:0 0 6px 0"><a href="${item.url}">${item.title}</a></h3>
         <div style="font-size:13px;color:#555">${s}</div>
         <div style="font-size:12px;color:#888">${item.url}</div>
       </article>`;
@@ -269,29 +251,39 @@ async function runResultsPage() {
 
   (async function init() {
     if (form && input) {
-      await loadIndex();
-      input.addEventListener('input', e => {
-        const q = e.target.value.trim();
-        if (q.length < 2) { suggest.style.display='none'; suggest.innerHTML=''; }
-        else {
-          const items = fuse.search(q).slice(0, 8).map(r => r.item);
-          if (!items.length) { suggest.style.display='none'; suggest.innerHTML=''; }
-          else {
-            suggest.innerHTML = items.map(it => {
-              const s = (it.snippet || it.content || '').slice(0,120) + '…';
-              return `<a href="${it.url}" style="display:block;padding:10px;text-decoration:none;color:#222">
-                <div style="font-weight:600">${it.title}</div>
-                <div style="font-size:12px;color:#666">${s}</div>
-              </a>`;
-            }).join('');
-            suggest.style.display='block';
-          }
+      await loadIndex(); // <-- ensure fuse is ready BEFORE wiring the input handler
+
+      const liveSearch = debounce(() => {
+        const q = input.value.trim();
+        if (q.length < 2) { renderSuggestion([]); return; }
+
+        // light feedback near the input (placeholder trick)
+        const oldPh = input.getAttribute('placeholder') || '';
+        input.setAttribute('data-ph', oldPh);
+        input.setAttribute('placeholder', 'Searching…');
+
+        const items = fuse.search(q).slice(0, 10).map(r => r.item);
+        renderSuggestion(items);
+
+        input.setAttribute('placeholder', oldPh);
+      }, 150);
+
+      input.addEventListener('input', liveSearch);
+
+      // Enter -> go to full results page
+      input.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          const q = input.value.trim();
+          if (q) window.location.href = `search.html?q=${encodeURIComponent(q)}`;
         }
       });
+
+      // click-away to close suggestions
       document.addEventListener('click', e => {
-        if (!form.contains(e.target)) { suggest.style.display='none'; suggest.innerHTML=''; }
+        if (!form.contains(e.target)) renderSuggestion([]);
       });
     }
+
     runResultsPage();
   })();
 })();

@@ -21,12 +21,19 @@
     .trim().replace(/\s+/g, '-').replace(/-+/g, '-')
     .toLowerCase();
 
-  const isNameish = s => {
-    if (/^\s*(prof|professor|dr|mr|mrs|ms|shri|smt|sir|madam)\b/i.test(s)) return true;
-    const parts = s.replace(/[(),;:/\-]+/g, ' ').trim().split(/\s+/).filter(Boolean);
-    const caps  = parts.filter(w => /^[A-Z][a-zA-Z.\-']+$/.test(w));
-    return caps.length >= 2 && caps.length <= 4;
-  };
+ // allowSingle: true lets single capitalized names (≥4 chars) pass
+function isNameish(s, { allowSingle = false } = {}) {
+  if (!s) return false;
+  const parts = s.replace(/[(),;:/\-]+/g, ' ').trim().split(/\s+/).filter(Boolean);
+  const caps  = parts.filter(w => /^[A-Z][A-Za-z.\-']+$/.test(w));
+
+  if (caps.length >= 2 && caps.length <= 4) return true;          // e.g., "A B", "A B C"
+  if (allowSingle && caps.length === 1 && /^[A-Z][A-Za-z.\-']{3,}$/.test(parts[0])) {
+    return true;                                                   // e.g., "Chengappa"
+  }
+  return false;
+}
+
 
   const debounce = (fn, ms=150) => {
     let t; return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), ms); };
@@ -52,7 +59,7 @@
       content
     };
   }
-
+const okName = (name) => isNameish(name, { allowSingle: baseTag !== 'faculty' });
   function extractPeople(doc, pageHref, baseTag, titlePrefix) {
     const list = [];
     const pageURL = pageHref.split('#')[0];
@@ -89,7 +96,7 @@
     cards.forEach(card => {
       const nameEl = card.querySelector('h1,h2,h3,h4,h5,.member-name,.name,.staff-name,.student-name');
       const name   = cleanText(nameEl ? nameEl.textContent : card.textContent);
-      if (!name || !isNameish(name)) return;
+      if (!name || !okName(name)) return;
       const id     = card.id || ('person-' + slug(name));
       const role   = cleanText(card.querySelector('.role,.designation,.title')?.textContent);
       const areas  = cleanText(card.querySelector('.areas,.research,.research-areas,.interests')?.textContent);
@@ -102,7 +109,7 @@
     rows.forEach(tr => {
       const cells = Array.from(tr.querySelectorAll('th,td')).map(td => cleanText(td.textContent)).filter(Boolean);
       if (!cells.length) return;
-      const first = cells[0]; if (!isNameish(first)) return;
+      const first = cells[0]; if (!okName(first)) return;
       const name = first;
       const id   = tr.id || ('person-' + slug(name));
       const role = cells.slice(1).find(t => /(prof|assistant|associate|lecturer|scientist|postdoc|staff|student)/i.test(t)) || '';
@@ -117,7 +124,7 @@
       const line = cleanText(li.textContent);
       if (!line || line.length < 5) return;
       const firstChunk = cleanText(line.split(/[–—\-•|:;]\s*/)[0]);
-      if (!isNameish(firstChunk)) return;
+      if (!okName(firstChunk)) return;
       const name = firstChunk;
       const id   = li.id || ('person-' + slug(name));
       const rest = cleanText(line.slice(firstChunk.length));

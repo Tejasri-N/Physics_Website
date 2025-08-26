@@ -212,7 +212,7 @@
 
     indexData = index;
     fuse = new Fuse(indexData, {
-      includeScore: true, minMatchCharLength: 2, threshold: 0.35,
+      includeScore: true, minMatchCharLength: 2, threshold: 0.5,
       keys: [{ name: 'title', weight: 0.5 }, { name: 'content', weight: 0.35 }, { name: 'tags', weight: 0.15 }]
     });
     return indexData;

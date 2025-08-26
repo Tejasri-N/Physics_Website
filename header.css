@@ -133,21 +133,7 @@ background: linear-gradient(to right, #c0392b, #f39c12);
 .mobile-title {
   display: none;
 }
-.header-topbar-right {
-  min-width: 70px;
-  text-align: right;
-}
-.header-topbar-right a {
-  color: #fff;
-  text-decoration: none;
-  font-weight: bold;
-  font-size: 1.1em;
-  letter-spacing: 1px;
-  transition: var(--transition);
-}
-.header-topbar-right a:hover {
-  color: var(--color-hover);
-}
+
 
 /* -------------------------- Navbar styles -------------------------- */
 

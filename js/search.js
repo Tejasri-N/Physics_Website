@@ -22,14 +22,15 @@
     .trim().replace(/\s+/g, '-').replace(/-+/g, '-')
     .toLowerCase();
 
-  // allowSingle: true lets single capitalized names (≥4 chars) pass
+  // allowSingle: true lets single capitalized names (≥4 chars) pass (for students/staff)
   function isNameish(s, { allowSingle = false } = {}) {
     if (!s) return false;
     const parts = s.replace(/[(),;:/\-]+/g, ' ').trim().split(/\s+/).filter(Boolean);
     const caps  = parts.filter(w => /^[A-Z][A-Za-z.\-']+$/.test(w));
-    if (caps.length >= 2 && caps.length <= 4) return true; // "A B", "A B C"
+
+    if (caps.length >= 2 && caps.length <= 4) return true; // e.g., "A B", "A B C"
     if (allowSingle && caps.length === 1 && /^[A-Z][A-Za-z.\-']{3,}$/.test(parts[0])) {
-      return true; // "Chengappa"
+      return true;                                         // e.g., "Chengappa"
     }
     return false;
   }
@@ -42,19 +43,27 @@
   function extractGeneric(doc, url) {
     const rawTitle = getText(doc.querySelector('title')) || url;
     const title    = rawTitle.replace(/\s*\|\s*.*$/, '');
+    const title_lc = title.toLowerCase();
+
     const metaDesc = getText(doc.querySelector('meta[name="description"]'));
     const h1       = getText(doc.querySelector('h1'));
     const p        = getText(doc.querySelector('main p, .page-container p, p'));
+
     const snippet  = (metaDesc || p || h1 || title).slice(0, 180);
-    const content  = [metaDesc, h1, p].filter(Boolean).join(' ').slice(0, 1200);
+    // lowercased content for searchable text
+    const content  = [metaDesc, h1, p].filter(Boolean).join(' ').slice(0, 1200).toLowerCase();
+
     return {
+      // display fields
       title,
       url: url.replace(/^\/+/, ''),
+      snippet,
+      // search fields
+      title_lc,
       tags: Array.from(new Set([
-        ...title.toLowerCase().split(/\W+/).slice(0, 8),
+        ...title_lc.split(/\W+/).slice(0, 8),
         ...((h1 || '').toLowerCase().split(/\W+/).slice(0, 8))
       ].filter(Boolean))),
-      snippet,
       content
     };
   }
@@ -62,24 +71,33 @@
   function extractPeople(doc, pageHref, baseTag, titlePrefix) {
     const list = [];
     const pageURL = pageHref.split('#')[0];
-
-    // Allow single-word matches for staff/students (not for faculty)
     const okName = (name) => isNameish(name, { allowSingle: baseTag !== 'faculty' });
 
     const pushItem = (name, id, role, areas, extra='') => {
       if (!name) return;
+      const displayTitle = `${titlePrefix}: ${name}`;
       const snippet = (role || areas || extra || `Profile of ${name}.`).slice(0,160);
-      const content = [role, areas, extra].filter(Boolean).join(' ').slice(0,1200);
+
+      // searchable text (lowercased)
+      const content = [role, areas, extra].filter(Boolean).join(' ').slice(0,1200).toLowerCase();
+
       list.push({
-        title: `${titlePrefix}: ${name}`,
+        // display
+        title: displayTitle,
         url: `${pageURL}#${id}`,
-        tags: Array.from(new Set([baseTag, ...name.toLowerCase().split(/\s+/),
-          ...(areas ? areas.toLowerCase().split(/[,;/]\s*|\s+/) : [])])),
-        snippet, content
+        snippet,
+        // search
+        title_lc: displayTitle.toLowerCase(),
+        tags: Array.from(new Set([
+          baseTag,
+          ...name.toLowerCase().split(/\s+/),
+          ...(areas ? areas.toLowerCase().split(/[,;/]\s*|\s+/) : [])
+        ])),
+        content
       });
     };
 
-    // Optional student data blocks
+    // Optional: hidden student data
     const nodes = doc.querySelectorAll('#studentData [data-name]');
     nodes.forEach(node => {
       const name   = cleanText(node.getAttribute('data-name'));
@@ -91,7 +109,7 @@
       pushItem(name, id, role, '', '');
     });
 
-    // 1) Card-like blocks
+    // Card-like profiles
     const cards = doc.querySelectorAll(
       '.faculty-card, .faculty-member, .profile-card, .person, .member, .card, .profile, .fac-card, .member-card, .staff-card, .staff-member, .staff, .student-card, .student'
     );
@@ -99,15 +117,15 @@
       const nameEl = card.querySelector('h1,h2,h3,h4,h5,.member-name,.name,.staff-name,.student-name');
       const name   = cleanText(nameEl ? nameEl.textContent : card.textContent);
       if (!name || !okName(name)) return;
+
       const id     = card.id || ('person-' + slug(name));
       const role   = cleanText(card.querySelector('.role,.designation,.title')?.textContent);
       const areas  = cleanText(card.querySelector('.areas,.research,.research-areas,.interests')?.textContent);
       const firstP = cleanText(card.querySelector('p')?.textContent);
       pushItem(name, id, role, areas, firstP);
     });
-    if (list.length) return list;
 
-    // 2) Tables
+    // Tables
     const rows = doc.querySelectorAll('table tr');
     rows.forEach(tr => {
       const cells = Array.from(tr.querySelectorAll('th,td')).map(td => cleanText(td.textContent)).filter(Boolean);
@@ -120,9 +138,8 @@
       const extra= cells.slice(1).join(' ').slice(0,800);
       pushItem(name, id, role, areas, extra);
     });
-    if (list.length) return list;
 
-    // 3) Lists
+    // Bulleted lists
     const items = doc.querySelectorAll('ul li, ol li');
     items.forEach(li => {
       const line = cleanText(li.textContent);
@@ -133,18 +150,6 @@
       const id   = li.id || ('person-' + slug(name));
       const rest = cleanText(line.slice(firstChunk.length));
       pushItem(name, id, '', '', rest);
-    });
-    if (list.length) return list;
-
-    // 4) Fallback scan: headings/bold/definition terms for plain-name entries
-    const headish = doc.querySelectorAll('h1,h2,h3,h4,h5,strong,b,dt');
-    headish.forEach(el => {
-      const t = cleanText(el.textContent);
-      if (!okName(t)) return;
-      const name = t;
-      const id = el.id || ('person-' + slug(name));
-      if (!el.id) el.id = id; // harmless in same-origin iframe
-      pushItem(name, id, '', '', '');
     });
 
     return list;
@@ -177,7 +182,7 @@
     return { url, doc };
   }
 
-  // ---------- build index ----------
+  // ---------- build index (always fresh) ----------
   async function loadIndex() {
     if (indexData) return indexData;
 
@@ -213,7 +218,14 @@
             const titleMap = { 'announcements': 'Announcements', 'seminars-events': 'Seminars & Events', 'publications': 'Recent Publications' };
             const t = titleMap[id] || id;
             const text = getText(el).slice(0, 240);
-            index.push({ title: t, url: `index.html#${id}`, tags: ['home', id], snippet: text, content: text });
+            index.push({
+              title: t,
+              title_lc: (t || '').toLowerCase(),
+              url: `index.html#${id}`,
+              tags: ['home', id],
+              snippet: text,
+              content: (text || '').toLowerCase()
+            });
           });
         } else {
           index.push(extractGeneric(doc, page));
@@ -223,29 +235,31 @@
       }
     }
 
-    // Manual “virtual page(s)”
+    // ---------- Manual entries (virtual pages) ----------
     const MANUAL_ENTRIES = [
       {
         title: 'Room booking',
+        title_lc: 'room booking',
         url: '#',
         tags: ['room','booking','reservation','resources'],
         snippet: 'Reserve seminar rooms and departmental facilities.',
-        content: 'Room booking portal; reserve rooms; room reservation; departmental facilities booking.'
+        content: 'room booking portal; reserve rooms; room reservation; departmental facilities booking.'
       }
     ];
     index.push(...MANUAL_ENTRIES);
 
     indexData = index;
 
-    // Build Fuse (slightly more forgiving for single-word queries)
+    // Fuse configured to search lowercase fields
     fuse = new Fuse(indexData, {
       includeScore: true,
       minMatchCharLength: 2,
-      threshold: 0.45,  // was 0.35 – helps “chengappa”, etc.
+      threshold: 0.35,
+      ignoreLocation: true,
       keys: [
-        { name: 'title',   weight: 0.5  },
-        { name: 'content', weight: 0.35 },
-        { name: 'tags',    weight: 0.15 }
+        { name: 'title_lc', weight: 0.5 },
+        { name: 'content',  weight: 0.35 },
+        { name: 'tags',     weight: 0.15 }
       ]
     });
 
@@ -271,7 +285,6 @@
   async function runResultsPage() {
     if (!isResultsPage) return;
     await loadIndex();
-
     const params = new URLSearchParams(location.search);
     const query  = (params.get('q') || '').trim();
     if (qEl) qEl.textContent = query ? `for “${query}”` : '';
@@ -280,8 +293,7 @@
     if (statusEl) statusEl.textContent = 'Searching…';
     await new Promise(r => setTimeout(r, 30)); // let UI paint
 
-   const matches = fuse.search(query.toLowerCase(), { limit: 50 });
-
+    const matches = fuse.search(query.toLowerCase(), { limit: 50 });
     if (statusEl) statusEl.textContent = '';
     if (!matches.length) { outEl.innerHTML = `<p>No results found.</p>`; return; }
 
@@ -297,19 +309,18 @@
 
   (async function init() {
     if (form && input) {
-      await loadIndex();
+      await loadIndex(); // ensure fuse ready
 
       const liveSearch = debounce(() => {
         const q = input.value.trim();
         if (q.length < 2) { renderSuggestion([]); return; }
 
-        // subtle “searching…” hint while suggestions compute
+        // light feedback near the input (placeholder trick)
         const oldPh = input.getAttribute('placeholder') || '';
         input.setAttribute('data-ph', oldPh);
         input.setAttribute('placeholder', 'Searching…');
 
         const items = fuse.search(q.toLowerCase()).slice(0, 10).map(r => r.item);
-
         renderSuggestion(items);
 
         input.setAttribute('placeholder', oldPh);
@@ -325,7 +336,7 @@
         }
       });
 
-      // Click-away to close suggestions
+      // click-away to close suggestions
       document.addEventListener('click', e => {
         if (!form.contains(e.target)) renderSuggestion([]);
       });
@@ -335,3 +346,4 @@
   })();
 })();
 </script>
+

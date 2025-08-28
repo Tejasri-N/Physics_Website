@@ -59,11 +59,13 @@ function isNameish(s, { allowSingle = false } = {}) {
       content
     };
   }
-const okName = (name) => isNameish(name, { allowSingle: baseTag !== 'faculty' });
+
   function extractPeople(doc, pageHref, baseTag, titlePrefix) {
+
+    
     const list = [];
     const pageURL = pageHref.split('#')[0];
-
+const okName = (name) => isNameish(name, { allowSingle: baseTag !== 'faculty' });
     const pushItem = (name, id, role, areas, extra='') => {
       if (!name) return;
       const snippet = (role || areas || extra || `Profile of ${name}.`).slice(0,160);

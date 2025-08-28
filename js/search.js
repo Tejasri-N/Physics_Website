@@ -1,13 +1,14 @@
-// /js/search.js
+<!-- /js/search.js -->
+<script>
 (function () {
   const form    = document.getElementById('site-search');
   const input   = document.getElementById('search-input');
   const suggest = document.getElementById('search-suggest');
 
   const isResultsPage = /\/?search\.html$/.test(location.pathname);
-  const outEl   = document.getElementById('srch-out');
-  const qEl     = document.getElementById('srch-q');
-  const statusEl= document.getElementById('search-status'); // only exists on search.html
+  const outEl    = document.getElementById('srch-out');
+  const qEl      = document.getElementById('srch-q');
+  const statusEl = document.getElementById('search-status'); // only on search.html
 
   let fuse = null, indexData = null;
 
@@ -21,19 +22,17 @@
     .trim().replace(/\s+/g, '-').replace(/-+/g, '-')
     .toLowerCase();
 
- // allowSingle: true lets single capitalized names (≥4 chars) pass
-function isNameish(s, { allowSingle = false } = {}) {
-  if (!s) return false;
-  const parts = s.replace(/[(),;:/\-]+/g, ' ').trim().split(/\s+/).filter(Boolean);
-  const caps  = parts.filter(w => /^[A-Z][A-Za-z.\-']+$/.test(w));
-
-  if (caps.length >= 2 && caps.length <= 4) return true;          // e.g., "A B", "A B C"
-  if (allowSingle && caps.length === 1 && /^[A-Z][A-Za-z.\-']{3,}$/.test(parts[0])) {
-    return true;                                                   // e.g., "Chengappa"
+  // allowSingle: true lets single capitalized names (≥4 chars) pass
+  function isNameish(s, { allowSingle = false } = {}) {
+    if (!s) return false;
+    const parts = s.replace(/[(),;:/\-]+/g, ' ').trim().split(/\s+/).filter(Boolean);
+    const caps  = parts.filter(w => /^[A-Z][A-Za-z.\-']+$/.test(w));
+    if (caps.length >= 2 && caps.length <= 4) return true; // "A B", "A B C"
+    if (allowSingle && caps.length === 1 && /^[A-Z][A-Za-z.\-']{3,}$/.test(parts[0])) {
+      return true; // "Chengappa"
+    }
+    return false;
   }
-  return false;
-}
-
 
   const debounce = (fn, ms=150) => {
     let t; return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), ms); };
@@ -61,11 +60,12 @@ function isNameish(s, { allowSingle = false } = {}) {
   }
 
   function extractPeople(doc, pageHref, baseTag, titlePrefix) {
-
-    
     const list = [];
     const pageURL = pageHref.split('#')[0];
-const okName = (name) => isNameish(name, { allowSingle: baseTag !== 'faculty' });
+
+    // Allow single-word matches for staff/students (not for faculty)
+    const okName = (name) => isNameish(name, { allowSingle: baseTag !== 'faculty' });
+
     const pushItem = (name, id, role, areas, extra='') => {
       if (!name) return;
       const snippet = (role || areas || extra || `Profile of ${name}.`).slice(0,160);
@@ -79,7 +79,7 @@ const okName = (name) => isNameish(name, { allowSingle: baseTag !== 'faculty' })
       });
     };
 
-    // Students: optional data list (if you add it later)
+    // Optional student data blocks
     const nodes = doc.querySelectorAll('#studentData [data-name]');
     nodes.forEach(node => {
       const name   = cleanText(node.getAttribute('data-name'));
@@ -91,7 +91,7 @@ const okName = (name) => isNameish(name, { allowSingle: baseTag !== 'faculty' })
       pushItem(name, id, role, '', '');
     });
 
-    // Cards (faculty/staff/student cards)
+    // 1) Card-like blocks
     const cards = doc.querySelectorAll(
       '.faculty-card, .faculty-member, .profile-card, .person, .member, .card, .profile, .fac-card, .member-card, .staff-card, .staff-member, .staff, .student-card, .student'
     );
@@ -105,8 +105,9 @@ const okName = (name) => isNameish(name, { allowSingle: baseTag !== 'faculty' })
       const firstP = cleanText(card.querySelector('p')?.textContent);
       pushItem(name, id, role, areas, firstP);
     });
+    if (list.length) return list;
 
-    // Tables
+    // 2) Tables
     const rows = doc.querySelectorAll('table tr');
     rows.forEach(tr => {
       const cells = Array.from(tr.querySelectorAll('th,td')).map(td => cleanText(td.textContent)).filter(Boolean);
@@ -119,8 +120,9 @@ const okName = (name) => isNameish(name, { allowSingle: baseTag !== 'faculty' })
       const extra= cells.slice(1).join(' ').slice(0,800);
       pushItem(name, id, role, areas, extra);
     });
+    if (list.length) return list;
 
-    // Lists
+    // 3) Lists
     const items = doc.querySelectorAll('ul li, ol li');
     items.forEach(li => {
       const line = cleanText(li.textContent);
@@ -131,6 +133,18 @@ const okName = (name) => isNameish(name, { allowSingle: baseTag !== 'faculty' })
       const id   = li.id || ('person-' + slug(name));
       const rest = cleanText(line.slice(firstChunk.length));
       pushItem(name, id, '', '', rest);
+    });
+    if (list.length) return list;
+
+    // 4) Fallback scan: headings/bold/definition terms for plain-name entries
+    const headish = doc.querySelectorAll('h1,h2,h3,h4,h5,strong,b,dt');
+    headish.forEach(el => {
+      const t = cleanText(el.textContent);
+      if (!okName(t)) return;
+      const name = t;
+      const id = el.id || ('person-' + slug(name));
+      if (!el.id) el.id = id; // harmless in same-origin iframe
+      pushItem(name, id, '', '', '');
     });
 
     return list;
@@ -163,7 +177,7 @@ const okName = (name) => isNameish(name, { allowSingle: baseTag !== 'faculty' })
     return { url, doc };
   }
 
-  // ---------- build index (always fresh) ----------
+  // ---------- build index ----------
   async function loadIndex() {
     if (indexData) return indexData;
 
@@ -209,27 +223,32 @@ const okName = (name) => isNameish(name, { allowSingle: baseTag !== 'faculty' })
       }
     }
 
+    // Manual “virtual page(s)”
+    const MANUAL_ENTRIES = [
+      {
+        title: 'Room booking',
+        url: '#',
+        tags: ['room','booking','reservation','resources'],
+        snippet: 'Reserve seminar rooms and departmental facilities.',
+        content: 'Room booking portal; reserve rooms; room reservation; departmental facilities booking.'
+      }
+    ];
+    index.push(...MANUAL_ENTRIES);
+
     indexData = index;
 
-    // ---------- Manual entries (virtual pages) ----------
-const MANUAL_ENTRIES = [
-  {
-    title: 'Room booking',
-    url: '#',   // or external link: 'https://example.com/room-booking-form'
-    tags: ['room','booking','reservation','resources'],
-    snippet: 'Reserve seminar rooms and departmental facilities.',
-    content: 'Room booking portal; reserve rooms; room reservation; departmental facilities booking.'
-  }
-];
-
-// Merge manual entries into the search index
-indexData.push(...MANUAL_ENTRIES);
-
-    
+    // Build Fuse (slightly more forgiving for single-word queries)
     fuse = new Fuse(indexData, {
-      includeScore: true, minMatchCharLength: 2, threshold: 0.35,
-      keys: [{ name: 'title', weight: 0.5 }, { name: 'content', weight: 0.35 }, { name: 'tags', weight: 0.15 }]
+      includeScore: true,
+      minMatchCharLength: 2,
+      threshold: 0.45,  // was 0.35 – helps “chengappa”, etc.
+      keys: [
+        { name: 'title',   weight: 0.5  },
+        { name: 'content', weight: 0.35 },
+        { name: 'tags',    weight: 0.15 }
+      ]
     });
+
     return indexData;
   }
 
@@ -252,6 +271,7 @@ indexData.push(...MANUAL_ENTRIES);
   async function runResultsPage() {
     if (!isResultsPage) return;
     await loadIndex();
+
     const params = new URLSearchParams(location.search);
     const query  = (params.get('q') || '').trim();
     if (qEl) qEl.textContent = query ? `for “${query}”` : '';
@@ -276,13 +296,13 @@ indexData.push(...MANUAL_ENTRIES);
 
   (async function init() {
     if (form && input) {
-      await loadIndex(); // <-- ensure fuse is ready BEFORE wiring the input handler
+      await loadIndex();
 
       const liveSearch = debounce(() => {
         const q = input.value.trim();
         if (q.length < 2) { renderSuggestion([]); return; }
 
-        // light feedback near the input (placeholder trick)
+        // subtle “searching…” hint while suggestions compute
         const oldPh = input.getAttribute('placeholder') || '';
         input.setAttribute('data-ph', oldPh);
         input.setAttribute('placeholder', 'Searching…');
@@ -303,7 +323,7 @@ indexData.push(...MANUAL_ENTRIES);
         }
       });
 
-      // click-away to close suggestions
+      // Click-away to close suggestions
       document.addEventListener('click', e => {
         if (!form.contains(e.target)) renderSuggestion([]);
       });
@@ -312,3 +332,4 @@ indexData.push(...MANUAL_ENTRIES);
     runResultsPage();
   })();
 })();
+</script>

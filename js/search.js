@@ -280,7 +280,8 @@
     if (statusEl) statusEl.textContent = 'Searching…';
     await new Promise(r => setTimeout(r, 30)); // let UI paint
 
-    const matches = fuse.search(query, { limit: 50 });
+   const matches = fuse.search(query.toLowerCase(), { limit: 50 });
+
     if (statusEl) statusEl.textContent = '';
     if (!matches.length) { outEl.innerHTML = `<p>No results found.</p>`; return; }
 
@@ -307,7 +308,8 @@
         input.setAttribute('data-ph', oldPh);
         input.setAttribute('placeholder', 'Searching…');
 
-        const items = fuse.search(q).slice(0, 10).map(r => r.item);
+        const items = fuse.search(q.toLowerCase()).slice(0, 10).map(r => r.item);
+
         renderSuggestion(items);
 
         input.setAttribute('placeholder', oldPh);

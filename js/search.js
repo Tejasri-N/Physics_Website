@@ -63,7 +63,9 @@
   function extractPeople(doc, pageHref, baseTag, titlePrefix) {
     const list = [];
     const pageURL = pageHref.split('#')[0];
-    const okName = (name) => isNameish(name, { allowSingle: baseTag !== 'faculty' });
+  // ✅ allow single-word proper names across all categories
+const okName = (name) => isNameish(name, { allowSingle: true });
+
 
     const pushItem = (name, id, role, areas, extra='') => {
       if (!name) return;

@@ -1,5 +1,3 @@
-<!-- /js/search.js -->
-<script>
 (function () {
   const form    = document.getElementById('site-search');
   const input   = document.getElementById('search-input');
@@ -27,11 +25,8 @@
     if (!s) return false;
     const parts = s.replace(/[(),;:/\-]+/g, ' ').trim().split(/\s+/).filter(Boolean);
     const caps  = parts.filter(w => /^[A-Z][A-Za-z.\-']+$/.test(w));
-
-    if (caps.length >= 2 && caps.length <= 4) return true; // e.g., "A B", "A B C"
-    if (allowSingle && caps.length === 1 && /^[A-Z][A-Za-z.\-']{3,}$/.test(parts[0])) {
-      return true;                                         // e.g., "Chengappa"
-    }
+    if (caps.length >= 2 && caps.length <= 4) return true; // "A B", "A B C"
+    if (allowSingle && caps.length === 1 && /^[A-Z][A-Za-z.\-']{3,}$/.test(parts[0])) return true; // "Chengappa"
     return false;
   }
 
@@ -50,15 +45,12 @@
     const p        = getText(doc.querySelector('main p, .page-container p, p'));
 
     const snippet  = (metaDesc || p || h1 || title).slice(0, 180);
-    // lowercased content for searchable text
     const content  = [metaDesc, h1, p].filter(Boolean).join(' ').slice(0, 1200).toLowerCase();
 
     return {
-      // display fields
       title,
       url: url.replace(/^\/+/, ''),
       snippet,
-      // search fields
       title_lc,
       tags: Array.from(new Set([
         ...title_lc.split(/\W+/).slice(0, 8),
@@ -77,16 +69,12 @@
       if (!name) return;
       const displayTitle = `${titlePrefix}: ${name}`;
       const snippet = (role || areas || extra || `Profile of ${name}.`).slice(0,160);
-
-      // searchable text (lowercased)
       const content = [role, areas, extra].filter(Boolean).join(' ').slice(0,1200).toLowerCase();
 
       list.push({
-        // display
         title: displayTitle,
         url: `${pageURL}#${id}`,
         snippet,
-        // search
         title_lc: displayTitle.toLowerCase(),
         tags: Array.from(new Set([
           baseTag,
@@ -97,7 +85,7 @@
       });
     };
 
-    // Optional: hidden student data
+    // Optional hidden student data nodes
     const nodes = doc.querySelectorAll('#studentData [data-name]');
     nodes.forEach(node => {
       const name   = cleanText(node.getAttribute('data-name'));
@@ -117,7 +105,6 @@
       const nameEl = card.querySelector('h1,h2,h3,h4,h5,.member-name,.name,.staff-name,.student-name');
       const name   = cleanText(nameEl ? nameEl.textContent : card.textContent);
       if (!name || !okName(name)) return;
-
       const id     = card.id || ('person-' + slug(name));
       const role   = cleanText(card.querySelector('.role,.designation,.title')?.textContent);
       const areas  = cleanText(card.querySelector('.areas,.research,.research-areas,.interests')?.textContent);
@@ -160,7 +147,8 @@
     return new Promise(resolve => {
       const iframe = document.createElement('iframe');
       iframe.style.display = 'none';
-      iframe.src = url;
+      // cache-bust to avoid stale DOM
+      iframe.src = url + (url.includes('?') ? '&' : '?') + 't=' + Date.now();
       const finish = () => {
         try {
           const doc = iframe.contentDocument;
@@ -175,7 +163,9 @@
   }
 
   async function loadStaticPage(url) {
-    const res = await fetch(url, { cache: 'no-store' });
+    // cache-bust to avoid stale HTML
+    const bust = url + (url.includes('?') ? '&' : '?') + 't=' + Date.now();
+    const res = await fetch(bust, { cache: 'no-store' });
     if (!res.ok) throw new Error(`Failed ${url}: ${res.status}`);
     const html = await res.text();
     const doc = new DOMParser().parseFromString(html, 'text/html');
@@ -235,22 +225,18 @@
       }
     }
 
-    // ---------- Manual entries (virtual pages) ----------
-    const MANUAL_ENTRIES = [
-      {
-        title: 'Room booking',
-        title_lc: 'room booking',
-        url: '#',
-        tags: ['room','booking','reservation','resources'],
-        snippet: 'Reserve seminar rooms and departmental facilities.',
-        content: 'room booking portal; reserve rooms; room reservation; departmental facilities booking.'
-      }
-    ];
-    index.push(...MANUAL_ENTRIES);
+    // Manual entries (virtual pages)
+    index.push({
+      title: 'Room booking',
+      title_lc: 'room booking',
+      url: '#',
+      tags: ['room','booking','reservation','resources'],
+      snippet: 'Reserve seminar rooms and departmental facilities.',
+      content: 'room booking portal; reserve rooms; room reservation; departmental facilities booking.'
+    });
 
     indexData = index;
 
-    // Fuse configured to search lowercase fields
     fuse = new Fuse(indexData, {
       includeScore: true,
       minMatchCharLength: 2,
@@ -315,7 +301,7 @@
         const q = input.value.trim();
         if (q.length < 2) { renderSuggestion([]); return; }
 
-        // light feedback near the input (placeholder trick)
+        // light feedback via placeholder
         const oldPh = input.getAttribute('placeholder') || '';
         input.setAttribute('data-ph', oldPh);
         input.setAttribute('placeholder', 'Searching…');
@@ -345,5 +331,3 @@
     runResultsPage();
   })();
 })();
-</script>
-

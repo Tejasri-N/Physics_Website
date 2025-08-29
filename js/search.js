@@ -77,8 +77,10 @@ pushItem(candidate, id, role, areas, firstP);
   function extractPeople(doc, pageHref, baseTag, titlePrefix) {
     const list = [];
     const pageURL = pageHref.split('#')[0];
-  // ✅ allow single-word proper names across all categories
+
+// ✅ allow single-word proper names across all categories
 const okName = (name) => isNameish(name, { allowSingle: true });
+
 
 
     const pushItem = (name, id, role, areas, extra='') => {

@@ -47,6 +47,20 @@
     const snippet  = (metaDesc || p || h1 || title).slice(0, 180);
     const content  = [metaDesc, h1, p].filter(Boolean).join(' ').slice(0, 1200).toLowerCase();
 
+
+    let candidate = name;
+if (!okName(candidate)) {
+  const firstToken = (candidate || '').trim().split(/\s+/)[0] || '';
+  if (/^[A-Z][A-Za-z.\-']{3,}$/.test(firstToken)) {
+    candidate = firstToken; // e.g., "Chengappa"
+  } else {
+    return; // not name-like, skip card
+  }
+}
+// use `candidate` instead of `name` below
+pushItem(candidate, id, role, areas, firstP);
+
+
     return {
       title,
       url: url.replace(/^\/+/, ''),

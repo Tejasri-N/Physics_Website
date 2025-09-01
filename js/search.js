@@ -1,3 +1,4 @@
+<script>
 (function () {
   const form    = document.getElementById('site-search');
   const input   = document.getElementById('search-input');
@@ -6,7 +7,7 @@
   const isResultsPage = /\/?search\.html$/.test(location.pathname);
   const outEl    = document.getElementById('srch-out');
   const qEl      = document.getElementById('srch-q');
-  const statusEl = document.getElementById('search-status'); // only on search.html
+  const statusEl = document.getElementById('search-status');
 
   let fuse = null, indexData = null;
 
@@ -20,19 +21,16 @@
     .trim().replace(/\s+/g, '-').replace(/-+/g, '-')
     .toLowerCase();
 
-  // allowSingle: true lets single capitalized names (≥4 chars) pass (for students/staff)
   function isNameish(s, { allowSingle = false } = {}) {
     if (!s) return false;
     const parts = s.replace(/[(),;:/\-]+/g, ' ').trim().split(/\s+/).filter(Boolean);
-    const caps  = parts.filter(w => /^[A-Z][A-Za-z.\-']+$/.test(w));
-    if (caps.length >= 2 && caps.length <= 4) return true; // "A B", "A B C"
-    if (allowSingle && caps.length === 1 && /^[A-Z][A-Za-z.\-']{3,}$/.test(parts[0])) return true; // "Chengappa"
+    const caps  = parts.filter(w => /^[A-Z][A-Za-z.'-]+$/.test(w));
+    if (caps.length >= 2 && caps.length <= 4) return true;
+    if (allowSingle && caps.length === 1 && /^[A-Z][A-Za-z.'-]{3,}$/.test(parts[0])) return true;
     return false;
   }
 
-  const debounce = (fn, ms=150) => {
-    let t; return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), ms); };
-  };
+  const debounce = (fn, ms=150) => { let t; return (...a)=>{ clearTimeout(t); t=setTimeout(()=>fn(...a), ms);} };
 
   // ---------- extractors ----------
   function extractGeneric(doc, url) {
@@ -46,20 +44,6 @@
 
     const snippet  = (metaDesc || p || h1 || title).slice(0, 180);
     const content  = [metaDesc, h1, p].filter(Boolean).join(' ').slice(0, 1200).toLowerCase();
-
-
-    let candidate = name;
-if (!okName(candidate)) {
-  const firstToken = (candidate || '').trim().split(/\s+/)[0] || '';
-  if (/^[A-Z][A-Za-z.\-']{3,}$/.test(firstToken)) {
-    candidate = firstToken; // e.g., "Chengappa"
-  } else {
-    return; // not name-like, skip card
-  }
-}
-// use `candidate` instead of `name` below
-pushItem(candidate, id, role, areas, firstP);
-
 
     return {
       title,
@@ -77,18 +61,13 @@ pushItem(candidate, id, role, areas, firstP);
   function extractPeople(doc, pageHref, baseTag, titlePrefix) {
     const list = [];
     const pageURL = pageHref.split('#')[0];
-
-// ✅ allow single-word proper names across all categories
-const okName = (name) => isNameish(name, { allowSingle: true });
-
-
+    const okName = (name) => isNameish(name, { allowSingle: true }); // allow single-word names
 
     const pushItem = (name, id, role, areas, extra='') => {
       if (!name) return;
       const displayTitle = `${titlePrefix}: ${name}`;
       const snippet = (role || areas || extra || `Profile of ${name}.`).slice(0,160);
       const content = [role, areas, extra].filter(Boolean).join(' ').slice(0,1200).toLowerCase();
-
       list.push({
         title: displayTitle,
         url: `${pageURL}#${id}`,
@@ -103,9 +82,8 @@ const okName = (name) => isNameish(name, { allowSingle: true });
       });
     };
 
-    // Optional hidden student data nodes
-    const nodes = doc.querySelectorAll('#studentData [data-name]');
-    nodes.forEach(node => {
+    // Optional hidden student data
+    doc.querySelectorAll('#studentData [data-name]').forEach(node => {
       const name   = cleanText(node.getAttribute('data-name'));
       if (!name) return;
       const enroll = cleanText(node.getAttribute('data-enroll') || '');
@@ -115,19 +93,28 @@ const okName = (name) => isNameish(name, { allowSingle: true });
       pushItem(name, id, role, '', '');
     });
 
-    // Card-like profiles
+    // Cards
     const cards = doc.querySelectorAll(
       '.faculty-card, .faculty-member, .profile-card, .person, .member, .card, .profile, .fac-card, .member-card, .staff-card, .staff-member, .staff, .student-card, .student'
     );
-    cards.forEach(card => {
-      const nameEl = card.querySelector(
-  'h1,h2,h3,h4,h5,' +
-  '.member-name,.name,.staff-name,.student-name,' +
-  '.faculty-name,.faculty-profile'
-);
 
-      const name   = cleanText(nameEl ? nameEl.textContent : card.textContent);
+    cards.forEach(card => {
+      // broad selectors
+      let nameEl = card.querySelector(
+        'h1,h2,h3,h4,h5,' +
+        '.member-name,.name,.staff-name,.student-name,' +
+        '.faculty-name,.faculty-profile,[class*="name"]'
+      );
+      let raw = cleanText(nameEl ? nameEl.textContent : '');
+      if (!raw) {
+        const alt = card.querySelector('strong, b, .title, .heading, .header');
+        raw = cleanText((alt && alt.textContent) || card.textContent || '');
+      }
+      raw = raw.replace(/^\s*(prof\.?|professor|dr\.?|mr\.?|mrs\.?|ms\.?|shri|smt|sir|madam)\s+/i, '').trim();
+      const nameMatch = raw.match(/[A-Z][A-Za-z.'-]+(?:\s+[A-Z][A-Za-z.'-]+){0,3}/);
+      const name = cleanText(nameMatch ? nameMatch[0] : raw);
       if (!name || !okName(name)) return;
+
       const id     = card.id || ('person-' + slug(name));
       const role   = cleanText(card.querySelector('.role,.designation,.title')?.textContent);
       const areas  = cleanText(card.querySelector('.areas,.research,.research-areas,.interests')?.textContent);
@@ -136,8 +123,7 @@ const okName = (name) => isNameish(name, { allowSingle: true });
     });
 
     // Tables
-    const rows = doc.querySelectorAll('table tr');
-    rows.forEach(tr => {
+    doc.querySelectorAll('table tr').forEach(tr => {
       const cells = Array.from(tr.querySelectorAll('th,td')).map(td => cleanText(td.textContent)).filter(Boolean);
       if (!cells.length) return;
       const first = cells[0]; if (!okName(first)) return;
@@ -149,9 +135,8 @@ const okName = (name) => isNameish(name, { allowSingle: true });
       pushItem(name, id, role, areas, extra);
     });
 
-    // Bulleted lists
-    const items = doc.querySelectorAll('ul li, ol li');
-    items.forEach(li => {
+    // Lists
+    doc.querySelectorAll('ul li, ol li').forEach(li => {
       const line = cleanText(li.textContent);
       if (!line || line.length < 5) return;
       const firstChunk = cleanText(line.split(/[–—\-•|:;]\s*/)[0]);
@@ -166,15 +151,19 @@ const okName = (name) => isNameish(name, { allowSingle: true });
   }
 
   // ---------- loaders ----------
-  function loadDynamicPage(url, timeoutMs = 8000) {
+  function wait(ms){ return new Promise(r=>setTimeout(r,ms)); }
+
+  async function loadDynamicPage(url, timeoutMs = 8000) {
+    // load in an iframe and give it a short chance to render JS-driven content
     return new Promise(resolve => {
       const iframe = document.createElement('iframe');
       iframe.style.display = 'none';
-      // cache-bust to avoid stale DOM
       iframe.src = url + (url.includes('?') ? '&' : '?') + 't=' + Date.now();
-      const finish = () => {
+      const finish = async () => {
         try {
           const doc = iframe.contentDocument;
+          // small settle wait to allow page scripts to inject cards/tables
+          await wait(600);
           resolve(doc ? { url, doc } : null);
         } catch { resolve(null); }
         requestAnimationFrame(() => iframe.remove());
@@ -186,7 +175,6 @@ const okName = (name) => isNameish(name, { allowSingle: true });
   }
 
   async function loadStaticPage(url) {
-    // cache-bust to avoid stale HTML
     const bust = url + (url.includes('?') ? '&' : '?') + 't=' + Date.now();
     const res = await fetch(bust, { cache: 'no-store' });
     if (!res.ok) throw new Error(`Failed ${url}: ${res.status}`);
@@ -195,7 +183,7 @@ const okName = (name) => isNameish(name, { allowSingle: true });
     return { url, doc };
   }
 
-  // ---------- build index (always fresh) ----------
+  // ---------- build index ----------
   async function loadIndex() {
     if (indexData) return indexData;
 
@@ -248,7 +236,7 @@ const okName = (name) => isNameish(name, { allowSingle: true });
       }
     }
 
-    // Manual entries (virtual pages)
+    // Manual entry example
     index.push({
       title: 'Room booking',
       title_lc: 'room booking',
@@ -300,7 +288,7 @@ const okName = (name) => isNameish(name, { allowSingle: true });
     if (!query) { outEl.innerHTML = `<p>No query given.</p>`; return; }
 
     if (statusEl) statusEl.textContent = 'Searching…';
-    await new Promise(r => setTimeout(r, 30)); // let UI paint
+    await new Promise(r => setTimeout(r, 30));
 
     const matches = fuse.search(query.toLowerCase(), { limit: 50 });
     if (statusEl) statusEl.textContent = '';
@@ -318,39 +306,30 @@ const okName = (name) => isNameish(name, { allowSingle: true });
 
   (async function init() {
     if (form && input) {
-      await loadIndex(); // ensure fuse ready
-
+      await loadIndex();
       const liveSearch = debounce(() => {
         const q = input.value.trim();
         if (q.length < 2) { renderSuggestion([]); return; }
-
-        // light feedback via placeholder
         const oldPh = input.getAttribute('placeholder') || '';
         input.setAttribute('data-ph', oldPh);
         input.setAttribute('placeholder', 'Searching…');
-
         const items = fuse.search(q.toLowerCase()).slice(0, 10).map(r => r.item);
         renderSuggestion(items);
-
         input.setAttribute('placeholder', oldPh);
       }, 150);
 
       input.addEventListener('input', liveSearch);
-
-      // Enter -> go to full results page
       input.addEventListener('keydown', (e) => {
         if (e.key === 'Enter') {
           const q = input.value.trim();
           if (q) window.location.href = `search.html?q=${encodeURIComponent(q)}`;
         }
       });
-
-      // click-away to close suggestions
       document.addEventListener('click', e => {
         if (!form.contains(e.target)) renderSuggestion([]);
       });
     }
-
     runResultsPage();
   })();
 })();
+</script>

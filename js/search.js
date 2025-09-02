@@ -14,20 +14,27 @@
   // ---------- helpers ----------
   const cleanText = s => (s || '').replace(/\s+/g, ' ').trim();
   const getText   = el => el ? el.textContent.replace(/\s+/g, ' ').trim() : '';
-  const slug = s => (s || '')
-    .normalize('NFKD').replace(/[\u0300-\u036f]/g, '')
-    .replace(/&/g, ' and ')
-    .replace(/[^a-z0-9\s-]/gi, '')
-    .trim().replace(/\s+/g, '-').replace(/-+/g, '-')
-    .toLowerCase();
+  const norm = (s) =>
+    (s || '')
+      .normalize('NFKD').replace(/[\u0300-\u036f]/g, '') // remove accents
+      .toLowerCase();
 
-  // Treat single-word capitalized names (≥4 chars) as valid (e.g., "Guhan", "Chengappa")
-  function isNameish(s, { allowSingle = false } = {}) {
+  const slug = s =>
+    norm(s)
+      .replace(/&/g, ' and ')
+      .replace(/[^a-z0-9\s-]/g, '')
+      .trim()
+      .replace(/\s+/g, '-')
+      .replace(/-+/g, '-');
+
+  // allow single-word proper names (≥3 letters) too
+  function isNameish(s, { allowSingle = true } = {}) {
     if (!s) return false;
-    const parts = s.replace(/[(),;:/\-]+/g, ' ').trim().split(/\s+/).filter(Boolean);
-    const caps  = parts.filter(w => /^[A-Z][A-Za-z.\-']+$/.test(w));
-    if (caps.length >= 2 && caps.length <= 4) return true;
-    if (allowSingle && caps.length === 1 && /^[A-Z][A-Za-z.\-']{3,}$/.test(parts[0])) return true;
+    const txt   = cleanText(s);
+    const parts = txt.replace(/[(),;:/\-]+/g, ' ').split(/\s+/).filter(Boolean);
+    const capish = parts.filter(w => /^[A-Z][A-Za-z.\-']+$/.test(w));
+    if (capish.length >= 2 && capish.length <= 4) return true;
+    if (allowSingle && capish.length === 1 && /^[A-Z][A-Za-z.\-']{3,}$/.test(parts[0])) return true;
     return false;
   }
 
@@ -35,27 +42,36 @@
     let t; return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), ms); };
   };
 
+  // Split a name into useful searchable tokens (first/middle/last + full)
+  function nameTokens(name) {
+    const lower = norm(name);
+    const parts = lower.split(/[^a-z0-9]+/).filter(Boolean);
+    return Array.from(new Set([lower, ...parts])); // include full + all pieces
+  }
+
   // ---------- extractors ----------
   function extractGeneric(doc, url) {
     const rawTitle = getText(doc.querySelector('title')) || url;
     const title    = rawTitle.replace(/\s*\|\s*.*$/, '');
-    const title_lc = title.toLowerCase();
+    const title_lc = norm(title);
 
     const metaDesc = getText(doc.querySelector('meta[name="description"]'));
     const h1       = getText(doc.querySelector('h1'));
     const p        = getText(doc.querySelector('main p, .page-container p, p'));
 
     const snippet  = (metaDesc || p || h1 || title).slice(0, 180);
-    const content  = [metaDesc, h1, p].filter(Boolean).join(' ').slice(0, 1200).toLowerCase();
+    const content  = norm([metaDesc, h1, p].filter(Boolean).join(' ').slice(0, 1200));
 
     return {
+      // display fields
       title,
       url: url.replace(/^\/+/, ''),
       snippet,
+      // search fields
       title_lc,
       tags: Array.from(new Set([
         ...title_lc.split(/\W+/).slice(0, 8),
-        ...((h1 || '').toLowerCase().split(/\W+/).slice(0, 8))
+        ...norm(h1 || '').split(/\W+/).slice(0, 8)
       ].filter(Boolean))),
       content
     };
@@ -65,30 +81,30 @@
     const list = [];
     const pageURL = pageHref.split('#')[0];
 
-    // ✅ Always allow single-word names across categories
-    const okName = (name) => isNameish(name, { allowSingle: true });
-
     const pushItem = (name, id, role, areas, extra='') => {
       if (!name) return;
       const displayTitle = `${titlePrefix}: ${name}`;
       const snippet = (role || areas || extra || `Profile of ${name}.`).slice(0,160);
-      const content = [role, areas, extra].filter(Boolean).join(' ').slice(0,1200).toLowerCase();
+
+      // searchable text (lowercased/normalized)
+      const content = norm([role, areas, extra].filter(Boolean).join(' ').slice(0,1200));
+
+      const ntokens = nameTokens(name);
+      const atokens = areas ? norm(areas).split(/[,;/]\s*|\s+/) : [];
 
       list.push({
+        // display
         title: displayTitle,
         url: `${pageURL}#${id}`,
         snippet,
-        title_lc: displayTitle.toLowerCase(),
-        tags: Array.from(new Set([
-          baseTag,
-          ...name.toLowerCase().split(/\s+/),
-          ...(areas ? areas.toLowerCase().split(/[,;/]\s*|\s+/) : [])
-        ])),
+        // search
+        title_lc: norm(displayTitle),
+        tags: Array.from(new Set([baseTag, ...ntokens, ...atokens].filter(Boolean))),
         content
       });
     };
 
-    // Optional hidden student data nodes
+    // Optional: hidden student data
     const nodes = doc.querySelectorAll('#studentData [data-name]');
     nodes.forEach(node => {
       const name   = cleanText(node.getAttribute('data-name'));
@@ -100,7 +116,7 @@
       pushItem(name, id, role, '', '');
     });
 
-    // Card-like profiles
+    // Cards (faculty/staff/student cards)
     const cards = doc.querySelectorAll(
       '.faculty-card, .faculty-member, .profile-card, .person, .member, .card, .profile, .fac-card, .member-card, .staff-card, .staff-member, .staff, .student-card, .student'
     );
@@ -110,8 +126,10 @@
         '.member-name,.name,.staff-name,.student-name,' +
         '.faculty-name,.faculty-profile'
       );
-      const name   = cleanText(nameEl ? nameEl.textContent : card.textContent);
-      if (!name || !okName(name)) return;
+      const raw   = nameEl ? nameEl.textContent : card.textContent;
+      const name  = cleanText(raw);
+      if (!name || !isNameish(name, { allowSingle: true })) return;
+
       const id     = card.id || ('person-' + slug(name));
       const role   = cleanText(card.querySelector('.role,.designation,.title')?.textContent);
       const areas  = cleanText(card.querySelector('.areas,.research,.research-areas,.interests')?.textContent);
@@ -124,7 +142,8 @@
     rows.forEach(tr => {
       const cells = Array.from(tr.querySelectorAll('th,td')).map(td => cleanText(td.textContent)).filter(Boolean);
       if (!cells.length) return;
-      const first = cells[0]; if (!okName(first)) return;
+      const first = cells[0];
+      if (!isNameish(first, { allowSingle: true })) return;
       const name = first;
       const id   = tr.id || ('person-' + slug(name));
       const role = cells.slice(1).find(t => /(prof|assistant|associate|lecturer|scientist|postdoc|staff|student)/i.test(t)) || '';
@@ -133,13 +152,13 @@
       pushItem(name, id, role, areas, extra);
     });
 
-    // Bulleted lists
+    // Lists
     const items = doc.querySelectorAll('ul li, ol li');
     items.forEach(li => {
       const line = cleanText(li.textContent);
       if (!line || line.length < 5) return;
       const firstChunk = cleanText(line.split(/[–—\-•|:;]\s*/)[0]);
-      if (!okName(firstChunk)) return;
+      if (!isNameish(firstChunk, { allowSingle: true })) return;
       const name = firstChunk;
       const id   = li.id || ('person-' + slug(name));
       const rest = cleanText(line.slice(firstChunk.length));
@@ -154,8 +173,7 @@
     return new Promise(resolve => {
       const iframe = document.createElement('iframe');
       iframe.style.display = 'none';
-      // cache-bust to avoid stale DOM
-      iframe.src = url + (url.includes('?') ? '&' : '?') + 't=' + Date.now();
+      iframe.src = url + (url.includes('?') ? '&' : '?') + 't=' + Date.now(); // cache-bust
       const finish = () => {
         try {
           const doc = iframe.contentDocument;
@@ -170,8 +188,7 @@
   }
 
   async function loadStaticPage(url) {
-    // cache-bust to avoid stale HTML
-    const bust = url + (url.includes('?') ? '&' : '?') + 't=' + Date.now();
+    const bust = url + (url.includes('?') ? '&' : '?') + 't=' + Date.now(); // cache-bust
     const res = await fetch(bust, { cache: 'no-store' });
     if (!res.ok) throw new Error(`Failed ${url}: ${res.status}`);
     const html = await res.text();
@@ -217,11 +234,11 @@
             const text = getText(el).slice(0, 240);
             index.push({
               title: t,
-              title_lc: (t || '').toLowerCase(),
+              title_lc: norm(t),
               url: `index.html#${id}`,
               tags: ['home', id],
               snippet: text,
-              content: (text || '').toLowerCase()
+              content: norm(text)
             });
           });
         } else {
@@ -232,7 +249,7 @@
       }
     }
 
-    // Manual entries (virtual pages) – example
+    // Manual entries (virtual pages)
     index.push({
       title: 'Room booking',
       title_lc: 'room booking',
@@ -249,6 +266,7 @@
       minMatchCharLength: 2,
       threshold: 0.35,
       ignoreLocation: true,
+      // search lowercase/normalized fields
       keys: [
         { name: 'title_lc', weight: 0.5 },
         { name: 'content',  weight: 0.35 },
@@ -286,7 +304,7 @@
     if (statusEl) statusEl.textContent = 'Searching…';
     await new Promise(r => setTimeout(r, 30)); // let UI paint
 
-    const matches = fuse.search(query.toLowerCase(), { limit: 50 });
+    const matches = fuse.search(norm(query), { limit: 50 });
     if (statusEl) statusEl.textContent = '';
     if (!matches.length) { outEl.innerHTML = `<p>No results found.</p>`; return; }
 
@@ -308,12 +326,12 @@
         const q = input.value.trim();
         if (q.length < 2) { renderSuggestion([]); return; }
 
-        // light feedback via placeholder
+        // lightweight feedback via placeholder
         const oldPh = input.getAttribute('placeholder') || '';
         input.setAttribute('data-ph', oldPh);
         input.setAttribute('placeholder', 'Searching…');
 
-        const items = fuse.search(q.toLowerCase()).slice(0, 10).map(r => r.item);
+        const items = fuse.search(norm(q)).slice(0, 10).map(r => r.item);
         renderSuggestion(items);
 
         input.setAttribute('placeholder', oldPh);

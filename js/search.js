@@ -29,27 +29,9 @@
       .replace(/\s+/g, '-')
       .replace(/-+/g, '-');
 
-  // allow single-word proper names (≥3 letters) too
-  function isNameish(s, { allowSingle = true } = {}) {
-    if (!s) return false;
-    const txt   = cleanText(s);
-    const parts = txt.replace(/[(),;:/\-]+/g, ' ').split(/\s+/).filter(Boolean);
-    const capish = parts.filter(w => /^[A-Z][A-Za-z.\-']+$/.test(w));
-    if (capish.length >= 2 && capish.length <= 4) return true;
-    if (allowSingle && capish.length === 1 && /^[A-Z][A-Za-z.\-']{3,}$/.test(parts[0])) return true;
-    return false;
-  }
-
   const debounce = (fn, ms=150) => {
     let t; return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), ms); };
   };
-
-  // Split a name into useful tokens (full + pieces)
-  function nameTokens(name) {
-    const lower = norm(name);
-    const parts = lower.split(/[^a-z0-9]+/).filter(Boolean);
-    return Array.from(new Set([lower, ...parts]));
-  }
 
   // ---------- extractors ----------
   function extractGeneric(doc, url) {
@@ -89,7 +71,7 @@
       const snippet = (role || areas || extra || `Profile of ${name}.`).slice(0,160);
 
       const content = norm([role, areas, extra].filter(Boolean).join(' ').slice(0,1200));
-      const ntokens = nameTokens(name);
+      const ntokens = [norm(name)];
       const atokens = areas ? norm(areas).split(/[,;/]\s*|\s+/) : [];
 
       list.push({
@@ -104,7 +86,7 @@
       });
     };
 
-    // Optional: hidden student data
+    // hidden student data
     const nodes = doc.querySelectorAll('#studentData [data-name]');
     nodes.forEach(node => {
       const name   = cleanText(node.getAttribute('data-name'));
@@ -128,7 +110,7 @@
       );
       const raw   = nameEl ? nameEl.textContent : card.textContent;
       const name  = cleanText(raw);
-      if (!name || !isNameish(name, { allowSingle: true })) return;
+      if (!name) return;
 
       const id     = card.id || ('person-' + slug(name));
       const role   = cleanText(card.querySelector('.role,.designation,.title')?.textContent);
@@ -143,7 +125,7 @@
       const cells = Array.from(tr.querySelectorAll('th,td')).map(td => cleanText(td.textContent)).filter(Boolean);
       if (!cells.length) return;
       const first = cells[0];
-      if (!isNameish(first, { allowSingle: true })) return;
+      if (!first) return;
       const name = first;
       const id   = tr.id || ('person-' + slug(name));
       const role = cells.slice(1).find(t => /(prof|assistant|associate|lecturer|scientist|postdoc|staff|student)/i.test(t)) || '';
@@ -156,9 +138,8 @@
     const items = doc.querySelectorAll('ul li, ol li');
     items.forEach(li => {
       const line = cleanText(li.textContent);
-      if (!line || line.length < 5) return;
+      if (!line || line.length < 3) return;
       const firstChunk = cleanText(line.split(/[–—\-•|:;]\s*/)[0]);
-      if (!isNameish(firstChunk, { allowSingle: true })) return;
       const name = firstChunk;
       const id   = li.id || ('person-' + slug(name));
       const rest = cleanText(line.slice(firstChunk.length));
@@ -169,32 +150,8 @@
   }
 
   // ---------- loaders ----------
-  function loadDynamicPage(url, timeoutMs = 8000) {
-    return new Promise(resolve => {
-      const iframe = document.createElement('iframe');
-      iframe.style.display = 'none';
-      iframe.src = url + (url.includes('?') ? '&' : '?') + 't=' + Date.now(); // cache-bust
-      const finish = () => {
-        try {
-          const doc = iframe.contentDocument;
-          if (!doc || !doc.body || !doc.body.children.length) {
-            resolve(null);
-          } else {
-            resolve({ url, doc });
-          }
-        } catch {
-          resolve(null);
-        }
-        requestAnimationFrame(() => iframe.remove());
-      };
-      iframe.onload = finish;
-      setTimeout(finish, timeoutMs);
-      document.body.appendChild(iframe);
-    });
-  }
-
   async function loadStaticPage(url) {
-    const bust = url + (url.includes('?') ? '&' : '?') + 't=' + Date.now(); // cache-bust
+    const bust = url + (url.includes('?') ? '&' : '?') + 't=' + Date.now();
     const res = await fetch(bust, { cache: 'no-store' });
     if (!res.ok) throw new Error(`Failed ${url}: ${res.status}`);
     const html = await res.text();
@@ -202,17 +159,6 @@
     return { url, doc };
   }
 
-  // Try iframe first; if it fails/empty, fetch the HTML
-  async function loadPageResilient(url, isDynamic) {
-    if (isDynamic) {
-      const dyn = await loadDynamicPage(url);
-      if (dyn) return dyn;
-      return await loadStaticPage(url);
-    }
-    return await loadStaticPage(url);
-  }
-
-  // ---------- build index (always fresh) ----------
   async function loadIndex() {
     if (indexData) return indexData;
 
@@ -223,14 +169,12 @@
       'programs.html','academic_docs.html','opportunities.html',
       'links.html','documents.html','gallery.html','committees.html'
     ];
-    const DYNAMIC_PAGES = ['faculty.html','staff.html','students.html'];
 
     const index = [];
     for (const page of PAGES) {
       try {
-        const isDyn = DYNAMIC_PAGES.some(p => page.startsWith(p));
-        const loaded = await loadPageResilient(page, isDyn);
-        if (!loaded) { console.warn('Skip (load failed)', page); continue; }
+        const loaded = await loadStaticPage(page);
+        if (!loaded) continue;
 
         const { doc, url } = loaded;
         const lower = url.toLowerCase();
@@ -243,21 +187,6 @@
           index.push(...extractPeople(doc, url, baseTag, titlePrefix));
         } else if (/index\.html/.test(lower)) {
           index.push(extractGeneric(doc, 'index.html'));
-          ['announcements','seminars-events','publications'].forEach(id => {
-            const el = doc.getElementById(id);
-            if (!el) return;
-            const titleMap = { 'announcements': 'Announcements', 'seminars-events': 'Seminars & Events', 'publications': 'Recent Publications' };
-            const t = titleMap[id] || id;
-            const text = (el.textContent || '').trim().slice(0, 240);
-            index.push({
-              title: t,
-              title_lc: norm(t),
-              url: `index.html#${id}`,
-              tags: ['home', id],
-              snippet: text,
-              content: norm(text)
-            });
-          });
         } else {
           index.push(extractGeneric(doc, page));
         }
@@ -266,7 +195,7 @@
       }
     }
 
-    // Manual entries (virtual pages)
+    // Manual entries
     index.push({
       title: 'Room booking',
       title_lc: 'room booking',
@@ -278,11 +207,11 @@
 
     indexData = index;
 
-    // Slightly looser threshold, still precise
+    // 🔑 Fuse.js relaxed config
     fuse = new Fuse(indexData, {
       includeScore: true,
       minMatchCharLength: 2,
-      threshold: 0.4,         // was 0.35
+      threshold: 0.45,
       ignoreLocation: true,
       keys: [
         { name: 'title_lc', weight: 0.5 },
@@ -294,14 +223,15 @@
     return indexData;
   }
 
-  // ---------- substring fallback (if Fuse misses) ----------
+  // ---------- fallback search ----------
   function fallbackFilter(query) {
     const q = norm(query);
     return (indexData || []).filter(it => {
-      const inTitle = (it.title_lc || '').includes(q);
-      const inTags  = (it.tags || []).some(t => (t || '').includes(q));
-      const inBody  = (it.content || '').includes(q);
-      return inTitle || inTags || inBody;
+      return (
+        (it.title_lc || '').includes(q) ||
+        (it.content || '').includes(q) ||
+        (it.tags || []).some(t => (t || '').includes(q))
+      );
     });
   }
 
@@ -350,27 +280,25 @@
 
   (async function init() {
     if (form && input) {
-      await loadIndex(); // ensure fuse ready
+      await loadIndex();
 
       const liveSearch = debounce(() => {
         const q = input.value.trim();
         if (q.length < 2) { renderSuggestion([]); return; }
 
-        // lightweight feedback via placeholder
         const oldPh = input.getAttribute('placeholder') || '';
         input.setAttribute('data-ph', oldPh);
         input.setAttribute('placeholder', 'Searching…');
 
         let items = fuse.search(norm(q)).slice(0, 10).map(r => r.item);
         if (!items.length) items = fallbackFilter(q).slice(0, 10);
-        renderSuggestion(items);
 
+        renderSuggestion(items);
         input.setAttribute('placeholder', oldPh);
       }, 150);
 
       input.addEventListener('input', liveSearch);
 
-      // Enter -> go to full results page
       input.addEventListener('keydown', (e) => {
         if (e.key === 'Enter') {
           const q = input.value.trim();
@@ -378,7 +306,6 @@
         }
       });
 
-      // click-away to close suggestions
       document.addEventListener('click', e => {
         if (!form.contains(e.target)) renderSuggestion([]);
       });
@@ -388,3 +315,4 @@
   })();
 })();
 </script>
+

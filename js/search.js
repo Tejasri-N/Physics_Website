@@ -1,4 +1,5 @@
-// /js/search.js
+<!-- /js/search.js -->
+<script>
 (function () {
   const form    = document.getElementById('site-search');
   const input   = document.getElementById('search-input');
@@ -14,9 +15,10 @@
   // ---------- helpers ----------
   const cleanText = s => (s || '').replace(/\s+/g, ' ').trim();
   const getText   = el => el ? el.textContent.replace(/\s+/g, ' ').trim() : '';
+
   const norm = (s) =>
     (s || '')
-      .normalize('NFKD').replace(/[\u0300-\u036f]/g, '') // remove accents
+      .normalize('NFKD').replace(/[\u0300-\u036f]/g, '') // strip accents
       .toLowerCase();
 
   const slug = s =>
@@ -42,11 +44,11 @@
     let t; return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), ms); };
   };
 
-  // Split a name into useful searchable tokens (first/middle/last + full)
+  // Split a name into useful tokens (full + pieces)
   function nameTokens(name) {
     const lower = norm(name);
     const parts = lower.split(/[^a-z0-9]+/).filter(Boolean);
-    return Array.from(new Set([lower, ...parts])); // include full + all pieces
+    return Array.from(new Set([lower, ...parts]));
   }
 
   // ---------- extractors ----------
@@ -86,9 +88,7 @@
       const displayTitle = `${titlePrefix}: ${name}`;
       const snippet = (role || areas || extra || `Profile of ${name}.`).slice(0,160);
 
-      // searchable text (lowercased/normalized)
       const content = norm([role, areas, extra].filter(Boolean).join(' ').slice(0,1200));
-
       const ntokens = nameTokens(name);
       const atokens = areas ? norm(areas).split(/[,;/]\s*|\s+/) : [];
 
@@ -177,8 +177,14 @@
       const finish = () => {
         try {
           const doc = iframe.contentDocument;
-          resolve(doc ? { url, doc } : null);
-        } catch { resolve(null); }
+          if (!doc || !doc.body || !doc.body.children.length) {
+            resolve(null);
+          } else {
+            resolve({ url, doc });
+          }
+        } catch {
+          resolve(null);
+        }
         requestAnimationFrame(() => iframe.remove());
       };
       iframe.onload = finish;
@@ -194,6 +200,16 @@
     const html = await res.text();
     const doc = new DOMParser().parseFromString(html, 'text/html');
     return { url, doc };
+  }
+
+  // Try iframe first; if it fails/empty, fetch the HTML
+  async function loadPageResilient(url, isDynamic) {
+    if (isDynamic) {
+      const dyn = await loadDynamicPage(url);
+      if (dyn) return dyn;
+      return await loadStaticPage(url);
+    }
+    return await loadStaticPage(url);
   }
 
   // ---------- build index (always fresh) ----------
@@ -212,12 +228,13 @@
     const index = [];
     for (const page of PAGES) {
       try {
-        const useIframe = DYNAMIC_PAGES.some(p => page.startsWith(p));
-        const loaded = await (useIframe ? loadDynamicPage(page) : loadStaticPage(page));
+        const isDyn = DYNAMIC_PAGES.some(p => page.startsWith(p));
+        const loaded = await loadPageResilient(page, isDyn);
         if (!loaded) { console.warn('Skip (load failed)', page); continue; }
-        const { doc, url } = loaded;
 
+        const { doc, url } = loaded;
         const lower = url.toLowerCase();
+
         if (/faculty\.html(\?|$)/.test(lower) || /staff\.html(\?|$)/.test(lower) || /students\.html(\?|$)/.test(lower)) {
           index.push(extractGeneric(doc, url.split('#')[0]));
           let baseTag = 'faculty', titlePrefix = 'Faculty';
@@ -231,7 +248,7 @@
             if (!el) return;
             const titleMap = { 'announcements': 'Announcements', 'seminars-events': 'Seminars & Events', 'publications': 'Recent Publications' };
             const t = titleMap[id] || id;
-            const text = getText(el).slice(0, 240);
+            const text = (el.textContent || '').trim().slice(0, 240);
             index.push({
               title: t,
               title_lc: norm(t),
@@ -261,12 +278,12 @@
 
     indexData = index;
 
+    // Slightly looser threshold, still precise
     fuse = new Fuse(indexData, {
       includeScore: true,
       minMatchCharLength: 2,
-      threshold: 0.35,
+      threshold: 0.4,         // was 0.35
       ignoreLocation: true,
-      // search lowercase/normalized fields
       keys: [
         { name: 'title_lc', weight: 0.5 },
         { name: 'content',  weight: 0.35 },
@@ -275,6 +292,17 @@
     });
 
     return indexData;
+  }
+
+  // ---------- substring fallback (if Fuse misses) ----------
+  function fallbackFilter(query) {
+    const q = norm(query);
+    return (indexData || []).filter(it => {
+      const inTitle = (it.title_lc || '').includes(q);
+      const inTags  = (it.tags || []).some(t => (t || '').includes(q));
+      const inBody  = (it.content || '').includes(q);
+      return inTitle || inTags || inBody;
+    });
   }
 
   // ---------- UI ----------
@@ -302,13 +330,15 @@
     if (!query) { outEl.innerHTML = `<p>No query given.</p>`; return; }
 
     if (statusEl) statusEl.textContent = 'Searching…';
-    await new Promise(r => setTimeout(r, 30)); // let UI paint
+    await new Promise(r => setTimeout(r, 30));
 
-    const matches = fuse.search(norm(query), { limit: 50 });
+    let results = fuse.search(norm(query), { limit: 50 }).map(r => r.item);
+    if (!results.length) results = fallbackFilter(query);
+
     if (statusEl) statusEl.textContent = '';
-    if (!matches.length) { outEl.innerHTML = `<p>No results found.</p>`; return; }
+    if (!results.length) { outEl.innerHTML = `<p>No results found.</p>`; return; }
 
-    outEl.innerHTML = matches.map(({ item }) => {
+    outEl.innerHTML = results.map(item => {
       const s = (item.snippet || item.content || '').slice(0, 180) + '…';
       return `<article class="search-result" style="padding:10px 0;border-bottom:1px solid #eee">
         <h3 style="margin:0 0 6px 0"><a href="${item.url}">${item.title}</a></h3>
@@ -331,7 +361,8 @@
         input.setAttribute('data-ph', oldPh);
         input.setAttribute('placeholder', 'Searching…');
 
-        const items = fuse.search(norm(q)).slice(0, 10).map(r => r.item);
+        let items = fuse.search(norm(q)).slice(0, 10).map(r => r.item);
+        if (!items.length) items = fallbackFilter(q).slice(0, 10);
         renderSuggestion(items);
 
         input.setAttribute('placeholder', oldPh);
@@ -356,3 +387,4 @@
     runResultsPage();
   })();
 })();
+</script>

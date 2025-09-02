@@ -1,4 +1,4 @@
-<!-- /js/search.js -->
+// js/search.js
 <script>
 (function () {
   const form    = document.getElementById('site-search');
@@ -29,9 +29,25 @@
       .replace(/\s+/g, '-')
       .replace(/-+/g, '-');
 
+  function isNameish(s, { allowSingle = true } = {}) {
+    if (!s) return false;
+    const txt   = cleanText(s);
+    const parts = txt.replace(/[(),;:/\-]+/g, ' ').split(/\s+/).filter(Boolean);
+    const capish = parts.filter(w => /^[A-Z][A-Za-z.\-']+$/.test(w));
+    if (capish.length >= 2 && capish.length <= 4) return true;
+    if (allowSingle && parts[0] && parts[0].length >= 3) return true; // 🔄 patched: allow single names
+    return false;
+  }
+
   const debounce = (fn, ms=150) => {
     let t; return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), ms); };
   };
+
+  function nameTokens(name) {
+    const lower = norm(name);
+    const parts = lower.split(/[^a-z0-9]+/).filter(Boolean);
+    return Array.from(new Set([lower, ...parts]));
+  }
 
   // ---------- extractors ----------
   function extractGeneric(doc, url) {
@@ -47,11 +63,9 @@
     const content  = norm([metaDesc, h1, p].filter(Boolean).join(' ').slice(0, 1200));
 
     return {
-      // display fields
       title,
       url: url.replace(/^\/+/, ''),
       snippet,
-      // search fields
       title_lc,
       tags: Array.from(new Set([
         ...title_lc.split(/\W+/).slice(0, 8),
@@ -71,15 +85,13 @@
       const snippet = (role || areas || extra || `Profile of ${name}.`).slice(0,160);
 
       const content = norm([role, areas, extra].filter(Boolean).join(' ').slice(0,1200));
-      const ntokens = [norm(name)];
+      const ntokens = nameTokens(name);
       const atokens = areas ? norm(areas).split(/[,;/]\s*|\s+/) : [];
 
       list.push({
-        // display
         title: displayTitle,
         url: `${pageURL}#${id}`,
         snippet,
-        // search
         title_lc: norm(displayTitle),
         tags: Array.from(new Set([baseTag, ...ntokens, ...atokens].filter(Boolean))),
         content
@@ -98,7 +110,7 @@
       pushItem(name, id, role, '', '');
     });
 
-    // Cards (faculty/staff/student cards)
+    // Cards
     const cards = doc.querySelectorAll(
       '.faculty-card, .faculty-member, .profile-card, .person, .member, .card, .profile, .fac-card, .member-card, .staff-card, .staff-member, .staff, .student-card, .student'
     );
@@ -110,7 +122,7 @@
       );
       const raw   = nameEl ? nameEl.textContent : card.textContent;
       const name  = cleanText(raw);
-      if (!name) return;
+      if (!name || !isNameish(name, { allowSingle: true })) return;
 
       const id     = card.id || ('person-' + slug(name));
       const role   = cleanText(card.querySelector('.role,.designation,.title')?.textContent);
@@ -125,7 +137,7 @@
       const cells = Array.from(tr.querySelectorAll('th,td')).map(td => cleanText(td.textContent)).filter(Boolean);
       if (!cells.length) return;
       const first = cells[0];
-      if (!first) return;
+      if (!isNameish(first, { allowSingle: true })) return;
       const name = first;
       const id   = tr.id || ('person-' + slug(name));
       const role = cells.slice(1).find(t => /(prof|assistant|associate|lecturer|scientist|postdoc|staff|student)/i.test(t)) || '';
@@ -138,8 +150,9 @@
     const items = doc.querySelectorAll('ul li, ol li');
     items.forEach(li => {
       const line = cleanText(li.textContent);
-      if (!line || line.length < 3) return;
+      if (!line || line.length < 5) return;
       const firstChunk = cleanText(line.split(/[–—\-•|:;]\s*/)[0]);
+      if (!isNameish(firstChunk, { allowSingle: true })) return;
       const name = firstChunk;
       const id   = li.id || ('person-' + slug(name));
       const rest = cleanText(line.slice(firstChunk.length));
@@ -195,7 +208,6 @@
       }
     }
 
-    // Manual entries
     index.push({
       title: 'Room booking',
       title_lc: 'room booking',
@@ -207,11 +219,11 @@
 
     indexData = index;
 
-    // 🔑 Fuse.js relaxed config
+    // 🔄 Fuse.js config relaxed
     fuse = new Fuse(indexData, {
       includeScore: true,
-      minMatchCharLength: 2,
-      threshold: 0.45,
+      minMatchCharLength: 2,  // was 3
+      threshold: 0.45,        // was 0.35
       ignoreLocation: true,
       keys: [
         { name: 'title_lc', weight: 0.5 },
@@ -227,11 +239,10 @@
   function fallbackFilter(query) {
     const q = norm(query);
     return (indexData || []).filter(it => {
-      return (
-        (it.title_lc || '').includes(q) ||
-        (it.content || '').includes(q) ||
-        (it.tags || []).some(t => (t || '').includes(q))
-      );
+      const inTitle = (it.title_lc || '').includes(q);
+      const inTags  = (it.tags || []).some(t => (t || '').includes(q));
+      const inBody  = (it.content || '').includes(q);
+      return inTitle || inTags || inBody;
     });
   }
 
@@ -315,4 +326,3 @@
   })();
 })();
 </script>
-

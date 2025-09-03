@@ -108,95 +108,101 @@
     };
   }
 
-  function extractPeople(doc, pageHref, baseTag, titlePrefix) {
-    const list = [];
-    const pageURL = pageHref.split('#')[0];
+function extractPeople(doc, pageHref, baseTag, titlePrefix) {
+  const cleanText = s => (s || '').replace(/\s+/g, ' ').trim();
+  const norm = (s) => (s || '').normalize('NFKD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+  const slug = s => norm(s).replace(/&/g,' and ').replace(/[^a-z0-9\s-]/g,'').trim().replace(/\s+/g,'-').replace(/-+/g,'-');
+  const pageURL = pageHref.split('#')[0];
+  const list = [];
 
-    const pushItem = (name, id, role, areas, extra='') => {
-      if (!name) return;
-      const displayTitle = `${titlePrefix}: ${name}`;
-      const snippet = (role || areas || extra || `Profile of ${name}.`).slice(0,160);
-
-      const content = norm([role, areas, extra].filter(Boolean).join(' ').slice(0,1200));
-      const ntokens = nameTokens(name);
-      const atokens = areas ? norm(areas).split(/[,;/]\s*|\s+/) : [];
-
-      list.push({
-        // display
-        title: displayTitle,
-        url: `${pageURL}#${id}`,
-        snippet,
-        // search
-        title_lc: norm(displayTitle),
-        tags: Array.from(new Set([baseTag, ...ntokens, ...atokens].filter(Boolean))),
-        content
-      });
-    };
-
-    // Optional: hidden student data
-    const nodes = doc.querySelectorAll('#studentData [data-name]');
-    nodes.forEach(node => {
-      const name   = cleanText(node.getAttribute('data-name'));
-      if (!name) return;
-      const enroll = cleanText(node.getAttribute('data-enroll') || '');
-      const id     = node.id || `student-${slug(`${name}-${enroll || ''}`)}`;
-      if (!node.id) node.id = id;
-      const role   = enroll ? `Enrollment: ${enroll}` : '';
-      pushItem(name, id, role, '', '');
+  const pushItem = (name, id, role, areas, extra='') => {
+    if (!name || name.length < 3) return;
+    const displayTitle = `${titlePrefix}: ${name}`;
+    const snippet = (role || areas || extra || `Profile of ${name}.`).slice(0,160);
+    const content = norm([role, areas, extra].filter(Boolean).join(' ').slice(0,1200));
+    const ntokens = Array.from(new Set([norm(name), ...norm(name).split(/[^a-z0-9]+/).filter(Boolean)]));
+    const atokens = areas ? norm(areas).split(/[,;/]\s*|\s+/) : [];
+    list.push({
+      title: displayTitle,
+      url: `${pageURL}#${id}`,
+      snippet,
+      title_lc: norm(displayTitle),
+      tags: Array.from(new Set([baseTag, ...ntokens, ...atokens].filter(Boolean))),
+      content
     });
+  };
 
-    // Cards (faculty/staff/student cards)
-    const cards = doc.querySelectorAll(
-      '.faculty-card, .faculty-member, .profile-card, .person, .member, .card, .profile, .fac-card, .member-card, .staff-card, .staff-member, .staff, .student-card, .student'
+  // 1) Hidden student dataset (if present)
+  doc.querySelectorAll('#studentData [data-name]').forEach(node => {
+    const name   = cleanText(node.getAttribute('data-name'));
+    if (!name) return;
+    const enroll = cleanText(node.getAttribute('data-enroll') || '');
+    const id     = node.id || `student-${slug(`${name}-${enroll || ''}`)}`;
+    if (!node.id) node.id = id;
+    const role   = enroll ? `Enrollment: ${enroll}` : '';
+    pushItem(name, id, role, '', '');
+  });
+
+  // 2) Cards/blocks (faculty/staff/students) — broadened selectors
+  const cardSel = [
+    '.faculty-card', '.faculty-member', '.profile-card',
+    '.person', '.member', '.card', '.profile', '.fac-card', '.member-card',
+    '.staff-card', '.staff-member', '.staff',
+    '.student-card', '.student',
+    // common generic containers used on some pages:
+    '.people-card', '.people-item', '.team-card', '.team-member', '.bio', '.bio-card'
+  ].join(',');
+
+  doc.querySelectorAll(cardSel).forEach(card => {
+    const nameEl = card.querySelector(
+      // include generic elements too (span/div/a) for simple markup
+      'h1,h2,h3,h4,h5,span,div,a,' +
+      '.member-name,.name,.staff-name,.student-name,.faculty-name,.faculty-profile'
     );
-    cards.forEach(card => {
-     const nameEl = card.querySelector(
-  'h1,h2,h3,h4,h5,span,div,' +
-  '.member-name,.name,.staff-name,.student-name,' +
-  '.faculty-name,.faculty-profile'
-);
+    const raw   = nameEl ? nameEl.textContent : card.textContent;
+    const name  = cleanText(raw);
+    if (!name || name.length < 3) return;
 
-      const raw   = nameEl ? nameEl.textContent : card.textContent;
-      const name  = cleanText(raw);
-      if (!name || !isNameish(name, { allowSingle: true })) return;
+    const id     = card.id || ('person-' + slug(name));
+    if (!card.id) card.id = id;
 
-      const id     = card.id || ('person-' + slug(name));
-      const role   = cleanText(card.querySelector('.role,.designation,.title')?.textContent);
-      const areas  = cleanText(card.querySelector('.areas,.research,.research-areas,.interests')?.textContent);
-      const firstP = cleanText(card.querySelector('p')?.textContent);
-      pushItem(name, id, role, areas, firstP);
-    });
+    const role   = cleanText(card.querySelector('.role,.designation,.title,.position')?.textContent);
+    const areas  = cleanText(card.querySelector('.areas,.research,.research-areas,.interests,.keywords')?.textContent);
+    const firstP = cleanText(card.querySelector('p')?.textContent);
+    pushItem(name, id, role, areas, firstP);
+  });
 
-    // Tables
-    const rows = doc.querySelectorAll('table tr');
-    rows.forEach(tr => {
-      const cells = Array.from(tr.querySelectorAll('th,td')).map(td => cleanText(td.textContent)).filter(Boolean);
-      if (!cells.length) return;
-      const first = cells[0];
-      if (!isNameish(first, { allowSingle: true })) return;
-      const name = first;
-      const id   = tr.id || ('person-' + slug(name));
-      const role = cells.slice(1).find(t => /(prof|assistant|associate|lecturer|scientist|postdoc|staff|student)/i.test(t)) || '';
-      const areas= cells.slice(1).find(t => /(research|area|interests|topics|group)/i.test(t)) || '';
-      const extra= cells.slice(1).join(' ').slice(0,800);
-      pushItem(name, id, role, areas, extra);
-    });
+  // 3) Tables — accept first cell as name even if single/lowercase
+  doc.querySelectorAll('table tr').forEach(tr => {
+    const cells = Array.from(tr.querySelectorAll('th,td')).map(td => cleanText(td.textContent)).filter(Boolean);
+    if (!cells.length) return;
+    const first = cells[0];
+    if (!first || first.length < 3) return;
+    const name = first;
+    const id   = tr.id || ('person-' + slug(name));
+    if (!tr.id) tr.id = id;
+    const role = cells.slice(1).find(t => /(prof|assistant|associate|lecturer|scientist|postdoc|staff|student|ph\.?d|ms|mtech|btech)/i.test(t)) || '';
+    const areas= cells.slice(1).find(t => /(research|area|interest|topics|group|lab)/i.test(t)) || '';
+    const extra= cells.slice(1).join(' ').slice(0,800);
+    pushItem(name, id, role, areas, extra);
+  });
 
-    // Lists
-    const items = doc.querySelectorAll('ul li, ol li');
-    items.forEach(li => {
-      const line = cleanText(li.textContent);
-      if (!line || line.length < 3) return;
-      const firstChunk = cleanText(line.split(/[–—\-•|:;]\s*/)[0]);
-      if (!isNameish(firstChunk, { allowSingle: true })) return;
-      const name = firstChunk;
-      const id   = li.id || ('person-' + slug(name));
-      const rest = cleanText(line.slice(firstChunk.length));
-      pushItem(name, id, '', '', rest);
-    });
+  // 4) Lists — treat first chunk before separators as name
+  doc.querySelectorAll('ul li, ol li').forEach(li => {
+    const line = cleanText(li.textContent);
+    if (!line || line.length < 3) return;
+    const firstChunk = cleanText(line.split(/[–—\-•|:;]\s*/)[0]);
+    if (!firstChunk || firstChunk.length < 3) return;
+    const name = firstChunk;
+    const id   = li.id || ('person-' + slug(name));
+    if (!li.id) li.id = id;
+    const rest = cleanText(line.slice(firstChunk.length));
+    pushItem(name, id, '', '', rest);
+  });
 
-    return list;
-  }
+  return list;
+}
+
 
   // ---------- loaders ----------
   function loadDynamicPage(url, timeoutMs = 8000) {

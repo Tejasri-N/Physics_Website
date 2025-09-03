@@ -150,11 +150,12 @@
       '.faculty-card, .faculty-member, .profile-card, .person, .member, .card, .profile, .fac-card, .member-card, .staff-card, .staff-member, .staff, .student-card, .student'
     );
     cards.forEach(card => {
-      const nameEl = card.querySelector(
-        'h1,h2,h3,h4,h5,' +
-        '.member-name,.name,.staff-name,.student-name,' +
-        '.faculty-name,.faculty-profile'
-      );
+     const nameEl = card.querySelector(
+  'h1,h2,h3,h4,h5,span,div,' +
+  '.member-name,.name,.staff-name,.student-name,' +
+  '.faculty-name,.faculty-profile'
+);
+
       const raw   = nameEl ? nameEl.textContent : card.textContent;
       const name  = cleanText(raw);
       if (!name || !isNameish(name, { allowSingle: true })) return;

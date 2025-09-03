@@ -3,7 +3,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const detailsSection = document.getElementById("details-section");
   const contentSection = document.getElementById("content-section");
 
-  // 🔧 Normalize strings to keys (remove all non-alphanumerics)
+  // 🔧 Normalize strings to keys
   const keyify = (s) => String(s).toLowerCase().replace(/[^a-z0-9]/g, "");
 
   // Program details with courses for M.Sc and M.Tech
@@ -42,70 +42,77 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Content for all sections (unique keys)
   const contentDetails = {
-    // B.Tech
+    // ------------------ B.Tech ------------------
     aboutbtech:
-      "<p>The B.Tech in Engineering Physics at IIT Hyderabad provides students with a solid foundation in physics, coupled with applications in modern science and technology. The program integrates theoretical knowledge, laboratory training, and interdisciplinary exposure to prepare graduates for careers in research, industry, and entrepreneurship.</p>",
+      "<p>The B.Tech in Engineering Physics at IIT Hyderabad is designed to build a strong foundation in physics while connecting it with real-world engineering and technology applications. The program blends theory, experiments, and computational methods to nurture analytical thinking, innovation, and problem-solving skills.</p>",
     curriculumbtech:
-      "<p>The curriculum is designed to balance core physics courses, mathematics, and engineering subjects with electives and project-based learning. Students explore areas such as classical and quantum mechanics, electromagnetism, materials science, electronics, and computational methods. Alongside classroom instruction, significant emphasis is placed on laboratory work, hands-on experimentation, and research-driven projects, ensuring a holistic learning experience.</p>",
+      "<p>The B.Tech curriculum balances fundamental physics, mathematics, and engineering courses with electives and project-based learning. Core areas include mechanics, electromagnetism, quantum physics, materials science, and electronics. A strong laboratory component and computational training ensure holistic development.</p>",
     academicoptionsbtech:
-      "<p>The program offers flexible academic pathways to suit students’ diverse interests. Options include:\n\nMinors in interdisciplinary areas (engineering, sciences, or humanities).\n\nElectives that allow specialization in cutting-edge fields of physics.\n\nHonors and double major options, enabling motivated students to broaden their academic portfolio.\nThese choices empower students to customize their education to align with career goals in research, higher studies, or industry..</p>",
+      "<p>Students can tailor their learning with flexible academic options. These include minors in interdisciplinary fields, a variety of electives in advanced physics, and honors/double major choices. Such opportunities allow students to pursue higher studies, research, or careers in technology-driven industries.</p>",
     internshipbtech:
-      "<p>Internships form an integral part of the B.Tech journey, giving students real-world exposure to research labs, industrial settings, and technology-driven companies. The department actively facilitates internship opportunities in national research institutes, IITs/IISc, and reputed industries. Students gain practical skills, industry orientation, and collaborative research experience that complement their academic learning.</p>",
+      "<p>Internships offer valuable exposure to research laboratories, industries, and startups. Students often work at IITs, IISc, national research institutes, and companies, gaining practical skills and collaborative research experience. This prepares them for academic and professional challenges ahead.</p>",
     placementbtech:
-      "<p>Graduates of the program are highly sought after by industries ranging from technology, semiconductor and materials science, data science, finance, and consulting to research organizations and academia. The department’s strong network with recruiters, combined with IIT Hyderabad’s dedicated Career Services Office, ensures excellent placement support. Alumni have successfully pursued careers in core industries, R&D, startups, and higher education worldwide.</p>",
+      "<p>B.Tech graduates from the department are well-placed in industries such as semiconductors, data science, finance, R&D, and consulting. Many alumni pursue higher education in India and abroad. The institute’s Career Services Office and faculty mentorship provide strong support for placements.</p>",
     researchareasfacilitiesbtech:
-      "<p>Students benefit from access to state-of-the-art laboratories and advanced research facilities. Major focus areas include:\n\nCondensed Matter Physics & Materials Science\n\nNanoscience & Nanotechnology\n\nPhotonics & Quantum Technologies\n\nHigh-Energy and Astrophysics\n\nSoft Matter & Biophysics\n\nDedicated facilities such as the SQUID magnetometer, XRD systems, NMR/ESR setups, and advanced computational clusters provide invaluable hands-on training and research opportunities.</p>",
+      "<p>Students have access to advanced laboratories and facilities. Key research areas include condensed matter physics, nanotechnology, photonics, quantum technologies, astrophysics, and biophysics. Facilities such as SQUID magnetometers, XRD systems, NMR/ESR spectrometers, and computational clusters support training and research.</p>",
     brochurebtech:
-      "<p>The B.Tech Program Brochure offers a comprehensive overview of the course structure, research opportunities, facilities, faculty expertise, and career prospects. It serves as a quick reference for prospective students, parents, and recruiters to understand the unique features and strengths of the program.</p>",
+      "<p>The B.Tech brochure highlights the program structure, facilities, faculty expertise, and career opportunities. It provides prospective students and recruiters with an overview of the unique strengths of the department and its academic culture.</p>",
 
-    // Ph.D.
-    aboutphd: "<p>This is the About section for Ph.D.</p>",
+    // ------------------ Ph.D. ------------------
+    aboutphd:
+      "<p>The Ph.D. program in Physics at IIT Hyderabad is a research-intensive program aimed at preparing students for advanced scientific research and academic careers. Students work closely with faculty on cutting-edge problems in both theoretical and experimental physics.</p>",
     researchareasfacilitiesphd:
-      "<p>This is the Research Areas + Facilities section for Ph.D.</p>",
-    brochurephd: "<p>This is the Brochure section for Ph.D.</p>",
+      "<p>Research spans condensed matter physics, nanoscience, photonics, quantum technologies, high-energy physics, astrophysics, and soft matter. Scholars benefit from world-class facilities, advanced laboratories, and interdisciplinary collaborations across IIT Hyderabad and partner institutes.</p>",
+    brochurephd:
+      "<p>The Ph.D. brochure details admission guidelines, faculty research areas, laboratory facilities, and career outcomes. It provides applicants with information on research opportunities, coursework requirements, and the vibrant research culture at IIT Hyderabad.</p>",
 
-    // M.Sc. Physics
+    // ------------------ M.Sc. Physics ------------------
     aboutphysicsmsc:
-      "<p>The M.Sc. in Physics at IIT Hyderabad is a rigorous two-year postgraduate program that provides advanced training in core and applied areas of physics. The program is designed to build strong analytical skills, experimental expertise, and research aptitude, preparing students for both academic and industry careers.</p>",
+      "<p>The M.Sc. in Physics is a two-year postgraduate program offering advanced training in both core and applied areas of physics. It equips students with strong analytical skills, research exposure, and a solid foundation for doctoral studies or industry roles.</p>",
     curriculumphysicsmsc:
-      "<p>The curriculum covers a wide spectrum of topics including classical mechanics, quantum mechanics, statistical mechanics, electrodynamics, condensed matter physics, nuclear & particle physics, and computational physics. In addition, elective courses allow students to specialize in emerging areas such as nanoscience, photonics, materials science, and quantum technologies. The program combines classroom teaching with laboratory training, computational projects, and seminars.</p>",
+      "<p>The curriculum covers classical mechanics, quantum mechanics, electrodynamics, statistical physics, condensed matter, and nuclear & particle physics. Electives in areas such as nanoscience, photonics, and quantum technologies allow students to pursue their interests. Labs and seminars strengthen practical learning.</p>",
     academicoptionsphysicsmsc:
-      "<p>Students have the flexibility to pursue electives and project work in specialized domains of physics. The department encourages interdisciplinary learning through courses offered by other departments such as materials science, electrical engineering, and computational sciences. M.Sc. students also have opportunities to undertake dissertation projects under faculty guidance, often leading to publications or pathways to Ph.D. research.</p>",
+      "<p>M.Sc. students can explore electives, interdisciplinary courses, and dissertation projects under faculty mentorship. The program provides opportunities for research publications and builds pathways toward Ph.D. programs or specialized industry careers.</p>",
     internshipphysicsmsc:
-      "<p>The program facilitates internships in national research laboratories, industries, and international universities, giving students real-world exposure to research and applied science. Internships typically occur during summer breaks and provide opportunities for hands-on research, technical training, and industry collaboration, adding significant value to academic learning.</p>",
+      "<p>Internships at research labs, industries, and universities provide hands-on experience in physics applications. Summer internships often expose students to cutting-edge experiments, simulations, and collaborative projects, bridging classroom learning with real-world science.</p>",
     placementphysicsmsc:
-      "<p>M.Sc. graduates from IIT Hyderabad have excellent career prospects. Many pursue Ph.D. programs in premier institutes in India and abroad, while others find opportunities in R&D labs, technology companies, semiconductor industries, data science, finance, and consulting sectors. The institute’s Career Services Office, along with strong faculty recommendations, ensures robust placement and higher studies support.</p>",
+      "<p>M.Sc. graduates pursue Ph.D. positions in India and abroad, or careers in industries such as semiconductors, technology, analytics, and consulting. The program develops a strong foundation for research and professional growth.</p>",
 
-    // M.Sc. Quantum Semiconductors
+    // ------------------ M.Sc. Quantum Semiconductors ------------------
     aboutquantumsemiconductorsmsc:
-      "<p>About Quantum Semiconductors in M.Sc.</p>",
+      "<p>The M.Sc. specialization in Quantum Semiconductors focuses on the physics and applications of semiconductor materials and devices at the nanoscale. It blends quantum physics with materials engineering to prepare students for high-tech careers.</p>",
     curriculumquantumsemiconductorsmsc:
-      "<p>Quantum Semiconductors Curriculum for M.Sc.</p>",
+      "<p>The curriculum includes quantum mechanics, semiconductor device physics, optoelectronics, nanomaterials, and fabrication techniques. Laboratory modules emphasize semiconductor characterization, nanodevice design, and computational simulations.</p>",
     researchareasfacilitiesquantumsemiconductorsmsc:
-      "<p>Quantum Semiconductors Research Areas + Facilities in M.Sc.</p>",
+      "<p>Research facilities include advanced spectroscopy, nanofabrication labs, cleanroom facilities, and computational clusters. Focus areas are quantum dots, 2D materials, photonic devices, and nanoelectronics.</p>",
     internshipquantumsemiconductorsmsc:
-      "<p>Quantum Semiconductors Internship Opportunities in M.Sc.</p>",
+      "<p>Students undertake internships in semiconductor industries, R&D labs, and academic research centers. These experiences provide exposure to fabrication processes, quantum materials, and device innovation.</p>",
     placementquantumsemiconductorsmsc:
-      "<p>Quantum Semiconductors Placement Opportunities in M.Sc.</p>",
+      "<p>Graduates can pursue doctoral studies or careers in semiconductor industries, nanotechnology startups, photonics companies, and research institutes working in advanced materials and devices.</p>",
 
-    // M.Tech. Physics
-    aboutphysicsmtech: "<p>About Physics in M.Tech.</p>",
-    curriculumphysicsmtech: "<p>Physics Curriculum for M.Tech.</p>",
-    academicoptionsphysicsmtech: "<p>Physics Academic Options for M.Tech.</p>",
-    internshipphysicsmtech: "<p>Physics Internship Opportunities in M.Tech.</p>",
-    placementphysicsmtech: "<p>Physics Placement Opportunities in M.Tech.</p>",
+    // ------------------ M.Tech. Physics ------------------
+    aboutphysicsmtech:
+      "<p>The M.Tech in Physics provides specialized training for engineers and physicists interested in applied physics and emerging technologies. It bridges fundamental science with real-world applications.</p>",
+    curriculumphysicsmtech:
+      "<p>The program includes advanced courses in quantum mechanics, condensed matter physics, nanotechnology, photonics, and computational physics. A strong emphasis is placed on project work and applied research.</p>",
+    academicoptionsphysicsmtech:
+      "<p>M.Tech students can opt for electives across disciplines and pursue research-oriented projects. Collaboration with other departments and industry projects are encouraged to broaden career options.</p>",
+    internshipphysicsmtech:
+      "<p>Internships in industries, R&D labs, and research centers provide exposure to applied physics problems and technology development. These internships strengthen the link between academic learning and industrial needs.</p>",
+    placementphysicsmtech:
+      "<p>M.Tech graduates are placed in semiconductor industries, photonics companies, R&D organizations, and also pursue doctoral programs worldwide. The program provides excellent opportunities for careers in both research and industry.</p>",
 
-    // M.Tech. Quantum Semiconductors
+    // ------------------ M.Tech. Quantum Semiconductors ------------------
     aboutquantumsemiconductorsmtech:
-      "<p>About Quantum Semiconductors in M.Tech.</p>",
+      "<p>The M.Tech in Quantum Semiconductors is designed for students aiming to specialize in semiconductor technology, quantum devices, and nanomaterials. It prepares graduates for advanced R&D and high-technology sectors.</p>",
     curriculumquantumsemiconductorsmtech:
-      "<p>Quantum Semiconductors Curriculum for M.Tech.</p>",
+      "<p>The curriculum covers advanced quantum mechanics, semiconductor device physics, optoelectronics, nanofabrication, and device modeling. Students gain expertise in simulation, fabrication, and testing of semiconductor devices.</p>",
     researchareasfacilitiesquantumsemiconductorsmtech:
-      "<p>Quantum Semiconductors Research Areas + Facilities in M.Tech.</p>",
+      "<p>Research areas include quantum dots, spintronics, 2D materials, optoelectronics, and nanoscale devices. Facilities such as cleanrooms, advanced characterization labs, and computational tools support cutting-edge projects.</p>",
     internshipquantumsemiconductorsmtech:
-      "<p>Quantum Semiconductors Internship Opportunities in M.Tech.</p>",
+      "<p>Internships are encouraged with semiconductor industries, chip-design companies, and national/international labs. They provide industry-ready experience in device fabrication and quantum semiconductor research.</p>",
     placementquantumsemiconductorsmtech:
-      "<p>Quantum Semiconductors Placement Opportunities in M.Tech.</p>",
+      "<p>Graduates find opportunities in semiconductor companies, nanotechnology startups, electronics R&D, and doctoral programs. The program builds strong links to both academia and industry.</p>",
   };
 
   // Display default content (B.Tech)
@@ -125,17 +132,15 @@ document.addEventListener("DOMContentLoaded", () => {
     let html = `<h3>${program.toUpperCase()} Program Details</h3>`;
 
     if (program === "msc" || program === "mtech") {
-      // Show courses
       programDetails[program].forEach((course) => {
-        const courseKey = keyify(course); // FIX
+        const courseKey = keyify(course);
         html += `<button class="course-btn btn" data-course="${courseKey}">${course}</button>`;
       });
       detailsSection.innerHTML = html;
       attachCourseListeners(program);
     } else {
-      // Show direct details for B.Tech, Ph.D.
       programDetails[program].forEach((detail) => {
-        const detailKey = keyify(detail) + program; // FIX
+        const detailKey = keyify(detail) + program;
         html += `<button class="detail-btn btn" data-detail="${detailKey}">${detail}</button>`;
       });
       detailsSection.innerHTML = html;
@@ -156,7 +161,7 @@ document.addEventListener("DOMContentLoaded", () => {
   function displayCourseDetails(program, course) {
     let html = `<h3>${capitalize(course)} Course Details (${program.toUpperCase()})</h3>`;
     courseDetails[course].forEach((detail) => {
-      const detailKey = keyify(detail) + course + program; // FIX
+      const detailKey = keyify(detail) + course + program;
       html += `<button class="detail-btn btn" data-detail="${detailKey}">${detail}</button>`;
     });
     html += `<button class="back-btn btn">Back</button>`;

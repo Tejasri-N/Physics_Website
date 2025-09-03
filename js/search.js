@@ -154,11 +154,11 @@ function extractPeople(doc, pageHref, baseTag, titlePrefix) {
   ].join(',');
 
   doc.querySelectorAll(cardSel).forEach(card => {
-    const nameEl = card.querySelector(
-      // include generic elements too (span/div/a) for simple markup
-      'h1,h2,h3,h4,h5,span,div,a,' +
-      '.member-name,.name,.staff-name,.student-name,.faculty-name,.faculty-profile'
-    );
+   const nameEl = card.querySelector(
+  'h1,h2,h3,h4,h5,span,div,a,strong,b,td,' +
+  '.member-name,.name,.staff-name,.student-name,.faculty-name,.faculty-profile'
+);
+
     const raw   = nameEl ? nameEl.textContent : card.textContent;
     const name  = cleanText(raw);
     if (!name || name.length < 3) return;

@@ -18,11 +18,7 @@ const courses = {
     },
   },
   phd: {
-    subcourses: {
-      research: "Research",
-      jrf: "JRF",
-      srf: "SRF",
-    },
+  
   },
 };
 
@@ -57,13 +53,14 @@ function showSubcourses(course, element) {
       });
       subnav.appendChild(subPill);
     });
+
+    // ⬇️ Hide years + table only for courses WITH subcourses
+    document.getElementById("yearScrollWrapper").style.display = "none";
+    document.getElementById("tableContainer").classList.add("hidden");
   } else {
     subnav.classList.add("hidden");
-    showYears(course, null);
+    showYears(course, null); // ⬅️ Directly show year scroll for PhD
   }
-  // Hide years and table initially
-  document.getElementById("yearScrollWrapper").style.display = "none";
-  document.getElementById("tableContainer").classList.add("hidden");
 }
 
 function showYears(course, subcourse = null) {
@@ -133,14 +130,11 @@ function showStudents(course, subcourse, year) {
   const tableContainer = document.getElementById("tableContainer");
   const tableBody = document.getElementById("tableBody");
   const tableCaption = document.getElementById("tableCaption");
-  tableBody.innerHTML = "";
+
   const courseName = document.querySelector(
     `.course-pill[data-course="${course}"]`
   ).textContent;
   const subcourseName = subcourse ? courses[course].subcourses[subcourse] : "";
-  tableCaption.textContent = `${courseName}${
-    subcourseName ? ` - ${subcourseName}` : ""
-  } - ${year} Students`;
   const group = document.querySelector(
     `#studentData > div[data-course="${course}"]${
       subcourse ? `[data-subcourse="${subcourse}"]` : ":not([data-subcourse])"
@@ -150,19 +144,128 @@ function showStudents(course, subcourse, year) {
     tableContainer.classList.add("hidden");
     return;
   }
+
   const students = Array.from(group.children);
-  students.forEach((studentDiv, idx) => {
-    const row = document.createElement("tr");
-    row.innerHTML = `
-            <td>${idx + 1}</td>
-            <td>${studentDiv.getAttribute("data-name")}</td>
-            <td>${studentDiv.getAttribute("data-enroll")}</td>
-        `;
-    tableBody.appendChild(row);
-  });
-  tableContainer.classList.remove("hidden");
+
+  if (course === "phd") {
+    // ✅ Hide the normal table
+    document.getElementById("studentTable").style.display = "none";
+
+    // Remove old phd-wrapper if it exists
+    const oldPhdWrapper = document.querySelector(".phd-wrapper");
+    if (oldPhdWrapper) oldPhdWrapper.remove();
+
+    // Add caption
+    tableCaption.textContent = `${courseName} - ${year} Students`;
+
+    // Create wrapper for phd bars
+    const phdWrapper = document.createElement("div");
+    phdWrapper.className = "phd-wrapper";
+
+  students.forEach((studentDiv) => {
+  const name = studentDiv.dataset.name.toUpperCase();
+  const enroll = studentDiv.dataset.enroll.toUpperCase();
+  const photo = studentDiv.dataset.photo || "assets/phd-students/default.png";
+  const guide = studentDiv.dataset.guide || "N/A";
+  const office = studentDiv.dataset.office || "N/A";
+  const email = `${studentDiv.dataset.enroll.toLowerCase()}@iith.ac.in`;
+
+  const card = document.createElement("div");
+  card.className = "phd-student-card";
+
+  card.innerHTML = `
+    <!-- Original card -->
+    <div class="phd-photo-wrapper">
+      <img src="${photo}" alt="Photo of ${name}" class="phd-photo" />
+      <div class="info-icon">ⓘ</div>
+    </div>
+    <div class="phd-bottom">
+      <div class="phd-name">${name}</div>
+      <div class="phd-roll">${enroll}</div>
+    </div>
+
+    <!-- Slide-out panel -->
+    <div class="phd-side-panel">
+      <div class="close-icon">✖</div>
+      <div class="phd-info-box">
+        <p><strong>Guide:</strong> ${guide}</p>
+        <p><strong>Office:</strong> ${office}</p>
+        <p><a href="mailto:${email}" class="email-link">&#9993;</a></p>
+
+      </div>
+    </div>
+  `;
+
+// Toggle panel on info icon click
+const infoBtn = card.querySelector(".info-icon");
+const closeBtn = card.querySelector(".close-icon");
+
+infoBtn.addEventListener("click", function () {
+  const isOpen = card.classList.contains("active");
+
+  if (isOpen) {
+    // panel open -> close it
+    document.querySelectorAll(".phd-student-card")
+      .forEach(c => c.classList.remove("active", "faded"));
+  } else {
+    // open this one and fade others
+    document.querySelectorAll(".phd-student-card").forEach(c => {
+      c.classList.remove("active");
+      c.classList.add("faded");
+    });
+    card.classList.add("active");
+    card.classList.remove("faded");
+  }
+});
+
+// Close panel (X)
+closeBtn.addEventListener("click", function () {
+  document.querySelectorAll(".phd-student-card")
+    .forEach(c => c.classList.remove("active", "faded"));
+});
+
+
+  phdWrapper.appendChild(card);
+});
+
+
+
+
+
+
+
+
+    tableContainer.appendChild(phdWrapper);
+    tableContainer.classList.remove("hidden");
+
+  } else {
+    // Show the normal table again
+    document.getElementById("studentTable").style.display = "table";
+
+    // Remove any phd-wrapper if left
+    const oldPhdWrapper = document.querySelector(".phd-wrapper");
+    if (oldPhdWrapper) oldPhdWrapper.remove();
+
+    // Fill table normally
+    tableBody.innerHTML = "";
+    tableCaption.textContent = `${courseName}${
+      subcourseName ? ` - ${subcourseName}` : ""
+    } - ${year} Students`;
+    students.forEach((studentDiv, idx) => {
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td>${idx + 1}</td>
+        <td>${studentDiv.getAttribute("data-name")}</td>
+        <td>${studentDiv.getAttribute("data-enroll")}</td>
+      `;
+      tableBody.appendChild(row);
+    });
+    tableContainer.classList.remove("hidden");
+  }
+
   updateArrowFade();
 }
+
 
 function setActiveCourse(courseDiv) {
   document

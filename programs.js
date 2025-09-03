@@ -40,15 +40,34 @@ document.addEventListener("DOMContentLoaded", () => {
   // Content for all sections (unique keys)
   const contentDetails = {
     // B.Tech
-    aboutbtech: "<p>This is the About section for B.Tech.</p>",
-    curriculumbtech: "<p>This is the Curriculum section for B.Tech.</p>",
+    aboutbtech: "<p>The B.Tech in Engineering Physics at IIT Hyderabad provides students with a solid foundation in physics, coupled with applications in modern science and technology. The program integrates theoretical knowledge, laboratory training, and interdisciplinary exposure to prepare graduates for careers in research, industry, and entrepreneurship.</p>",
+    curriculumbtech: "<p>The curriculum is designed to balance core physics courses, mathematics, and engineering subjects with electives and project-based learning. Students explore areas such as classical and quantum mechanics, electromagnetism, materials science, electronics, and computational methods. Alongside classroom instruction, significant emphasis is placed on laboratory work, hands-on experimentation, and research-driven projects, ensuring a holistic learning experience.</p>",
     academicoptionsbtech:
-      "<p>This is the Academic Options section for B.Tech.</p>",
-    internshipbtech: "<p>This is the Internship section for B.Tech.</p>",
-    placementbtech: "<p>This is the Placement section for B.Tech.</p>",
+      "<p>The program offers flexible academic pathways to suit students’ diverse interests. Options include:
+
+Minors in interdisciplinary areas (engineering, sciences, or humanities).
+
+Electives that allow specialization in cutting-edge fields of physics.
+
+Honors and double major options, enabling motivated students to broaden their academic portfolio.
+These choices empower students to customize their education to align with career goals in research, higher studies, or industry..</p>",
+    internshipbtech: "<p>Internships form an integral part of the B.Tech journey, giving students real-world exposure to research labs, industrial settings, and technology-driven companies. The department actively facilitates internship opportunities in national research institutes, IITs/IISc, and reputed industries. Students gain practical skills, industry orientation, and collaborative research experience that complement their academic learning.</p>",
+    placementbtech: "<p>Graduates of the program are highly sought after by industries ranging from technology, semiconductor and materials science, data science, finance, and consulting to research organizations and academia. The department’s strong network with recruiters, combined with IIT Hyderabad’s dedicated Career Services Office, ensures excellent placement support. Alumni have successfully pursued careers in core industries, R&D, startups, and higher education worldwide.</p>",
     researchareasfacilitiesbtech:
-      "<p>This is the Research Areas + Facilities section for B.Tech.</p>",
-    brochurebtech: "<p>This is the Brochure section for B.Tech.</p>",
+      "<p>Students benefit from access to state-of-the-art laboratories and advanced research facilities. Major focus areas include:
+
+Condensed Matter Physics & Materials Science
+
+Nanoscience & Nanotechnology
+
+Photonics & Quantum Technologies
+
+High-Energy and Astrophysics
+
+Soft Matter & Biophysics
+
+Dedicated facilities such as the SQUID magnetometer, XRD systems, NMR/ESR setups, and advanced computational clusters provide invaluable hands-on training and research opportunities.</p>",
+    brochurebtech: "<p>The B.Tech Program Brochure offers a comprehensive overview of the course structure, research opportunities, facilities, faculty expertise, and career prospects. It serves as a quick reference for prospective students, parents, and recruiters to understand the unique features and strengths of the program.</p>",
 
     // Ph.D.
     aboutphd: "<p>This is the About section for Ph.D.</p>",
@@ -57,11 +76,11 @@ document.addEventListener("DOMContentLoaded", () => {
     brochurephd: "<p>This is the Brochure section for Ph.D.</p>",
 
     // M.Sc. Physics
-    aboutphysicsmsc: "<p>About Physics in M.Sc.</p>",
-    curriculumphysicsmsc: "<p>Physics Curriculum for M.Sc.</p>",
-    academicoptionsphysicsmsc: "<p>Physics Academic Options for M.Sc.</p>",
-    internshipphysicsmsc: "<p>Physics Internship Opportunities in M.Sc.</p>",
-    placementphysicsmsc: "<p>Physics Placement Opportunities in M.Sc.</p>",
+    aboutphysicsmsc: "<p>The M.Sc. in Physics at IIT Hyderabad is a rigorous two-year postgraduate program that provides advanced training in core and applied areas of physics. The program is designed to build strong analytical skills, experimental expertise, and research aptitude, preparing students for both academic and industry careers.</p>",
+    curriculumphysicsmsc: "<p>The curriculum covers a wide spectrum of topics including classical mechanics, quantum mechanics, statistical mechanics, electrodynamics, condensed matter physics, nuclear & particle physics, and computational physics. In addition, elective courses allow students to specialize in emerging areas such as nanoscience, photonics, materials science, and quantum technologies. The program combines classroom teaching with laboratory training, computational projects, and seminars.</p>",
+    academicoptionsphysicsmsc: "<p>Students have the flexibility to pursue electives and project work in specialized domains of physics. The department encourages interdisciplinary learning through courses offered by other departments such as materials science, electrical engineering, and computational sciences. M.Sc. students also have opportunities to undertake dissertation projects under faculty guidance, often leading to publications or pathways to Ph.D. research.</p>",
+    internshipphysicsmsc: "<p>The program facilitates internships in national research laboratories, industries, and international universities, giving students real-world exposure to research and applied science. Internships typically occur during summer breaks and provide opportunities for hands-on research, technical training, and industry collaboration, adding significant value to academic learning.</p>",
+    placementphysicsmsc: "<p>M.Sc. graduates from IIT Hyderabad have excellent career prospects. Many pursue Ph.D. programs in premier institutes in India and abroad, while others find opportunities in R&D labs, technology companies, semiconductor industries, data science, finance, and consulting sectors. The institute’s Career Services Office, along with strong faculty recommendations, ensures robust placement and higher studies support.</p>",
 
     // M.Sc. Quantum Semiconductors
     aboutquantumsemiconductorsmsc:

@@ -3,7 +3,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const detailsSection = document.getElementById("details-section");
   const contentSection = document.getElementById("content-section");
 
-  // 🔧 Normalize strings to keys
+  // 🔧 Normalize strings to keys (remove all non-alphanumerics)
   const keyify = (s) => String(s).toLowerCase().replace(/[^a-z0-9]/g, "");
 
   // Program details with courses for M.Sc and M.Tech
@@ -17,8 +17,8 @@ document.addEventListener("DOMContentLoaded", () => {
       "Research Areas + Facilities",
       "Brochure",
     ],
-    msc: ["Physics", "Quantum Semiconductors"],
-    mtech: ["Physics", "Quantum Semiconductors"],
+    msc: ["Physics", "Quantum Semiconductors"], // label kept as-is
+    mtech: ["Physics", "Quantum Semiconductors"], // label kept as-is
     phd: ["About", "Research Areas + Facilities", "Brochure"],
   };
 
@@ -42,77 +42,82 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Content for all sections (unique keys)
   const contentDetails = {
-    // ------------------ B.Tech ------------------
+    // ------------------ B.Tech in Engineering Physics ------------------
     aboutbtech:
-      "<p>The B.Tech in Engineering Physics at IIT Hyderabad is designed to build a strong foundation in physics while connecting it with real-world engineering and technology applications. The program blends theory, experiments, and computational methods to nurture analytical thinking, innovation, and problem-solving skills.</p>",
+      `<p>The B.Tech in <strong>Engineering Physics</strong> at IIT Hyderabad integrates core physics with modern engineering, instrumentation, and computation. Students build rigorous analytical skills through theory, laboratories, and projects, preparing for advanced R&amp;D and higher studies. Institute-wide rules and degree templates are in the <a href="assets/docs/Academic_Handbook_62nd_Senate.pdf" target="_blank" rel="noopener">Academic Handbook (62nd Senate)</a>.</p>`,
     curriculumbtech:
-      "<p>The B.Tech curriculum balances fundamental physics, mathematics, and engineering courses with electives and project-based learning. Core areas include mechanics, electromagnetism, quantum physics, materials science, and electronics. A strong laboratory component and computational training ensure holistic development.</p>",
+      `<p>The curriculum spans mechanics, electromagnetism, quantum &amp; statistical physics, materials, electronics, and computational methods with a strong lab backbone. Semester-wise structure and approved courses:<br>
+      • <a href="assets/docs/Annex.8_BTech Eng Physics Curriculum & course approvals.pdf" target="_blank" rel="noopener">B.Tech EP Curriculum &amp; Course Approvals (PDF)</a><br>
+      • <a href="assets/docs/Annex.8_BTech Eng Physics Curriculum & course approvals (1).pdf" target="_blank" rel="noopener">Alternate copy (PDF)</a><br>
+      • <a href="assets/docs/EP course content 2025.pdf" target="_blank" rel="noopener">EP Course Content 2025 (at a glance)</a></p>`,
     academicoptionsbtech:
-      "<p>Students can tailor their learning with flexible academic options. These include minors in interdisciplinary fields, a variety of electives in advanced physics, and honors/double major choices. Such opportunities allow students to pursue higher studies, research, or careers in technology-driven industries.</p>",
+      `<p>Students can pursue <em>Honors, Minors, Double Major, Free Electives,</em> and project options as per Senate norms. See <a href="assets/docs/Academic_Handbook_62nd_Senate.pdf" target="_blank" rel="noopener">Academic Handbook – Sections 4 &amp; 5</a> for B.Tech options, internship modalities, and graduation requirements.</p>`,
     internshipbtech:
-      "<p>Internships offer valuable exposure to research laboratories, industries, and startups. Students often work at IITs, IISc, national research institutes, and companies, gaining practical skills and collaborative research experience. This prepares them for academic and professional challenges ahead.</p>",
+      `<p>Vacation/semester-long research and industrial internships are encouraged and creditable per institute policy. Refer to the <a href="assets/docs/Academic_Handbook_62nd_Senate.pdf" target="_blank" rel="noopener">Academic Handbook</a>. Department labs and project lines are outlined in <a href="assets/docs/EP course content 2025.pdf" target="_blank" rel="noopener">EP Course Content 2025</a>.</p>`,
     placementbtech:
-      "<p>B.Tech graduates from the department are well-placed in industries such as semiconductors, data science, finance, R&D, and consulting. Many alumni pursue higher education in India and abroad. The institute’s Career Services Office and faculty mentorship provide strong support for placements.</p>",
+      `<p>Graduates take roles in <em>semiconductor, photonics, electronics, data science/analytics, finance</em> and research, or pursue M.Sc./M.Tech./Ph.D. The curriculum and labs (see <a href="assets/docs/EP course content 2025.pdf" target="_blank" rel="noopener">EP Course Content 2025</a>) align with core &amp; emerging industries.</p>`,
     researchareasfacilitiesbtech:
-      "<p>Students have access to advanced laboratories and facilities. Key research areas include condensed matter physics, nanotechnology, photonics, quantum technologies, astrophysics, and biophysics. Facilities such as SQUID magnetometers, XRD systems, NMR/ESR spectrometers, and computational clusters support training and research.</p>",
+      `<p>Thrusts include condensed matter &amp; materials, nanoscience, photonics/quantum, astrophysics, and soft matter/biophysics. Major facilities: SQUID magnetometer, XRD, NMR/ESR, advanced computation. See topical lab syllabi in <a href="assets/docs/EP course content 2025.pdf" target="_blank" rel="noopener">EP Course Content 2025</a>.</p>`,
     brochurebtech:
-      "<p>The B.Tech brochure highlights the program structure, facilities, faculty expertise, and career opportunities. It provides prospective students and recruiters with an overview of the unique strengths of the department and its academic culture.</p>",
+      `<p>For quick reference, share: <a href="assets/docs/Annex.8_BTech Eng Physics Curriculum & course approvals.pdf" target="_blank" rel="noopener">B.Tech EP Curriculum (PDF)</a> and the institute <a href="assets/docs/Academic_Handbook_62nd_Senate.pdf" target="_blank" rel="noopener">Academic Handbook</a>.</p>`,
 
-    // ------------------ Ph.D. ------------------
+    // ------------------ Ph.D. in Physics ------------------
     aboutphd:
-      "<p>The Ph.D. program in Physics at IIT Hyderabad is a research-intensive program aimed at preparing students for advanced scientific research and academic careers. Students work closely with faculty on cutting-edge problems in both theoretical and experimental physics.</p>",
+      `<p>The Ph.D. program is research-intensive with coursework tailored to background, comprehensive evaluation, and dissertation. Admission, scholar progression, and degree templates follow the <a href="assets/docs/Academic_Handbook_62nd_Senate.pdf" target="_blank" rel="noopener">Academic Handbook (Ph.D. section)</a>.</p>`,
     researchareasfacilitiesphd:
-      "<p>Research spans condensed matter physics, nanoscience, photonics, quantum technologies, high-energy physics, astrophysics, and soft matter. Scholars benefit from world-class facilities, advanced laboratories, and interdisciplinary collaborations across IIT Hyderabad and partner institutes.</p>",
+      `<p>Active areas: condensed matter &amp; quantum materials, nanoscience, photonics &amp; quantum technologies, high-energy/astrophysics, soft matter/biophysics, and interdisciplinary themes. Scholars access central/departmental facilities referenced in <a href="assets/docs/EP course content 2025.pdf" target="_blank" rel="noopener">EP Course Content 2025</a>.</p>`,
     brochurephd:
-      "<p>The Ph.D. brochure details admission guidelines, faculty research areas, laboratory facilities, and career outcomes. It provides applicants with information on research opportunities, coursework requirements, and the vibrant research culture at IIT Hyderabad.</p>",
+      `<p>Prospective candidates should review <a href="assets/docs/Academic_Handbook_62nd_Senate.pdf" target="_blank" rel="noopener">Ph.D. regulations &amp; timelines</a>. Department-specific openings are notified in admission calls.</p>`,
 
     // ------------------ M.Sc. Physics ------------------
     aboutphysicsmsc:
-      "<p>The M.Sc. in Physics is a two-year postgraduate program offering advanced training in both core and applied areas of physics. It equips students with strong analytical skills, research exposure, and a solid foundation for doctoral studies or industry roles.</p>",
+      `<p>The two-year <strong>M.Sc. in Physics</strong> offers advanced training in theory, experiment, and computation, building a strong foundation for doctoral research and technology-driven careers.</p>`,
     curriculumphysicsmsc:
-      "<p>The curriculum covers classical mechanics, quantum mechanics, electrodynamics, statistical physics, condensed matter, and nuclear & particle physics. Electives in areas such as nanoscience, photonics, and quantum technologies allow students to pursue their interests. Labs and seminars strengthen practical learning.</p>",
+      `<p>Core coverage includes Classical &amp; Quantum Mechanics, Electrodynamics, Statistical Physics, Solid State, Optics/Photonics, and Computational Physics with advanced electives. Full semester-wise plan: <a href="assets/docs/MSc Course curriculum@2025.docx" target="_blank" rel="noopener">M.Sc Physics Curriculum 2025-26 (DOCX)</a>.</p>`,
     academicoptionsphysicsmsc:
-      "<p>M.Sc. students can explore electives, interdisciplinary courses, and dissertation projects under faculty mentorship. The program provides opportunities for research publications and builds pathways toward Ph.D. programs or specialized industry careers.</p>",
+      `<p>Students may opt for dissertation/project, elective baskets, and interdisciplinary modules as per Senate norms—see <a href="assets/docs/MSc Course curriculum@2025.docx" target="_blank" rel="noopener">M.Sc Physics Curriculum 2025-26</a> and the <a href="assets/docs/Academic_Handbook_62nd_Senate.pdf" target="_blank" rel="noopener">Academic Handbook</a>.</p>`,
     internshipphysicsmsc:
-      "<p>Internships at research labs, industries, and universities provide hands-on experience in physics applications. Summer internships often expose students to cutting-edge experiments, simulations, and collaborative projects, bridging classroom learning with real-world science.</p>",
+      `<p>Summer research/industry projects are encouraged and can be credited subject to rules in the <a href="assets/docs/Academic_Handbook_62nd_Senate.pdf" target="_blank" rel="noopener">Academic Handbook</a>.</p>`,
     placementphysicsmsc:
-      "<p>M.Sc. graduates pursue Ph.D. positions in India and abroad, or careers in industries such as semiconductors, technology, analytics, and consulting. The program develops a strong foundation for research and professional growth.</p>",
+      `<p>Graduates pursue Ph.D. in India/abroad or roles in semiconductors, photonics, scientific computing, and analytics. Details of course/elective pathways: <a href="assets/docs/MSc Course curriculum@2025.docx" target="_blank" rel="noopener">M.Sc Physics Curriculum 2025-26</a>.</p>`,
 
-    // ------------------ M.Sc. Quantum Semiconductors ------------------
+    // ------------------ M.Sc. Medical Physics (Interdisciplinary) ------------------
+    // (Shown under the "Quantum Semiconductors" tab in current UI)
     aboutquantumsemiconductorsmsc:
-      "<p>The M.Sc. specialization in Quantum Semiconductors focuses on the physics and applications of semiconductor materials and devices at the nanoscale. It blends quantum physics with materials engineering to prepare students for high-tech careers.</p>",
+      `<p><strong>M.Sc. in Medical Physics (Interdisciplinary)</strong> bridges physics with healthcare, covering radiation physics, medical imaging, instrumentation, and radiation safety. Official course content: <a href="assets/docs/MSc Medical physics course content 2025.pdf" target="_blank" rel="noopener">M.Sc Medical Physics Course Content (PDF)</a>.</p>`,
     curriculumquantumsemiconductorsmsc:
-      "<p>The curriculum includes quantum mechanics, semiconductor device physics, optoelectronics, nanomaterials, and fabrication techniques. Laboratory modules emphasize semiconductor characterization, nanodevice design, and computational simulations.</p>",
+      `<p>Representative modules: Nuclear &amp; Radiation Physics, Electrodynamics, Mathematical Physics, Quantum Mechanics, Radiological Mathematics, Lasers &amp; Photonics in Medicine, Computational Modelling of Biological Systems. Full listing/timetable: <a href="assets/docs/MSc Medical physics course content 2025.pdf" target="_blank" rel="noopener">Medical Physics PDF</a>.</p>`,
     researchareasfacilitiesquantumsemiconductorsmsc:
-      "<p>Research facilities include advanced spectroscopy, nanofabrication labs, cleanroom facilities, and computational clusters. Focus areas are quantum dots, 2D materials, photonic devices, and nanoelectronics.</p>",
+      `<p>Training covers radiation detection/dosimetry, imaging technologies, and computational tools, with access to departmental and partner clinical facilities. See details in <a href="assets/docs/MSc Medical physics course content 2025.pdf" target="_blank" rel="noopener">Medical Physics document</a>.</p>`,
     internshipquantumsemiconductorsmsc:
-      "<p>Students undertake internships in semiconductor industries, R&D labs, and academic research centers. These experiences provide exposure to fabrication processes, quantum materials, and device innovation.</p>",
+      `<p>Clinical/research internships are integral and follow institute guidelines (crediting/evaluation in the <a href="assets/docs/Academic_Handbook_62nd_Senate.pdf" target="_blank" rel="noopener">Academic Handbook</a>). Practical/clinical components are described in the <a href="assets/docs/MSc Medical physics course content 2025.pdf" target="_blank" rel="noopener">Medical Physics PDF</a>.</p>`,
     placementquantumsemiconductorsmsc:
-      "<p>Graduates can pursue doctoral studies or careers in semiconductor industries, nanotechnology startups, photonics companies, and research institutes working in advanced materials and devices.</p>",
+      `<p>Outcomes: hospitals/radiotherapy centers, medical device companies, regulatory/compliance roles, and doctoral research in medical/health physics. See modules in <a href="assets/docs/MSc Medical physics course content 2025.pdf" target="_blank" rel="noopener">Medical Physics Course Content</a>.</p>`,
 
-    // ------------------ M.Tech. Physics ------------------
+    // ------------------ M.Tech in Quantum & Solid State Devices ------------------
     aboutphysicsmtech:
-      "<p>The M.Tech in Physics provides specialized training for engineers and physicists interested in applied physics and emerging technologies. It bridges fundamental science with real-world applications.</p>",
+      `<p><strong>M.Tech in Quantum &amp; Solid State Devices (QSSD)</strong> trains students in quantum materials, nano/quantum devices, photonics, and measurement/sensing. Official curriculum: <a href="assets/docs/M. Tech QSSD_Final_Course_Contents 2025.pdf" target="_blank" rel="noopener">M.Tech QSSD Course Contents 2025 (PDF)</a>.</p>`,
     curriculumphysicsmtech:
-      "<p>The program includes advanced courses in quantum mechanics, condensed matter physics, nanotechnology, photonics, and computational physics. A strong emphasis is placed on project work and applied research.</p>",
+      `<p>Core courses include Quantum Physics for Engineers, Mathematical/Computational Methods for Quantum Devices, Quantum Optical Devices, Solid-State Devices, and QSD Labs; with electives such as Fabrication &amp; Characterization, Spintronics, Optoelectronic Devices, Quantum Sensing/Transport. Full list: <a href="assets/docs/M. Tech QSSD_Final_Course_Contents 2025.pdf" target="_blank" rel="noopener">QSSD PDF</a>.</p>`,
     academicoptionsphysicsmtech:
-      "<p>M.Tech students can opt for electives across disciplines and pursue research-oriented projects. Collaboration with other departments and industry projects are encouraged to broaden career options.</p>",
+      `<p>Wide elective baskets + a two-semester project enable specialization toward semiconductors, photonics, quantum technologies, or advanced materials—see <a href="assets/docs/M. Tech QSSD_Final_Course_Contents 2025.pdf" target="_blank" rel="noopener">curriculum document</a>.</p>`,
     internshipphysicsmtech:
-      "<p>Internships in industries, R&D labs, and research centers provide exposure to applied physics problems and technology development. These internships strengthen the link between academic learning and industrial needs.</p>",
+      `<p>Industrial/research internships are supported per Senate rules; for modalities and credits see the <a href="assets/docs/Academic_Handbook_62nd_Senate.pdf" target="_blank" rel="noopener">Academic Handbook</a>.</p>`,
     placementphysicsmtech:
-      "<p>M.Tech graduates are placed in semiconductor industries, photonics companies, R&D organizations, and also pursue doctoral programs worldwide. The program provides excellent opportunities for careers in both research and industry.</p>",
+      `<p>Typical outcomes: semiconductor &amp; photonics R&amp;D, nanoelectronics, quantum technology startups, and doctoral programs. Course–skills mapping in <a href="assets/docs/M. Tech QSSD_Final_Course_Contents 2025.pdf" target="_blank" rel="noopener">QSSD PDF</a>.</p>`,
 
-    // ------------------ M.Tech. Quantum Semiconductors ------------------
+    // ------------------ M.Tech in Ophthalmic Engineering (Interdisciplinary) ------------------
+    // (Shown under the "Quantum Semiconductors" tab in current UI)
     aboutquantumsemiconductorsmtech:
-      "<p>The M.Tech in Quantum Semiconductors is designed for students aiming to specialize in semiconductor technology, quantum devices, and nanomaterials. It prepares graduates for advanced R&D and high-technology sectors.</p>",
+      `<p><strong>M.Tech in Ophthalmic Engineering (Interdisciplinary)</strong> integrates optics, imaging, and biomedical engineering for vision science applications. This program is listed under interdisciplinary M.Tech offerings; refer to the institute-wide provisions in the <a href="assets/docs/Academic_Handbook_62nd_Senate.pdf" target="_blank" rel="noopener">Academic Handbook</a>. (A department syllabus/brochure link can be added here when finalized.)</p>`,
     curriculumquantumsemiconductorsmtech:
-      "<p>The curriculum covers advanced quantum mechanics, semiconductor device physics, optoelectronics, nanofabrication, and device modeling. Students gain expertise in simulation, fabrication, and testing of semiconductor devices.</p>",
+      `<p>Representative coverage: optics &amp; photonics, ophthalmic instrumentation, medical imaging, and device design, with project-based learning in collaboration with clinicians/industry. Until a dedicated syllabus is published, follow Senate rules in the <a href="assets/docs/Academic_Handbook_62nd_Senate.pdf" target="_blank" rel="noopener">Handbook</a>.</p>`,
     researchareasfacilitiesquantumsemiconductorsmtech:
-      "<p>Research areas include quantum dots, spintronics, 2D materials, optoelectronics, and nanoscale devices. Facilities such as cleanrooms, advanced characterization labs, and computational tools support cutting-edge projects.</p>",
+      `<p>Focus on translational optics/biophotonics and imaging systems. Students can access departmental photonics facilities and partner medical centers. Detailed lab links can be added once finalized; meanwhile, see institute-level provisions in the <a href="assets/docs/Academic_Handbook_62nd_Senate.pdf" target="_blank" rel="noopener">Handbook</a>.</p>`,
     internshipquantumsemiconductorsmtech:
-      "<p>Internships are encouraged with semiconductor industries, chip-design companies, and national/international labs. They provide industry-ready experience in device fabrication and quantum semiconductor research.</p>",
+      `<p>Clinical/industry internships are encouraged within program rules. Internship modalities/crediting: <a href="assets/docs/Academic_Handbook_62nd_Senate.pdf" target="_blank" rel="noopener">Academic Handbook</a>.</p>`,
     placementquantumsemiconductorsmtech:
-      "<p>Graduates find opportunities in semiconductor companies, nanotechnology startups, electronics R&D, and doctoral programs. The program builds strong links to both academia and industry.</p>",
+      `<p>Outcomes include biomedical/ophthalmic device R&amp;D, imaging companies, hospital technology centers, and higher studies. A program-specific brochure can be linked here once released.</p>`,
   };
 
   // Display default content (B.Tech)
@@ -132,6 +137,7 @@ document.addEventListener("DOMContentLoaded", () => {
     let html = `<h3>${program.toUpperCase()} Program Details</h3>`;
 
     if (program === "msc" || program === "mtech") {
+      // Show courses
       programDetails[program].forEach((course) => {
         const courseKey = keyify(course);
         html += `<button class="course-btn btn" data-course="${courseKey}">${course}</button>`;
@@ -139,6 +145,7 @@ document.addEventListener("DOMContentLoaded", () => {
       detailsSection.innerHTML = html;
       attachCourseListeners(program);
     } else {
+      // Show direct details for B.Tech, Ph.D.
       programDetails[program].forEach((detail) => {
         const detailKey = keyify(detail) + program;
         html += `<button class="detail-btn btn" data-detail="${detailKey}">${detail}</button>`;

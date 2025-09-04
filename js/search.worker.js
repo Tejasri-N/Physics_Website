@@ -35,7 +35,13 @@ const SYN = {
   spotlight: ['feature','highlight'],
   announcements: ['notice','update','news'],
   academics: ['courses','curriculum','programs','syllabus','teaching'],
-  links: ['useful links','resources','external links']
+  links: ['useful links','resources','external links'],
+  // NEW: help users who type “leave”
+  leave: [
+    'leave portal','leave rules','leave application',
+    'vacation','holiday','absence','on duty','od',
+    'casual leave','cl','earned leave','el','medical leave','ml','permission'
+  ]
 };
 
 function expandQuery(q) {

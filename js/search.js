@@ -745,63 +745,108 @@
     return false;
   }
 
+  // ---------- live search helpers (results page) ----------
+  // Run a query through the worker if present; otherwise local Fuse
+  function runSearch(q, { limit = 50 } = {}) {
+    return new Promise((resolve) => {
+      if (worker) {
+        pendingResultsResolver = (items) => resolve(items || []);
+        worker.postMessage({ type: 'QUERY', q, limit });
+      } else {
+        const items = (fuse && fuse.search ? fuse.search(norm(q), { limit }) : []).map(r => r.item);
+        resolve(items);
+      }
+    });
+  }
+
+  // Apply our special ranking and maybe auto-redirect for leave
+  function rankAndMaybeRedirect(query, items) {
+    if (!items || !items.length) return { redirected:false, items: [] };
+
+    // auto-redirect for leave (faculty/staff / single link)
+    if (tryAutoRedirect(query, items)) return { redirected:true, items: [] };
+
+    // leave-aware ordering
+    items = sortForLeaveQuery(items, query);
+
+    // prefer people for name-like queries (Chengappa/Guhan fix preserved)
+    if (isNameish(query, { allowSingle: true })) items = sortForNameQuery(items, query);
+
+    return { redirected:false, items };
+  }
+
+  // Render the big results list
+  function renderResultsList(container, items, q) {
+    if (!container) return;
+    if (!items || !items.length) {
+      container.innerHTML = `<p>No results found.</p>`;
+      return;
+    }
+    container.innerHTML = items.map(item => {
+      const s = (item.snippet || item.content || '').slice(0, 180);
+      const { key, label } = getType(item);
+      const jump = hasAnchor(item.url) ? `<a href="${item.url}" class="srch-pill" style="margin-left:6px" title="Jump to section">Jump ↪</a>` : '';
+      return `<article class="search-result" style="padding:12px 0;border-bottom:1px solid #eee">
+        <div style="display:flex;align-items:flex-start;gap:10px">
+          <span class="srch-badge srch-badge--${key}">${label}</span>
+          <div style="flex:1 1 auto;min-width:0">
+            <h3 style="margin:0 0 6px 0;font-size:18px"><a href="${item.url}">${highlight(item.title, q)}</a>${jump}</h3>
+            <div style="font-size:13px;color:#555">${highlight(s, q)}…</div>
+            <div style="font-size:12px;color:#888">${(item.url || '')}</div>
+          </div>
+        </div>
+      </article>`;
+    }).join('');
+  }
+
   async function runResultsPage() {
     if (!isResultsPage) return;
     await loadIndex();
-    const params = new URLSearchParams(location.search);
-    const query  = (params.get('q') || '').trim();
-    if (qEl) qEl.textContent = query ? `for “${query}”` : '';
-    if (!query) { outEl && (outEl.innerHTML = `<p>No query given.</p>`); return; }
 
-    statusEl && (statusEl.textContent = 'Searching…');
-    if (outEl) {
+    const params = new URLSearchParams(location.search);
+    const initialQuery  = (params.get('q') || '').trim();
+
+    if (qEl) qEl.textContent = initialQuery ? `for “${initialQuery}”` : '';
+    if (!initialQuery) { outEl && (outEl.innerHTML = `<p>No query given.</p>`); }
+
+    function showSkeleton() {
+      if (!outEl) return;
       outEl.innerHTML = `
         <div class="skel" style="height:18px;width:40%;margin:8px 0;border-radius:4px;"></div>
         <div class="skel" style="height:12px;width:85%;margin:8px 0;border-radius:4px;"></div>
         <div class="skel" style="height:12px;width:78%;margin:8px 0;border-radius:4px;"></div>
       `;
+      statusEl && (statusEl.textContent = 'Searching…');
     }
 
-    // route results to a resolver
-    pendingResultsResolver = (items) => {
-      if (!items.length) items = fallbackFilter(query);
-
-      // If this is a "leave" search and we can safely jump, do it
-      if (tryAutoRedirect(query, items)) return;
-
-      // leave-aware ordering
-      items = sortForLeaveQuery(items, query);
-
-      // Prefer people for name-like queries
-      if (isNameish(query, { allowSingle: true })) {
-        items = sortForNameQuery(items, query);
-      }
-
+    async function searchAndRender(q) {
+      if (!q) { renderResultsList(outEl, [], q); statusEl && (statusEl.textContent = ''); return; }
+      showSkeleton();
+      const raw = await runSearch(q, { limit: 50 });
+      let items = raw && raw.length ? raw : fallbackFilter(q);
+      const res = rankAndMaybeRedirect(q, items);
+      if (res.redirected) return; // navigated away
       statusEl && (statusEl.textContent = '');
-      if (!items.length) { outEl && (outEl.innerHTML = `<p>No results found.</p>`); return; }
+      renderResultsList(outEl, res.items, q);
+    }
 
-      outEl && (outEl.innerHTML = items.map(item => {
-        const s = (item.snippet || item.content || '').slice(0, 180);
-        const { key, label } = getType(item);
-        const jump = hasAnchor(item.url) ? `<a href="${item.url}" class="srch-pill" style="margin-left:6px" title="Jump to section">Jump ↪</a>` : '';
-        return `<article class="search-result" style="padding:12px 0;border-bottom:1px solid #eee">
-          <div style="display:flex;align-items:flex-start;gap:10px">
-            <span class="srch-badge srch-badge--${key}">${label}</span>
-            <div style="flex:1 1 auto;min-width:0">
-              <h3 style="margin:0 0 6px 0;font-size:18px"><a href="${item.url}">${highlight(item.title, query)}</a>${jump}</h3>
-              <div style="font-size:13px;color:#555">${highlight(s, query)}…</div>
-              <div style="font-size:12px;color:#888">${esc(item.url)}</div>
-            </div>
-          </div>
-        </article>`;
-      }).join(''));
-    };
+    // 1) Render initial query
+    await searchAndRender(initialQuery);
 
-    if (worker) {
-      worker.postMessage({ type: 'QUERY', q: query, limit: 50 });
-    } else {
-      let results = (fuse && fuse.search ? fuse.search(norm(query), { limit: 50 }) : []).map(r => r.item);
-      pendingResultsResolver(results);
+    // 2) Live typing on results page input
+    if (input) {
+      const liveResults = (() => {
+        let t;
+        return () => {
+          clearTimeout(t);
+          t = setTimeout(() => {
+            const q = input.value.trim();
+            if (qEl) qEl.textContent = q ? `for “${q}”` : '';
+            searchAndRender(q);
+          }, 150);
+        };
+      })();
+      input.addEventListener('input', liveResults);
     }
   }
 

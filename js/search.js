@@ -10,7 +10,7 @@
     } catch (_) {}
   }
 
-  // Fuse shim (keeps search working even if Fuse isn't loaded)
+  // Fuse shim (keeps search working even if Fuse isn't loaded on main thread)
   var FuseCtor = (typeof window !== 'undefined' && window.Fuse) ? window.Fuse : function(items, opts){
     this._items = Array.isArray(items) ? items : [];
     this._keys = (opts && opts.keys ? opts.keys.map(k=>k.name||k) : ['title_lc','content','tags']);
@@ -61,14 +61,14 @@
       .replace(/\s+/g, '-')
       .replace(/-+/g, '-');
 
-  // allow single-word proper names (≥3 chars) too (relaxed)
+  // allow single-word proper names (≥3 chars) too (relaxed) — DO NOT REMOVE (fixes Chengappa/Guhan)
   function isNameish(s, { allowSingle = true } = {}) {
     if (!s) return false;
     const txt   = cleanText(s);
     const parts = txt.replace(/[(),;:/\-]+/g, ' ').split(/\s+/).filter(Boolean);
     const capish = parts.filter(w => /^[A-Z][A-Za-z.\-']+$/.test(w));
     if (capish.length >= 2 && capish.length <= 4) return true;
-    if (allowSingle && parts[0] && parts[0].length >= 3) return true; // allow single-word names (any case)
+    if (allowSingle && parts[0] && parts[0].length >= 3) return true;
     return false;
   }
 
@@ -80,7 +80,7 @@
     return Array.from(new Set([lower, ...parts]));
   }
 
-  // --- Helpers for section indexing ---
+  // --- Helpers for section indexing & anchors ---
   function ensureId(el, prefix='sec') {
     const txt = (el.textContent || '').trim();
     if (!txt) return null;
@@ -91,14 +91,13 @@
     return el.id;
   }
   function textAfter(el, limit=200) {
-    // first paragraph-like sibling text as snippet
     let p = el.nextElementSibling;
     while (p && !/^(p|div|section|article)$/i.test(p.tagName)) p = p.nextElementSibling;
     const t = (p ? p.textContent : el.textContent) || '';
     return t.replace(/\s+/g,' ').trim().slice(0, limit);
   }
 
-  // ---------- site-wide discovery (no sitemap required) ----------
+  // ---------- site-wide discovery (no sitemap needed) ----------
   function normalizeUrl(u) {
     try {
       const a = new URL(u, location.origin);
@@ -127,14 +126,11 @@
     while (queue.length && out.length < maxPages) {
       const path = queue.shift();
       out.push(path);
-
-      // Fetch page HTML to extract links
       try {
         const res = await fetch('/' + path, { cache: 'no-store' });
         if (!res.ok) continue;
         const html = await res.text();
         const doc = new DOMParser().parseFromString(html, 'text/html');
-
         doc.querySelectorAll('a[href]').forEach(a => {
           const n = normalizeUrl(a.getAttribute('href'));
           if (!n || !isIndexablePath(n)) return;
@@ -146,7 +142,7 @@
   }
 
   // ---------- extractors ----------
-  // Rich generic extractor (page entry + sections + tabs/accordions/cards + downloads + spotlight)
+  // Rich generic extractor (page entry + sections + tabs/accordions/cards + spotlight + downloads)
   function extractGeneric(doc, url) {
     const pageUrl = url.replace(/^\/+/, '');
     const rawTitle = getText(doc.querySelector('title')) || pageUrl;
@@ -259,7 +255,7 @@
     return entries;
   }
 
-  // People extractor (faculty/staff/students) — BROAD selectors retained (fix for Chengappa/Guhan)
+  // People extractor (faculty/staff/students) — BROAD selectors retained (DO NOT REMOVE)
   function extractPeople(doc, pageHref, baseTag, titlePrefix) {
     const pageURL = pageHref.split('#')[0];
     const list = [];
@@ -351,7 +347,7 @@
   }
 
   // ---------- loaders ----------
-  // Dynamic loader: poll until content is ready (works for late-rendered content)
+  // Dynamic loader: poll until content is ready (handles late-rendered content)
   function loadDynamicPage(url, timeoutMs = 9000, readySelector) {
     const DEFAULT_READY = readySelector || 'main, article, section, .page-container, .container, [role="main"], body > *';
     return new Promise(resolve => {
@@ -404,11 +400,43 @@
     return await loadStaticPage(url);
   }
 
+  // ---------- Worker wiring & cache ----------
+  let worker = null;
+  let workerReady = false;
+  let pendingSuggestResolver = null;
+  let pendingResultsResolver = null;
+
+  function startWorker() {
+    try {
+      worker = new Worker('js/search.worker.js');
+      worker.onmessage = (e) => {
+        const { type } = e.data || {};
+        if (type === 'PONG') workerReady = true;
+        if (type === 'BUILT') { workerReady = true; }
+        if (type === 'RESULTS') {
+          if (pendingSuggestResolver) { pendingSuggestResolver(e.data.items || []); pendingSuggestResolver = null; }
+          else if (pendingResultsResolver) { pendingResultsResolver(e.data.items || []); pendingResultsResolver = null; }
+        }
+      };
+      worker.postMessage({ type: 'PING' });
+    } catch (_) { /* ignore */ }
+  }
+  startWorker();
+
+  function queryWorker(q, { limit=50 } = {}) {
+    return new Promise(resolve => {
+      if (!worker) { resolve([]); return; }
+      // Route to the correct resolver depending on caller
+      pendingSuggestResolver = resolve;
+      worker.postMessage({ type:'QUERY', q, limit });
+    });
+  }
+
   // ---------- build index (site-wide, always fresh) ----------
   async function loadIndex() {
     if (indexData) return indexData;
 
-    // 1) Start with a small seed set (top-level pages you know exist)
+    // 1) Start with a small seed set (top-level pages)
     const SEED_PAGES = [
       'index.html','about-glance.html','hod-desk.html',
       'faculty.html','staff.html','students.html','alumni.html',
@@ -417,9 +445,8 @@
       'gallery.html','committees.html'
     ];
 
-    // 2) Discover the rest (internal links crawl; no sitemap needed)
+    // 2) Discover the rest (internal links crawl)
     let PAGES = await discoverPages(SEED_PAGES, 300);
-    // Ensure seed pages are included even if crawl missed them
     SEED_PAGES.forEach(p => { if (!PAGES.includes(p)) PAGES.unshift(p); });
 
     const index = [];
@@ -439,7 +466,7 @@
           if (/students\.html/.test(lower)){ baseTag = 'student'; titlePrefix = 'Student'; }
           index.push(...extractPeople(doc, url, baseTag, titlePrefix));
         } else if (/index\.html/.test(lower)) {
-          // home page: generic + common sub-sections (add Spotlight too)
+          // home page: generic + Announcements/Seminars/Publications + Spotlight
           index.push(...extractGeneric(doc, 'index.html'));
           ['announcements','seminars-events','publications','spotlight','spotlights'].forEach(id => {
             const el = doc.getElementById(id);
@@ -471,7 +498,7 @@
       }
     }
 
-    // Manual virtual page (kept from original)
+    // Manual virtual page
     index.push({
       title: 'Room booking',
       title_lc: 'room booking',
@@ -483,11 +510,11 @@
 
     indexData = index;
 
-    // Fuse config (slightly relaxed for short names)
+    // Build local Fuse (fallback) and Worker index
     fuse = new FuseCtor(indexData, {
       includeScore: true,
       minMatchCharLength: 2,
-      threshold: 0.45,      // relaxed from 0.4
+      threshold: 0.45,      // relaxed for short names (kept)
       ignoreLocation: true,
       keys: [
         { name: 'title_lc', weight: 0.5 },
@@ -495,6 +522,33 @@
         { name: 'tags',     weight: 0.15 }
       ]
     });
+
+    // Persist to localStorage for warm reloads
+    try {
+      const payload = { v: '1.0.0', ts: Date.now(), index: indexData };
+      localStorage.setItem('siteSearchIndex', JSON.stringify(payload));
+    } catch (_) {}
+
+    // Build worker index
+    try {
+      if (worker) {
+        worker.postMessage({
+          type: 'BUILD',
+          pages: indexData,
+          fuseConfig: {
+            includeScore: true,
+            minMatchCharLength: 2,
+            threshold: 0.45,
+            ignoreLocation: true,
+            keys: [
+              { name: 'title_lc', weight: 0.5 },
+              { name: 'content',  weight: 0.35 },
+              { name: 'tags',     weight: 0.15 }
+            ]
+          }
+        });
+      }
+    } catch (_) {}
 
     return indexData;
   }
@@ -513,7 +567,12 @@
   // ---------- UI ----------
   function renderSuggestion(items) {
     if (!suggest) return;
-    if (!items.length) { suggest.style.display = 'none'; suggest.innerHTML = ''; return; }
+    if (!items.length) {
+      suggest.classList.remove('show');
+      suggest.style.display = 'none';
+      suggest.innerHTML = '';
+      return;
+    }
     suggest.innerHTML = items.map(it => {
       const s = (it.snippet || it.content || '').slice(0, 120) + '…';
       const url = it.url || '#';
@@ -524,6 +583,29 @@
       </a>`;
     }).join('');
     suggest.style.display = 'block';
+    requestAnimationFrame(() => suggest.classList.add('show')); // animated reveal
+  }
+
+  // keyboard nav for suggestions
+  let selIdx = -1;
+  function moveSel(delta) {
+    if (!suggest || !suggest.children.length) return;
+    selIdx = (selIdx + delta + suggest.children.length) % suggest.children.length;
+    [...suggest.children].forEach((n,i) => {
+      n.style.background = i === selIdx ? 'rgba(0,0,0,.05)' : 'transparent';
+    });
+  }
+  if (input) {
+    input.addEventListener('keydown', e => {
+      if (e.key === 'ArrowDown') { e.preventDefault(); moveSel(1); }
+      else if (e.key === 'ArrowUp') { e.preventDefault(); moveSel(-1); }
+      else if (e.key === 'Enter' && selIdx >= 0 && suggest && suggest.children[selIdx]) {
+        e.preventDefault();
+        const a = suggest.children[selIdx];
+        const href = a.getAttribute('href') || (a.querySelector('a') && a.querySelector('a').getAttribute('href'));
+        if (href) window.location.href = href;
+      }
+    });
   }
 
   async function runResultsPage() {
@@ -535,26 +617,67 @@
     if (!query) { outEl && (outEl.innerHTML = `<p>No query given.</p>`); return; }
 
     statusEl && (statusEl.textContent = 'Searching…');
-    await new Promise(r => setTimeout(r, 30));
+    if (outEl) {
+      outEl.innerHTML = `
+        <div class="skel" style="height:18px;width:40%;margin:8px 0;border-radius:4px;"></div>
+        <div class="skel" style="height:12px;width:85%;margin:8px 0;border-radius:4px;"></div>
+        <div class="skel" style="height:12px;width:78%;margin:8px 0;border-radius:4px;"></div>
+      `;
+    }
 
-    let results = (fuse && fuse.search ? fuse.search(norm(query), { limit: 50 }) : []).map(r => r.item);
-    if (!results.length) results = fallbackFilter(query);
+    // route results to a special resolver
+    pendingResultsResolver = (items) => {
+      if (!items.length) items = fallbackFilter(query);
+      statusEl && (statusEl.textContent = '');
+      if (!items.length) { outEl && (outEl.innerHTML = `<p>No results found.</p>`); return; }
+      outEl && (outEl.innerHTML = items.map(item => {
+        const s = (item.snippet || item.content || '').slice(0, 180) + '…';
+        return `<article class="search-result" style="padding:10px 0;border-bottom:1px solid #eee">
+          <h3 style="margin:0 0 6px 0"><a href="${item.url}">${item.title}</a></h3>
+          <div style="font-size:13px;color:#555">${s}</div>
+          <div style="font-size:12px;color:#888">${item.url}</div>
+        </article>`;
+      }).join(''));
+    };
 
-    statusEl && (statusEl.textContent = '');
-    if (!results.length) { outEl && (outEl.innerHTML = `<p>No results found.</p>`); return; }
-
-    outEl && (outEl.innerHTML = results.map(item => {
-      const s = (item.snippet || item.content || '').slice(0, 180) + '…';
-      return `<article class="search-result" style="padding:10px 0;border-bottom:1px solid #eee">
-        <h3 style="margin:0 0 6px 0"><a href="${item.url}">${item.title}</a></h3>
-        <div style="font-size:13px;color:#555">${s}</div>
-        <div style="font-size:12px;color:#888">${item.url}</div>
-      </article>`;
-    }).join(''));
+    if (worker) {
+      worker.postMessage({ type: 'QUERY', q: query, limit: 50 });
+    } else {
+      let results = (fuse && fuse.search ? fuse.search(norm(query), { limit: 50 }) : []).map(r => r.item);
+      pendingResultsResolver(results);
+    }
   }
 
   (async function init() {
     try {
+      // Warm start from cache (non-blocking) so UI is instant
+      (function tryWarmStart() {
+        try {
+          const raw = localStorage.getItem('siteSearchIndex');
+          if (!raw) return;
+          const data = JSON.parse(raw);
+          if (data && Array.isArray(data.index) && data.index.length) {
+            indexData = data.index;
+            // build worker index immediately
+            if (worker) worker.postMessage({
+              type: 'BUILD',
+              pages: indexData,
+              fuseConfig: {
+                includeScore: true,
+                minMatchCharLength: 2,
+                threshold: 0.45,
+                ignoreLocation: true,
+                keys: [
+                  { name: 'title_lc', weight: 0.5 },
+                  { name: 'content',  weight: 0.35 },
+                  { name: 'tags',     weight: 0.15 }
+                ]
+              }
+            });
+          }
+        } catch (_) {}
+      })();
+
       if (form && input) {
         await loadIndex();
 
@@ -566,18 +689,25 @@
           input.setAttribute('data-ph', oldPh);
           input.setAttribute('placeholder', 'Searching…');
 
-          let items = (fuse && fuse.search ? fuse.search(norm(q)) : []).slice(0, 10).map(r => r.item);
-          if (!items.length) items = fallbackFilter(q).slice(0, 10);
-
-          renderSuggestion(items);
-          input.setAttribute('placeholder', oldPh);
+          if (worker) {
+            queryWorker(q, { limit: 10 }).then(items => {
+              if (!items.length) items = fallbackFilter(q).slice(0,10);
+              renderSuggestion(items);
+              input.setAttribute('placeholder', oldPh);
+            });
+          } else {
+            let items = (fuse && fuse.search ? fuse.search(norm(q)) : []).slice(0, 10).map(r => r.item);
+            if (!items.length) items = fallbackFilter(q).slice(0, 10);
+            renderSuggestion(items);
+            input.setAttribute('placeholder', oldPh);
+          }
         }, 150);
 
         input.addEventListener('input', liveSearch);
 
         // Enter -> full results page
         input.addEventListener('keydown', (e) => {
-          if (e.key === 'Enter') {
+          if (e.key === 'Enter' && selIdx === -1) {
             const q = input.value.trim();
             if (q) window.location.href = `search.html?q=${encodeURIComponent(q)}`;
           }

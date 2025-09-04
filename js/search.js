@@ -97,6 +97,44 @@
     return t.replace(/\s+/g,' ').trim().slice(0, limit);
   }
 
+  // ---------- UI/Ranking helpers (non-destructive) ----------
+  function esc(s){return (s||'').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));}
+  function highlight(text, q){
+    if (!text) return '';
+    if (!q) return esc(text);
+    const words = q.trim().split(/\s+/).filter(Boolean).map(w => w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+    if (!words.length) return esc(text);
+    const re = new RegExp('(' + words.join('|') + ')', 'ig');
+    return esc(text).replace(re, '<mark>$1</mark>');
+  }
+  function getType(item){
+    const tags = item.tags || [];
+    const tl   = (item.title || '').toLowerCase();
+    const has  = t => tags.includes(t);
+    if (tl.startsWith('faculty:') || has('faculty'))   return { key:'faculty',   label:'Faculty' };
+    if (tl.startsWith('staff:')   || has('staff'))     return { key:'staff',     label:'Staff' };
+    if (tl.startsWith('student:') || has('student'))   return { key:'student',   label:'Student' };
+    if (has('spotlight') || tl.includes('spotlight'))  return { key:'spotlight', label:'Spotlight' };
+    if (has('announcements'))                           return { key:'announce',  label:'Announcement' };
+    if (has('download'))                                 return { key:'download',  label:'Download' };
+    if (has('section') || has('block'))                 return { key:'section',   label:'Section' };
+    return { key:'page', label:'Page' };
+  }
+  function sortForNameQuery(items, q){
+    const nq = norm(q);
+    const pri = { faculty:3, staff:3, student:3, spotlight:1, announce:1, section:0, download:0, page:0 };
+    const score = it => {
+      const t = getType(it).key;
+      let s = pri[t] || 0;
+      const tl = it.title_lc || '';
+      if (tl === nq) s += 3;
+      else if (tl.startsWith(nq)) s += 2;
+      return s;
+    };
+    return items.slice().sort((a,b) => score(b) - score(a));
+  }
+  function hasAnchor(url){ return (url||'').indexOf('#') !== -1; }
+
   // ---------- site-wide discovery (no sitemap needed) ----------
   function normalizeUrl(u) {
     try {
@@ -142,7 +180,7 @@
   }
 
   // ---------- extractors ----------
-  // Rich generic extractor (page entry + sections + tabs/accordions/cards + spotlight + downloads)
+  // Rich generic extractor (page + sections + tabs/accordions/cards + spotlight + downloads)
   function extractGeneric(doc, url) {
     const pageUrl = url.replace(/^\/+/, '');
     const rawTitle = getText(doc.querySelector('title')) || pageUrl;
@@ -426,8 +464,7 @@
   function queryWorker(q, { limit=50 } = {}) {
     return new Promise(resolve => {
       if (!worker) { resolve([]); return; }
-      // Route to the correct resolver depending on caller
-      pendingSuggestResolver = resolve;
+      pendingSuggestResolver = resolve; // the caller sets which resolver is active
       worker.postMessage({ type:'QUERY', q, limit });
     });
   }
@@ -440,7 +477,7 @@
     const SEED_PAGES = [
       'index.html','about-glance.html','hod-desk.html',
       'faculty.html','staff.html','students.html','alumni.html',
-      'research.html','programs.html','academic_docs.html',
+      'research.html','programs.html','academic_docs.html','academics.html',
       'opportunities.html','links.html','documents.html',
       'gallery.html','committees.html'
     ];
@@ -573,14 +610,21 @@
       suggest.innerHTML = '';
       return;
     }
+    const q = (input && input.value) || '';
     suggest.innerHTML = items.map(it => {
-      const s = (it.snippet || it.content || '').slice(0, 120) + '…';
+      const s   = ((it.snippet || it.content || '')).slice(0, 120);
       const url = it.url || '#';
-      return `<a href="${url}" style="display:block;padding:10px;text-decoration:none;color:#222;border-bottom:1px solid #eee">
-        <div style="font-weight:600">${it.title}</div>
-        <div style="font-size:12px;color:#666">${s}</div>
-        <div style="font-size:11px;color:#999">${url}</div>
-      </a>`;
+      const { key, label } = getType(it);
+      const anchorPill = hasAnchor(url) ? `<span class="srch-pill" title="Jump to section">↪</span>` : '';
+      return `
+        <a href="${url}" class="srch-suggest-row" style="display:flex;gap:10px;padding:10px;text-decoration:none;color:#222;border-bottom:1px solid #eee;align-items:flex-start">
+          <span class="srch-badge srch-badge--${key}" aria-label="${label}">${label}</span>
+          <span style="flex:1 1 auto;min-width:0">
+            <div style="font-weight:600;margin-bottom:2px">${highlight(it.title, q)}</div>
+            <div style="font-size:12px;color:#666">${highlight(s, q)}…</div>
+            <div style="font-size:11px;color:#999">${esc(url)} ${anchorPill}</div>
+          </span>
+        </a>`;
     }).join('');
     suggest.style.display = 'block';
     requestAnimationFrame(() => suggest.classList.add('show')); // animated reveal
@@ -625,17 +669,31 @@
       `;
     }
 
-    // route results to a special resolver
+    // route results to a resolver
     pendingResultsResolver = (items) => {
       if (!items.length) items = fallbackFilter(query);
+
+      // Prefer people for name-like queries
+      if (isNameish(query, { allowSingle: true })) {
+        items = sortForNameQuery(items, query);
+      }
+
       statusEl && (statusEl.textContent = '');
       if (!items.length) { outEl && (outEl.innerHTML = `<p>No results found.</p>`); return; }
+
       outEl && (outEl.innerHTML = items.map(item => {
-        const s = (item.snippet || item.content || '').slice(0, 180) + '…';
-        return `<article class="search-result" style="padding:10px 0;border-bottom:1px solid #eee">
-          <h3 style="margin:0 0 6px 0"><a href="${item.url}">${item.title}</a></h3>
-          <div style="font-size:13px;color:#555">${s}</div>
-          <div style="font-size:12px;color:#888">${item.url}</div>
+        const s = (item.snippet || item.content || '').slice(0, 180);
+        const { key, label } = getType(item);
+        const jump = hasAnchor(item.url) ? `<a href="${item.url}" class="srch-pill" style="margin-left:6px" title="Jump to section">Jump ↪</a>` : '';
+        return `<article class="search-result" style="padding:12px 0;border-bottom:1px solid #eee">
+          <div style="display:flex;align-items:flex-start;gap:10px">
+            <span class="srch-badge srch-badge--${key}">${label}</span>
+            <div style="flex:1 1 auto;min-width:0">
+              <h3 style="margin:0 0 6px 0;font-size:18px"><a href="${item.url}">${highlight(item.title, query)}</a>${jump}</h3>
+              <div style="font-size:13px;color:#555">${highlight(s, query)}…</div>
+              <div style="font-size:12px;color:#888">${esc(item.url)}</div>
+            </div>
+          </div>
         </article>`;
       }).join(''));
     };
@@ -692,12 +750,19 @@
           if (worker) {
             queryWorker(q, { limit: 10 }).then(items => {
               if (!items.length) items = fallbackFilter(q).slice(0,10);
+              // Prefer people in suggestions when name-like
+              if (isNameish(input.value, { allowSingle: true })) {
+                items = sortForNameQuery(items, input.value);
+              }
               renderSuggestion(items);
               input.setAttribute('placeholder', oldPh);
             });
           } else {
             let items = (fuse && fuse.search ? fuse.search(norm(q)) : []).slice(0, 10).map(r => r.item);
             if (!items.length) items = fallbackFilter(q).slice(0, 10);
+            if (isNameish(input.value, { allowSingle: true })) {
+              items = sortForNameQuery(items, input.value);
+            }
             renderSuggestion(items);
             input.setAttribute('placeholder', oldPh);
           }
@@ -705,7 +770,7 @@
 
         input.addEventListener('input', liveSearch);
 
-        // Enter -> full results page
+        // Enter -> full results page (when no selection)
         input.addEventListener('keydown', (e) => {
           if (e.key === 'Enter' && selIdx === -1) {
             const q = input.value.trim();

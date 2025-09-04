@@ -109,7 +109,7 @@
   }
   function getType(item){
     const tags = item.tags || [];
-       const tl   = (item.title || '').toLowerCase();
+    const tl   = (item.title || '').toLowerCase();
     const has  = t => tags.includes(t);
     if (tl.startsWith('faculty:') || has('faculty'))   return { key:'faculty',   label:'Faculty' };
     if (tl.startsWith('staff:')   || has('staff'))     return { key:'staff',     label:'Staff' };
@@ -680,85 +680,134 @@
   }
 
   // ---------- UI ----------
+
+  // keyboard nav for suggestions
+  let selIdx = -1;
+
+  // NEW grouped & interactive suggestions (keeps people/leave logic intact)
   function renderSuggestion(items) {
     if (!suggest) return;
+
+    const q = (input && input.value) || '';
+    // leave-aware ordering stays
+    items = sortForLeaveQuery(items, q);
+
+    // Name-like queries: prioritize people (keeps Chengappa fix)
+    if (isNameish(q, { allowSingle: true })) {
+      items = sortForNameQuery(items, q);
+    }
+
     if (!items.length) {
       suggest.classList.remove('show');
       suggest.style.display = 'none';
       suggest.innerHTML = '';
+      input && input.setAttribute('aria-expanded', 'false');
+      selIdx = -1;
       return;
     }
-    const q = (input && input.value) || '';
-    // leave-aware ordering in suggestions
-    items = sortForLeaveQuery(items, q);
 
-    suggest.innerHTML = items.map(it => {
-      const s   = ((it.snippet || it.content || '')).slice(0, 120);
-      const url = it.url || '#';
-      const { key, label } = getType(it);
-      const anchorPill = hasAnchor(url) ? `<span class="srch-pill" title="Jump to section">↪</span>` : '';
-      return `
-        <a href="${url}" class="srch-suggest-row" style="display:flex;gap:10px;padding:10px;text-decoration:none;color:#222;border-bottom:1px solid #eee;align-items:flex-start">
-          <span class="srch-badge srch-badge--${key}" aria-label="${label}">${label}</span>
-          <span style="flex:1 1 auto;min-width:0">
-            <div style="font-weight:600;margin-bottom:2px">${highlight(it.title, q)}</div>
-            <div style="font-size:12px;color:#666">${highlight(s, q)}…</div>
-            <div style="font-size:11px;color:#999">${esc(url)} ${anchorPill}</div>
-          </span>
-        </a>`;
+    // group by type
+    const groupsOrder = ['faculty','staff','student','link','section','spotlight','announce','page'];
+    const labelMap = {
+      faculty:'Faculty', staff:'Staff', student:'Students',
+      link:'Links', section:'Sections', spotlight:'Spotlight',
+      announce:'Announcements', page:'Pages'
+    };
+    const groups = {};
+    items.forEach(it => {
+      const k = getType(it).key || 'page';
+      (groups[k] = groups[k] || []).push(it);
+    });
+
+    // Optional Top hit
+    let topHitHtml = '';
+    const first = items[0];
+    if (first && (first.title_lc || '').startsWith(norm(q)) && q.length >= 2) {
+      const { key, label } = getType(first);
+      const s = (first.snippet || first.content || '').slice(0, 120);
+      const jump = hasAnchor(first.url) ? `<span class="srch-pill" title="Jump to section">↪</span>` : '';
+      topHitHtml = `
+        <div class="srch-group">
+          <div class="srch-group__title">Top hit</div>
+          <a href="${first.url}" class="srch-suggest-row" role="option" data-href="${first.url}">
+            <span class="srch-badge srch-badge--${key}">${label}</span>
+            <span style="flex:1">
+              <div style="font-weight:600;margin-bottom:2px">${highlight(first.title, q)} ${jump}</div>
+              <div style="font-size:12px;color:#666">${highlight(s, q)}…</div>
+            </span>
+          </a>
+        </div>`;
+    }
+
+    const htmlGroups = groupsOrder.map(k => {
+      const arr = groups[k];
+      if (!arr || !arr.length) return '';
+      const label = labelMap[k] || 'Results';
+      const rows = arr.slice(0, 5).map(it => {
+        const s = (it.snippet || it.content || '').slice(0, 110);
+        const jump = hasAnchor(it.url) ? `<span class="srch-pill" title="Jump to section">↪</span>` : '';
+        return `
+          <a href="${it.url}" class="srch-suggest-row" role="option" data-href="${it.url}">
+            <span class="srch-badge srch-badge--${k}">${label.replace(/s$/,'')}</span>
+            <span style="flex:1">
+              <div style="font-weight:600;margin-bottom:2px">${highlight(it.title, q)} ${jump}</div>
+              <div style="font-size:12px;color:#666">${highlight(s, q)}…</div>
+            </span>
+          </a>`;
+      }).join('');
+      return `<div class="srch-group">
+        <div class="srch-group__title">${label}</div>
+        ${rows}
+      </div>`;
     }).join('');
+
+    const footer = `
+      <div class="srch-footer">
+        <a href="search.html?q=${encodeURIComponent(q)}" aria-label="View all results for ${q}">View all results ↵</a>
+      </div>`;
+
+    suggest.innerHTML = `${topHitHtml}${htmlGroups}${footer}`;
     suggest.style.display = 'block';
-    requestAnimationFrame(() => suggest.classList.add('show')); // animated reveal
+    requestAnimationFrame(() => suggest.classList.add('show'));
+    input && input.setAttribute('aria-expanded', 'true');
+
+    // Hover selection & click behavior
+    const rows = [...suggest.querySelectorAll('.srch-suggest-row')];
+    rows.forEach((row, i) => {
+      row.addEventListener('mouseenter', () => {
+        rows.forEach(n => n.removeAttribute('aria-selected'));
+        row.setAttribute('aria-selected', 'true');
+        selIdx = i;
+      });
+      row.addEventListener('mouseleave', () => {
+        row.removeAttribute('aria-selected');
+        selIdx = -1;
+      });
+      row.addEventListener('click', (e) => {
+        const href = row.getAttribute('data-href') || row.getAttribute('href');
+        if (href) { e.preventDefault(); window.location.href = href; }
+      });
+    });
   }
 
-  // keyboard nav for suggestions
-  let selIdx = -1;
   function moveSel(delta) {
     if (!suggest || !suggest.children.length) return;
-    selIdx = (selIdx + delta + suggest.children.length) % suggest.children.length;
-    [...suggest.children].forEach((n,i) => {
-      n.style.background = i === selIdx ? 'rgba(0,0,0,.05)' : 'transparent';
-    });
-  }
-  if (input) {
-    input.addEventListener('keydown', e => {
-      if (e.key === 'ArrowDown') { e.preventDefault(); moveSel(1); }
-      else if (e.key === 'ArrowUp') { e.preventDefault(); moveSel(-1); }
-      else if (e.key === 'Enter') {
-        // If nothing is selected but suggestions exist, go to the first suggestion directly
-        if (selIdx === -1 && suggest && suggest.children && suggest.children[0]) {
-          const first = suggest.children[0];
-          const href = first.getAttribute('href') || (first.querySelector('a') && first.querySelector('a').getAttribute('href'));
-          if (href) { e.preventDefault(); window.location.href = href; return; }
-        }
-        // If a suggestion is selected, open it
-        if (selIdx >= 0 && suggest && suggest.children[selIdx]) {
-          e.preventDefault();
-          const a = suggest.children[selIdx];
-          const href = a.getAttribute('href') || (a.querySelector('a') && a.querySelector('a').getAttribute('href'));
-          if (href) { window.location.href = href; return; }
-        }
-        // fallback: go to results page
-        const q = input.value.trim();
-        if (q) window.location.href = `search.html?q=${encodeURIComponent(q)}`;
-      }
-    });
+    const rows = [...suggest.querySelectorAll('.srch-suggest-row')];
+    if (!rows.length) return;
+    selIdx = (selIdx + delta + rows.length) % rows.length;
+    rows.forEach((n,i) => n.setAttribute('aria-selected', i === selIdx ? 'true' : 'false'));
   }
 
   // auto-redirect helper for “leave” queries on results page
   function tryAutoRedirect(query, items){
     const nq = norm(query);
-
-    // Only trigger for leave-ish queries
     if (!/(^|\b)(leave|vacation|absence|on duty|od|el|cl|ml|leave portal|leave rules)($|\b)/.test(nq)) return false;
 
-    // Candidate leave links
     const links = items.filter(it => (it.tags||[]).includes('link') &&
       ((it.title_lc||'').includes('leave') || (it.content||'').includes('leave')));
 
     if (!links.length) return false;
 
-    // If user hints at role, prefer that link
     const wantFaculty = /\bfaculty\b/i.test(query);
     const wantStaff   = /\bstaff\b/i.test(query);
     if (wantFaculty || wantStaff) {
@@ -766,7 +815,6 @@
       if (picked && picked.url) { window.location.href = picked.url; return true; }
     }
 
-    // If there's exactly one leave link, jump to it
     if (links.length === 1 && links[0].url) {
       window.location.href = links[0].url;
       return true;
@@ -775,7 +823,6 @@
   }
 
   // ---------- live search helpers (results page) ----------
-  // Run a query through the worker if present; otherwise local Fuse
   function runSearch(q, { limit = 50 } = {}) {
     return new Promise((resolve) => {
       if (worker) {
@@ -788,23 +835,15 @@
     });
   }
 
-  // Apply our special ranking and maybe auto-redirect for leave
   function rankAndMaybeRedirect(query, items) {
     if (!items || !items.length) return { redirected:false, items: [] };
 
-    // auto-redirect for leave (faculty/staff / single link)
     if (tryAutoRedirect(query, items)) return { redirected:true, items: [] };
-
-    // leave-aware ordering
     items = sortForLeaveQuery(items, query);
-
-    // prefer people for name-like queries (Chengappa/Guhan fix preserved)
     if (isNameish(query, { allowSingle: true })) items = sortForNameQuery(items, query);
-
     return { redirected:false, items };
   }
 
-  // Render the big results list
   function renderResultsList(container, items, q) {
     if (!container) return;
     if (!items || !items.length) {
@@ -923,9 +962,7 @@
           if (worker) {
             queryWorker(q, { limit: 10 }).then(items => {
               if (!items.length) items = fallbackFilter(q).slice(0,10);
-              // leave-aware ordering in suggestions
               items = sortForLeaveQuery(items, q);
-              // Prefer people in suggestions when name-like
               if (isNameish(input.value, { allowSingle: true })) {
                 items = sortForNameQuery(items, input.value);
               }
@@ -946,7 +983,45 @@
 
         input.addEventListener('input', liveSearch);
 
-        // Enter behavior handled in keydown above
+        // Keyboard: arrows + Enter + Escape (niceties)
+        input.addEventListener('keydown', e => {
+          if (e.key === 'ArrowDown') { e.preventDefault(); moveSel(1); }
+          else if (e.key === 'ArrowUp') { e.preventDefault(); moveSel(-1); }
+          else if (e.key === 'Enter') {
+            const rows = suggest ? [...suggest.querySelectorAll('.srch-suggest-row')] : [];
+            if (rows.length) {
+              // If nothing selected, open first suggestion
+              if (selIdx === -1) {
+                const first = rows[0];
+                const href = first.getAttribute('data-href') || first.getAttribute('href');
+                if (href) { e.preventDefault(); window.location.href = href; return; }
+              }
+              // Open selected
+              if (selIdx >= 0) {
+                const row = rows[selIdx];
+                const href = row.getAttribute('data-href') || row.getAttribute('href');
+                if (href) { e.preventDefault(); window.location.href = href; return; }
+              }
+            }
+            // fallback: go to results page
+            const q = input.value.trim();
+            if (q) window.location.href = `search.html?q=${encodeURIComponent(q)}`;
+          } else if (e.key === 'Escape') {
+            renderSuggestion([]);
+            input.setAttribute('aria-expanded', 'false');
+          }
+        });
+
+        // Keep dropdown open on focus if we already have results
+        input.addEventListener('focus', () => {
+          if (suggest && suggest.innerHTML.trim()) {
+            suggest.style.display = 'block';
+            requestAnimationFrame(() => suggest.classList.add('show'));
+            input.setAttribute('aria-expanded', 'true');
+          }
+        });
+
+        // click-away to close suggestions
         document.addEventListener('click', e => {
           if (!form.contains(e.target)) renderSuggestion([]);
         });

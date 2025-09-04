@@ -283,3 +283,23 @@
   #search-suggest { transition: none !important; transform: none !important; }
   .skel { animation: none !important; }
 }
+/* Typing placeholder caret */
+#search-input.typing {
+  position: relative;
+}
+#search-input.typing::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  right: 12px;
+  width: 2px;
+  height: 1.2em;
+  background: #333; /* adjust for your theme */
+  opacity: .8;
+  animation: blink .9s steps(1, end) infinite;
+}
+@keyframes blink { 50% { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) {
+  #search-input.typing::after { animation: none; }
+}

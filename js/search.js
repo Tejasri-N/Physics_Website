@@ -893,3 +893,70 @@
     }
   })();
 })();
+// ---------- Typing placeholder animation ----------
+(function(){
+  var input = document.getElementById('search-input');
+  if (!input) return;
+
+  // Skip animation for users who prefer reduced motion
+  var reduceMotion = window.matchMedia &&
+                     window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (reduceMotion) return;
+
+  // Rotating phrases
+  var phrases = [
+    "Search faculty, staff, students…",
+    "Try: leave / OD / CL / EL",
+    "Forms, timetables, CRF, committees…",
+    "eg. “Ramesh”, “SQUID”, “Zeeman effect”"
+  ];
+
+  var typingSpeed = 55;     // ms per character
+  var holdAfterType = 1300; // ms hold when full phrase typed
+  var eraseSpeed = 35;      // ms per character erase speed
+  var holdAfterErase = 400; // ms before typing next phrase
+  var active = true;        // paused when user types
+
+  var p = 0, i = 0, dir = 1; // phrase index, char index, direction
+  input.placeholder = "";    // start blank
+  input.classList.add('typing');
+
+  function step() {
+    if (!active) return;
+    var text = phrases[p];
+    i += dir;
+
+    if (i < 0) i = 0;
+    if (i > text.length) i = text.length;
+
+    input.setAttribute('placeholder', text.slice(0, i));
+
+    if (dir > 0 && i === text.length) {
+      setTimeout(function(){ dir = -1; tick(); }, holdAfterType);
+      return;
+    }
+    if (dir < 0 && i === 0) {
+      p = (p + 1) % phrases.length;
+      setTimeout(function(){ dir = 1; tick(); }, holdAfterErase);
+      return;
+    }
+    setTimeout(tick, dir > 0 ? typingSpeed : eraseSpeed);
+  }
+  function tick(){ if (active) step(); }
+
+  function pause() { active = false; input.classList.remove('typing'); }
+  function resume() {
+    if (input.value && input.value.trim()) return; // don’t animate over real input
+    if (reduceMotion) return;
+    active = true; input.classList.add('typing'); tick();
+  }
+
+  input.addEventListener('focus', pause);
+  input.addEventListener('input', pause);
+  input.addEventListener('blur', resume);
+  document.addEventListener('visibilitychange', function(){
+    if (document.hidden) pause(); else resume();
+  });
+
+  tick();
+})();

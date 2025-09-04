@@ -109,7 +109,7 @@
   }
   function getType(item){
     const tags = item.tags || [];
-    const tl   = (item.title || '').toLowerCase();
+       const tl   = (item.title || '').toLowerCase();
     const has  = t => tags.includes(t);
     if (tl.startsWith('faculty:') || has('faculty'))   return { key:'faculty',   label:'Faculty' };
     if (tl.startsWith('staff:')   || has('staff'))     return { key:'staff',     label:'Staff' };
@@ -560,21 +560,50 @@
           // every other page: rich generic extraction
           index.push(...extractGeneric(doc, page));
 
-          // EXTRA: links.html — force-capture all anchors as "link" entries so "leave" matches top
+          // EXTRA: links.html — capture anchors with hierarchy and rich tagging
           if (/links\.html/.test(lower)) {
+            // Try to read breadcrumb like: Resources → Links → Forms
+            const crumbBits = Array.from(
+              doc.querySelectorAll('.breadcrumb li, .breadcrumb a, nav.breadcrumb a, .breadcrumbs li, .breadcrumbs a')
+            ).map(el => (el.textContent || '').trim()).filter(Boolean);
+            const breadcrumb = crumbBits.length ? crumbBits.join(' → ') : 'Resources → Links';
+
+            // Helper: nearest heading above the link
+            function nearestHeadingText(node) {
+              let cur = node;
+              while (cur) {
+                // walk left siblings
+                let sib = cur.previousElementSibling;
+                while (sib) {
+                  if (/^H[1-4]$/.test(sib.tagName)) return (sib.textContent || '').trim();
+                  sib = sib.previousElementSibling;
+                }
+                cur = cur.parentElement;
+              }
+              return '';
+            }
+
             doc.querySelectorAll('a[href]').forEach(a => {
               const txt = (a.textContent || a.getAttribute('aria-label') || '').trim();
               const href = a.getAttribute('href') || '';
               if (!txt || txt.length < 3) return;
               if (/^mailto:|^tel:/i.test(href)) return;
-              const entryTitle = `Link: ${txt}`;
+
+              const section = nearestHeadingText(a);
+              const hierarchy = section ? `${breadcrumb} → ${section}` : breadcrumb;
+
+              const entryTitle = `${hierarchy}: ${txt}`;
+
+              const tags = ['link', 'resources'];
+              if (/forms?/i.test(hierarchy) || /forms?/i.test(section)) tags.push('forms');
+
               index.push({
                 title: entryTitle,
                 url: href,
                 snippet: 'Link from Links page',
                 title_lc: norm(entryTitle),
-                tags: ['link'],
-                content: norm(txt)
+                tags,
+                content: norm(`${txt} ${hierarchy}`)
               });
             });
           }

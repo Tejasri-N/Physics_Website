@@ -10,7 +10,7 @@
     } catch (_) {}
   }
 
-  // Fuse shim (keeps search working even if Fuse isn't loaded on main thread)
+  // Fuse shim
   var FuseCtor = (typeof window !== 'undefined' && window.Fuse) ? window.Fuse : function(items, opts){
     this._items = Array.isArray(items) ? items : [];
     this._keys = (opts && opts.keys ? opts.keys.map(k=>k.name||k) : ['title_lc','content','tags']);
@@ -47,21 +47,10 @@
   // ---------- helpers ----------
   const cleanText = s => (s || '').replace(/\s+/g, ' ').trim();
   const getText   = el => el ? el.textContent.replace(/\s+/g, ' ').trim() : '';
+  const norm = (s) => (s || '').normalize('NFKD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+  const slug = s => norm(s).replace(/&/g, ' and ').replace(/[^a-z0-9\s-]/g, '').trim().replace(/\s+/g, '-').replace(/-+/g, '-');
 
-  const norm = (s) =>
-    (s || '')
-      .normalize('NFKD').replace(/[\u0300-\u036f]/g, '') // strip accents
-      .toLowerCase();
-
-  const slug = s =>
-    norm(s)
-      .replace(/&/g, ' and ')
-      .replace(/[^a-z0-9\s-]/g, '')
-      .trim()
-      .replace(/\s+/g, '-')
-      .replace(/-+/g, '-');
-
-  // allow single-word proper names (≥3 chars) too (relaxed) — DO NOT REMOVE (fixes Chengappa/Guhan)
+  // allow single-word proper names (≥3 chars) — keep (Chengappa/Guhan)
   function isNameish(s, { allowSingle = true } = {}) {
     if (!s) return false;
     const txt   = cleanText(s);
@@ -71,33 +60,30 @@
     if (allowSingle && parts[0] && parts[0].length >= 3) return true;
     return false;
   }
-
   const debounce = (fn, ms=150) => { let t; return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), ms); }; };
+  function nameTokens(name) { const lower = norm(name); const parts = lower.split(/[^a-z0-9]+/).filter(Boolean); return Array.from(new Set([lower, ...parts])); }
 
-  function nameTokens(name) {
-    const lower = norm(name);
-    const parts = lower.split(/[^a-z0-9]+/).filter(Boolean);
-    return Array.from(new Set([lower, ...parts]));
-  }
-
-  // --- Helpers for section indexing & anchors ---
-  function ensureId(el, prefix='sec') {
-    const txt = (el.textContent || '').trim();
-    if (!txt) return null;
-    if (!el.id) el.id = prefix + '-' + txt
-      .normalize('NFKD').replace(/[\u0300-\u036f]/g,'')
-      .replace(/&/g,' and ').replace(/[^a-z0-9\s-]/gi,'')
-      .trim().replace(/\s+/g,'-').replace(/-+/g,'-').toLowerCase();
-    return el.id;
-  }
+  // --- section helpers ---
   function textAfter(el, limit=200) {
-    let p = el.nextElementSibling;
+    let p = el && el.nextElementSibling;
     while (p && !/^(p|div|section|article)$/i.test(p.tagName)) p = p.nextElementSibling;
-    const t = (p ? p.textContent : el.textContent) || '';
+    const t = (p ? p.textContent : (el ? el.textContent : '')) || '';
     return t.replace(/\s+/g,' ').trim().slice(0, limit);
   }
 
-  // ---------- UI/Ranking helpers (non-destructive) ----------
+  // NEW: Never mutate IDs. Use existing #id or Text Fragment.
+  function anchorForElement(el, fallbackText, { prefix='sec' } = {}) {
+    const existed = !!(el && el.id);
+    if (existed) return { urlFrag: '#' + el.id, hasAnchor: true };
+    const txt = (fallbackText || (el && el.textContent) || '').trim();
+    if (txt.length >= 3) {
+      const frag = '#:~:text=' + encodeURIComponent(txt.slice(0, 120));
+      return { urlFrag: frag, hasAnchor: true };
+    }
+    return { urlFrag: '', hasAnchor: false };
+  }
+
+  // ---------- UI/Ranking helpers ----------
   function esc(s){return (s||'').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));}
   function highlight(text, q){
     if (!text) return '';
@@ -134,9 +120,7 @@
     };
     return items.slice().sort((a,b) => score(b) - score(a));
   }
-  function hasAnchor(url){ return (url||'').indexOf('#') !== -1; }
-
-  // Leave-aware prioritization: put link results first for leave-ish queries
+  function hasAnchorFlag(item){ return !!(item && (item.hasAnchor || ((item.url||'').indexOf('#') !== -1))); }
   function sortForLeaveQuery(items, q){
     const nq = norm(q);
     if (!/(leave|vacation|absence|on duty|od|el|cl|ml)/.test(nq)) return items;
@@ -145,18 +129,18 @@
     return [...links, ...others];
   }
 
-  // ---------- site-wide discovery (no sitemap needed) ----------
+  // ---------- site-wide discovery ----------
   function normalizeUrl(u) {
     try {
       const a = new URL(u, location.origin);
-      if (a.origin !== location.origin) return null; // external
+      if (a.origin !== location.origin) return null;
       const path = (a.pathname + (a.search || '')).replace(/^\/+/, '');
       return path.replace(/#.*$/, '');
     } catch { return null; }
   }
   function isIndexablePath(path) {
     if (!path) return false;
-    if (!/\.html?($|\?)/i.test(path)) return false; // only HTML
+    if (!/\.html?($|\?)/i.test(path)) return false;
     if (/(^|\/)(assets?|static|img|images|css|js|fonts?)\//i.test(path)) return false;
     if (/^mailto:|^tel:/i.test(path)) return false;
     return true;
@@ -190,7 +174,6 @@
   }
 
   // ---------- extractors ----------
-  // Rich generic extractor (page + sections + tabs/accordions/cards + spotlight + downloads + links)
   function extractGeneric(doc, url) {
     const pageUrl = url.replace(/^\/+/, '');
     const rawTitle = getText(doc.querySelector('title')) || pageUrl;
@@ -201,98 +184,83 @@
     const h1       = getText(doc.querySelector('h1'));
     const firstP   = getText(doc.querySelector('main p, .page-container p, p'));
     const baseSnippet  = (metaDesc || firstP || h1 || title).slice(0, 180);
-    const baseContent  = norm((
-      (metaDesc || '') + ' ' + (h1 || '') + ' ' + (firstP || '') + ' ' +
-      (getText(doc.querySelector('main')) || getText(doc.body))
-    ).slice(0, 1200));
+    const baseContent  = norm(((metaDesc||'')+' '+(h1||'')+' '+(firstP||'')+' '+(getText(doc.querySelector('main'))||getText(doc.body))).slice(0, 1200));
 
     const entries = [];
-
-    // Page-level entry
+    // page-level
     entries.push({
-      title,
-      url: pageUrl,
-      snippet: baseSnippet,
+      title, url: pageUrl, snippet: baseSnippet,
       title_lc,
-      tags: Array.from(new Set([
-        ...title_lc.split(/\W+/).slice(0, 8),
-        ...norm(h1 || '').split(/\W+/).slice(0, 8)
-      ].filter(Boolean))),
+      tags: Array.from(new Set([...title_lc.split(/\W+/).slice(0,8), ...norm(h1||'').split(/\W+/).slice(0,8)].filter(Boolean))),
       content: baseContent
     });
 
-    // Subsection entries: H2–H4
+    // H2–H4 sections (use existing id or text fragment)
     doc.querySelectorAll('h2, h3, h4').forEach(h => {
-      const heading = (h.textContent || '').trim();
-      if (!heading || heading.length < 3) return;
-      const id = ensureId(h, 'section');
+      const heading = (h.textContent || '').trim(); if (!heading || heading.length < 3) return;
+      const jump = anchorForElement(h, heading, { prefix: 'section' });
       const snippet = textAfter(h, 200);
       const entryTitle = `${title}: ${heading}`;
       entries.push({
         title: entryTitle,
-        url: `${pageUrl}#${id}`,
+        url: `${pageUrl}${jump.urlFrag}`,
         snippet,
         title_lc: norm(entryTitle),
-        tags: Array.from(new Set([
-          ...heading.toLowerCase().split(/\W+/).slice(0,8),
-          'section'
-        ].filter(Boolean))),
-        content: norm(heading + ' ' + snippet)
+        tags: Array.from(new Set([...heading.toLowerCase().split(/\W+/).slice(0,8), 'section'].filter(Boolean))),
+        content: norm(heading + ' ' + snippet),
+        hasAnchor: jump.hasAnchor
       });
     });
 
-    // Tab panes / Accordions / Cards / Spotlight containers
-    doc.querySelectorAll(
-      '.tab-pane, [role="tabpanel"], .accordion-item, .accordion-panel, .card, .panel, .tile,' +
-      '#spotlight, section#spotlight, .spotlight, .spotlights, .spotlight-item, .spotlight-card, .spotlight__item'
-    ).forEach(block => {
-      const head = block.querySelector('h2,h3,h4,h5,summary,.card-title,.accordion-header');
-      const heading = head ? head.textContent.trim() : (block.getAttribute('aria-label') || '').trim();
-      if (!heading || heading.length < 3) return;
-      const id = ensureId(block, 'block');
-      const snippet = (block.textContent || '').replace(/\s+/g,' ').trim().slice(0, 200);
-      const entryTitle = `${title}: ${heading}`;
-      entries.push({
-        title: entryTitle,
-        url: `${pageUrl}#${id}`,
-        snippet,
-        title_lc: norm(entryTitle),
-        tags: Array.from(new Set([
-          ...heading.toLowerCase().split(/\W+/).slice(0,8),
-          'block'
-        ].filter(Boolean))),
-        content: norm(heading + ' ' + snippet)
-      });
-    });
+    // tabs/accordions/cards/spotlight blocks (use id or text fragment)
+    doc.querySelectorAll('.tab-pane, [role="tabpanel"], .accordion-item, .accordion-panel, .card, .panel, .tile, #spotlight, section#spotlight, .spotlight, .spotlights, .spotlight-item, .spotlight-card, .spotlight__item')
+      .forEach(block => {
+        const head = block.querySelector('h2,h3,h4,h5,summary,.card-title,.accordion-header');
+        const heading = head ? head.textContent.trim() : (block.getAttribute('aria-label') || '').trim();
+        if (!heading || heading.length < 3) return;
 
-    // Spotlight figures with figcaption
+        const jump = anchorForElement(block, heading, { prefix: 'block' });
+        const snippet = (block.textContent || '').replace(/\s+/g,' ').trim().slice(0, 200);
+        const entryTitle = `${title}: ${heading}`;
+        entries.push({
+          title: entryTitle,
+          url: `${pageUrl}${jump.urlFrag}`,
+          snippet,
+          title_lc: norm(entryTitle),
+          tags: Array.from(new Set([...heading.toLowerCase().split(/\W+/).slice(0,8), 'block'].filter(Boolean))),
+          content: norm(heading + ' ' + snippet),
+          hasAnchor: jump.hasAnchor
+        });
+      });
+
+    // spotlight figures
     doc.querySelectorAll('#spotlight figure, .spotlight figure, .spotlight-item figure, .spotlight__item figure').forEach(fig => {
       const capEl = fig.querySelector('figcaption');
       const cap = capEl ? capEl.textContent : '';
       const heading = (cap || '').trim();
       if (!heading || heading.length < 3) return;
-      const id = ensureId(fig, 'spot');
+
+      const jump = anchorForElement(fig, heading, { prefix: 'spot' });
       const entryTitle = `${title}: ${heading}`;
       const snippet = (cap || fig.textContent || '').replace(/\s+/g,' ').trim().slice(0, 200);
       entries.push({
         title: entryTitle,
-        url: `${pageUrl}#${id}`,
+        url: `${pageUrl}${jump.urlFrag}`,
         snippet,
         title_lc: norm(entryTitle),
         tags: Array.from(new Set(['spotlight', ...heading.toLowerCase().split(/\W+/).slice(0,8)].filter(Boolean))),
-        content: norm(heading + ' ' + snippet)
+        content: norm(heading + ' ' + snippet),
+        hasAnchor: jump.hasAnchor
       });
     });
 
-    // Obvious downloads (PDF/DOC)
+    // downloads
     doc.querySelectorAll('a[href$=".pdf"], a[href$=".doc"], a[href$=".docx"]').forEach(a => {
-      const txt = (a.textContent || a.getAttribute('aria-label') || '').trim();
-      if (!txt || txt.length < 3) return;
-      const id = ensureId(a, 'dl');
+      const txt = (a.textContent || a.getAttribute('aria-label') || '').trim(); if (!txt || txt.length < 3) return;
       const entryTitle = `${title}: ${txt}`;
       entries.push({
         title: entryTitle,
-        url: a.getAttribute('href') || `${pageUrl}#${id}`,
+        url: a.getAttribute('href') || pageUrl,
         snippet: 'Download',
         title_lc: norm(entryTitle),
         tags: Array.from(new Set(['download', ...txt.toLowerCase().split(/\W+/).slice(0,8)].filter(Boolean))),
@@ -300,22 +268,21 @@
       });
     });
 
-    // Plain links (useful-links/portals) — create lightweight entries
+    // plain links (including links.html)
     doc.querySelectorAll('a[href]').forEach(a => {
       const txt = (a.textContent || a.getAttribute('aria-label') || '').trim();
-      if (!txt || txt.length < 3) return;
-
       const href = a.getAttribute('href') || '';
-      if (/^mailto:|^tel:/i.test(href)) return;           // skip mail/tel
-      if (/\.(pdf|docx?|pptx?)$/i.test(href)) return;     // already covered as downloads
+      if (!txt || txt.length < 3) return;
+      if (/^mailto:|^tel:/i.test(href)) return;
+      if (/\.(pdf|docx?|pptx?)$/i.test(href)) return;
 
       const entryTitle = `${title}: ${txt}`;
       entries.push({
         title: entryTitle,
-        url: href || pageUrl,           // external links are fine; browser will navigate
+        url: href || pageUrl,
         snippet: 'Link',
         title_lc: norm(entryTitle),
-        tags: Array.from(new Set(['link', ...txt.toLowerCase().split(/\W+/).slice(0, 8)].filter(Boolean))),
+        tags: Array.from(new Set(['link', ...txt.toLowerCase().split(/\W+/).slice(0,8)].filter(Boolean))),
         content: norm(txt)
       });
     });
@@ -323,40 +290,40 @@
     return entries;
   }
 
-  // People extractor (faculty/staff/students) — BROAD selectors retained (DO NOT REMOVE)
   function extractPeople(doc, pageHref, baseTag, titlePrefix) {
     const pageURL = pageHref.split('#')[0];
     const list = [];
-
-    const pushItem = (name, id, role, areas, extra='') => {
+    const pushItem = (name, role, areas, extra, elForAnchor=null) => {
       if (!name || name.length < 3) return;
       const displayTitle = `${titlePrefix}: ${name}`;
       const snippet = (role || areas || extra || `Profile of ${name}.`).slice(0,160);
       const content = norm([role, areas, extra].filter(Boolean).join(' ').slice(0,1200));
       const ntokens = nameTokens(name);
       const atokens = areas ? norm(areas).split(/[,;/]\s*|\s+/) : [];
+
+      // Prefer real element anchor; otherwise use text fragment of the name
+      const jump = anchorForElement(elForAnchor, name, { prefix: baseTag });
+
       list.push({
         title: displayTitle,
-        url: `${pageURL}#${id}`,
+        url: `${pageURL}${jump.urlFrag}`,
         snippet,
         title_lc: norm(displayTitle),
         tags: Array.from(new Set([baseTag, ...ntokens, ...atokens].filter(Boolean))),
-        content
+        content,
+        hasAnchor: jump.hasAnchor
       });
     };
 
-    // Hidden student dataset (if present)
+    // hidden student dataset
     doc.querySelectorAll('#studentData [data-name]').forEach(node => {
-      const name   = cleanText(node.getAttribute('data-name'));
-      if (!name) return;
+      const name   = cleanText(node.getAttribute('data-name')); if (!name) return;
       const enroll = cleanText(node.getAttribute('data-enroll') || '');
-      const id     = node.id || `student-${slug(`${name}-${enroll || ''}`)}`;
-      if (!node.id) node.id = id;
       const role   = enroll ? `Enrollment: ${enroll}` : '';
-      pushItem(name, id, role, '', '');
+      pushItem(name, role, '', '', node);
     });
 
-    // Cards/blocks — broadened selectors (includes span/div/a/strong/b/td)
+    // broadened selectors
     const cardSel = [
       '.faculty-card', '.faculty-member', '.profile-card',
       '.person', '.member', '.card', '.profile', '.fac-card', '.member-card',
@@ -364,78 +331,58 @@
       '.student-card', '.student',
       '.people-card', '.people-item', '.team-card', '.team-member', '.bio', '.bio-card'
     ].join(',');
-
     doc.querySelectorAll(cardSel).forEach(card => {
-      const nameEl = card.querySelector(
-        'h1,h2,h3,h4,h5,span,div,a,strong,b,td,' +
-        '.member-name,.name,.staff-name,.student-name,.faculty-name,.faculty-profile'
-      );
+      const nameEl = card.querySelector('h1,h2,h3,h4,h5,span,div,a,strong,b,td,.member-name,.name,.staff-name,.student-name,.faculty-name,.faculty-profile');
       const raw   = nameEl ? nameEl.textContent : card.textContent;
       const name  = cleanText(raw);
       if (!name || !name.length || !isNameish(name, { allowSingle: true })) return;
 
-      const id     = card.id || ('person-' + slug(name));
-      if (!card.id) card.id = id;
-
       const role   = cleanText(card.querySelector('.role,.designation,.title,.position')?.textContent);
       const areas  = cleanText(card.querySelector('.areas,.research,.research-areas,.interests,.keywords')?.textContent);
       const firstP = cleanText(card.querySelector('p')?.textContent);
-      pushItem(name, id, role, areas, firstP);
+      pushItem(name, role, areas, firstP, card);
     });
 
-    // Tables — accept first cell as name even if single/lowercase
+    // tables
     doc.querySelectorAll('table tr').forEach(tr => {
       const cells = Array.from(tr.querySelectorAll('th,td')).map(td => cleanText(td.textContent)).filter(Boolean);
       if (!cells.length) return;
-      const first = cells[0];
-      if (!first || first.length < 3) return;
+      const first = cells[0]; if (!first || first.length < 3) return;
       const name = first;
-      const id   = tr.id || ('person-' + slug(name));
-      if (!tr.id) tr.id = id;
       const role = cells.slice(1).find(t => /(prof|assistant|associate|lecturer|scientist|postdoc|staff|student|ph\.?d|ms|mtech|btech)/i.test(t)) || '';
       const areas= cells.slice(1).find(t => /(research|area|interest|topics|group|lab)/i.test(t)) || '';
       const extra= cells.slice(1).join(' ').slice(0,800);
-      pushItem(name, id, role, areas, extra);
+      pushItem(name, role, areas, extra, tr);
     });
 
-    // Lists — treat first chunk before separators as name
+    // lists
     doc.querySelectorAll('ul li, ol li').forEach(li => {
-      const line = cleanText(li.textContent);
-      if (!line || line.length < 3) return;
-      const firstChunk = cleanText(line.split(/[–—\-•|:;]\s*/)[0]);
-      if (!firstChunk || firstChunk.length < 3) return;
+      const line = cleanText(li.textContent); if (!line || line.length < 3) return;
+      const firstChunk = cleanText(line.split(/[–—\-•|:;]\s*/)[0]); if (!firstChunk || firstChunk.length < 3) return;
       const name = firstChunk;
-      const id   = li.id || ('person-' + slug(name));
-      if (!li.id) li.id = id;
       const rest = cleanText(line.slice(firstChunk.length));
-      pushItem(name, id, '', '', rest);
+      pushItem(name, '', '', rest, li);
     });
 
     return list;
   }
 
   // ---------- loaders ----------
-  // Dynamic loader: poll until content is ready (handles late-rendered content)
   function loadDynamicPage(url, timeoutMs = 9000, readySelector) {
     const DEFAULT_READY = readySelector || 'main, article, section, .page-container, .container, [role="main"], body > *';
     return new Promise(resolve => {
       const iframe = document.createElement('iframe');
       iframe.style.display = 'none';
-      iframe.src = url + (url.includes('?') ? '&' : '?') + 't=' + Date.now(); // cache-bust
+      iframe.src = url + (url.includes('?') ? '&' : '?') + 't=' + Date.now();
 
       const start = Date.now();
-      function done(result) {
-        try { requestAnimationFrame(() => iframe.remove()); } catch(_) {}
-        resolve(result);
-      }
+      function done(result) { try { requestAnimationFrame(() => iframe.remove()); } catch(_) {} resolve(result); }
       function tryResolveWhenReady() {
         try {
           const doc = iframe.contentDocument;
           if (doc && doc.body) {
             const ready = doc.querySelector(DEFAULT_READY);
-            if (ready && doc.body.children.length) {
-              return done({ url, doc });
-            }
+            if (ready && doc.body.children.length) return done({ url, doc });
           }
         } catch (_) {}
         if (Date.now() - start >= timeoutMs) {
@@ -453,7 +400,7 @@
   }
 
   async function loadStaticPage(url) {
-    const bust = url + (url.includes('?') ? '&' : '?') + 't=' + Date.now(); // cache-bust
+    const bust = url + (url.includes('?') ? '&' : '?') + 't=' + Date.now();
     const res = await fetch(bust, { cache: 'no-store' });
     if (!res.ok) throw new Error(`Failed ${url}: ${res.status}`);
     const html = await res.text();
@@ -461,49 +408,44 @@
     return { url, doc };
   }
 
-  // Try dynamic first (all pages). Fallback to static fetch.
   async function loadPageResilient(url, readySelector) {
     const dyn = await loadDynamicPage(url, 9000, readySelector);
     if (dyn) return dyn;
     return await loadStaticPage(url);
   }
 
-  // ---------- Worker wiring & cache ----------
-  let worker = null;
-  let workerReady = false;
-  let pendingSuggestResolver = null;
-  let pendingResultsResolver = null;
+  // ---------- Worker & cache ----------
+  let worker = null, workerReady = false;
+  let pendingSuggestResolver = null, pendingResultsResolver = null;
 
   function startWorker() {
     try {
       worker = new Worker('js/search.worker.js');
       worker.onmessage = (e) => {
         const { type } = e.data || {};
-        if (type === 'PONG') workerReady = true;
-        if (type === 'BUILT') { workerReady = true; }
+        if (type === 'PONG' || type === 'BUILT') workerReady = true;
         if (type === 'RESULTS') {
           if (pendingSuggestResolver) { pendingSuggestResolver(e.data.items || []); pendingSuggestResolver = null; }
           else if (pendingResultsResolver) { pendingResultsResolver(e.data.items || []); pendingResultsResolver = null; }
         }
       };
       worker.postMessage({ type: 'PING' });
-    } catch (_) { /* ignore */ }
+    } catch (_) {}
   }
   startWorker();
 
   function queryWorker(q, { limit=50 } = {}) {
     return new Promise(resolve => {
       if (!worker) { resolve([]); return; }
-      pendingSuggestResolver = resolve; // the caller sets which resolver is active
+      pendingSuggestResolver = resolve;
       worker.postMessage({ type:'QUERY', q, limit });
     });
   }
 
-  // ---------- build index (site-wide, always fresh) ----------
+  // ---------- build index ----------
   async function loadIndex() {
     if (indexData) return indexData;
 
-    // 1) Start with a small seed set (top-level pages)
     const SEED_PAGES = [
       'index.html','about-glance.html','hod-desk.html',
       'faculty.html','staff.html','students.html','alumni.html',
@@ -512,67 +454,46 @@
       'gallery.html','committees.html'
     ];
 
-    // 2) Discover the rest (internal links crawl)
     let PAGES = await discoverPages(SEED_PAGES, 300);
     SEED_PAGES.forEach(p => { if (!PAGES.includes(p)) PAGES.unshift(p); });
 
     const index = [];
     for (const page of PAGES) {
       try {
-        const loaded = await loadPageResilient(page /* readySelector optional */);
+        const loaded = await loadPageResilient(page);
         if (!loaded) { log('Skip (load failed)', page); continue; }
 
         const { doc, url } = loaded;
         const lower = url.toLowerCase();
 
-        if (/faculty\.html(\?|$)/.test(lower) || /staff\.html(\?|$)/.test(lower) || /students\.html(\?|$)/.test(lower)) {
-          // people pages: rich generic + detailed people items
+        if (/faculty\.html(\?|$)|staff\.html(\?|$)|students\.html(\?|$)/.test(lower)) {
           index.push(...extractGeneric(doc, url.split('#')[0]));
           let baseTag = 'faculty', titlePrefix = 'Faculty';
           if (/staff\.html/.test(lower))   { baseTag = 'staff';   titlePrefix = 'Staff'; }
           if (/students\.html/.test(lower)){ baseTag = 'student'; titlePrefix = 'Student'; }
           index.push(...extractPeople(doc, url, baseTag, titlePrefix));
         } else if (/index\.html/.test(lower)) {
-          // home page: generic + Announcements/Seminars/Publications + Spotlight
           index.push(...extractGeneric(doc, 'index.html'));
           ['announcements','seminars-events','publications','spotlight','spotlights'].forEach(id => {
             const el = doc.getElementById(id);
             if (!el) return;
-            const titleMap = {
-              'announcements': 'Announcements',
-              'seminars-events': 'Seminars & Events',
-              'publications': 'Recent Publications',
-              'spotlight': 'Spotlight',
-              'spotlights': 'Spotlight'
-            };
-            const t = titleMap[id] || id;
+            const map = { announcements:'Announcements', 'seminars-events':'Seminars & Events', publications:'Recent Publications', spotlight:'Spotlight', spotlights:'Spotlight' };
+            const t = map[id] || id;
             const text = (el.textContent || '').trim().slice(0, 240);
-            index.push({
-              title: `${t}`,
-              title_lc: norm(t),
-              url: `index.html#${id}`,
-              tags: ['home', id],
-              snippet: text,
-              content: norm(text)
-            });
+            index.push({ title: `${t}`, title_lc: norm(t), url: `index.html#${id}`, tags: ['home', id], snippet: text, content: norm(text), hasAnchor:true });
           });
         } else {
-          // every other page: rich generic extraction
           index.push(...extractGeneric(doc, page));
 
-          // EXTRA: links.html — capture anchors with hierarchy and rich tagging
+          // links.html hierarchy capture (breadcrumb-like)
           if (/links\.html/.test(lower)) {
-            // Try to read breadcrumb like: Resources → Links → Forms
-            const crumbBits = Array.from(
-              doc.querySelectorAll('.breadcrumb li, .breadcrumb a, nav.breadcrumb a, .breadcrumbs li, .breadcrumbs a')
-            ).map(el => (el.textContent || '').trim()).filter(Boolean);
-            const breadcrumb = crumbBits.length ? crumbBits.join(' → ') : 'Resources → Links';
+            const crumbs = Array.from(doc.querySelectorAll('.breadcrumb li, .breadcrumb a, nav.breadcrumb a, .breadcrumbs li, .breadcrumbs a'))
+              .map(el => (el.textContent || '').trim()).filter(Boolean);
+            const breadcrumb = crumbs.length ? crumbs.join(' → ') : 'Resources → Links';
 
-            // Helper: nearest heading above the link
             function nearestHeadingText(node) {
               let cur = node;
               while (cur) {
-                // walk left siblings
                 let sib = cur.previousElementSibling;
                 while (sib) {
                   if (/^H[1-4]$/.test(sib.tagName)) return (sib.textContent || '').trim();
@@ -591,19 +512,13 @@
 
               const section = nearestHeadingText(a);
               const hierarchy = section ? `${breadcrumb} → ${section}` : breadcrumb;
-
               const entryTitle = `${hierarchy}: ${txt}`;
-
-              const tags = ['link', 'resources'];
+              const tags = ['link','resources'];
               if (/forms?/i.test(hierarchy) || /forms?/i.test(section)) tags.push('forms');
 
               index.push({
-                title: entryTitle,
-                url: href,
-                snippet: 'Link from Links page',
-                title_lc: norm(entryTitle),
-                tags,
-                content: norm(`${txt} ${hierarchy}`)
+                title: entryTitle, url: href, snippet: 'Link from Links page',
+                title_lc: norm(entryTitle), tags, content: norm(`${txt} ${hierarchy}`)
               });
             });
           }
@@ -613,7 +528,7 @@
       }
     }
 
-    // Manual virtual page
+    // virtual page
     index.push({
       title: 'Room booking',
       title_lc: 'room booking',
@@ -625,11 +540,10 @@
 
     indexData = index;
 
-    // Build local Fuse (fallback) and Worker index
     fuse = new FuseCtor(indexData, {
       includeScore: true,
       minMatchCharLength: 2,
-      threshold: 0.45,      // relaxed for short names (kept)
+      threshold: 0.45,
       ignoreLocation: true,
       keys: [
         { name: 'title_lc', weight: 0.5 },
@@ -638,13 +552,11 @@
       ]
     });
 
-    // Persist to localStorage for warm reloads (BUMP v => reindex)
     try {
-      const payload = { v: '1.0.3', ts: Date.now(), index: indexData };
+      const payload = { v: '1.0.4', ts: Date.now(), index: indexData };
       localStorage.setItem('siteSearchIndex', JSON.stringify(payload));
     } catch (_) {}
 
-    // Build worker index
     try {
       if (worker) {
         worker.postMessage({
@@ -680,22 +592,21 @@
   }
 
   // ---------- UI ----------
-
-  // keyboard nav for suggestions
   let selIdx = -1;
 
-  // NEW grouped & interactive suggestions (keeps people/leave logic intact)
+  // Grouped suggestions (with mobile guard)
   function renderSuggestion(items) {
+    // guard: never render dropdown on mobile/tablet
+    if (window.matchMedia('(max-width: 900px)').matches) {
+      if (suggest) { suggest.classList.remove('show'); suggest.style.display = 'none'; suggest.innerHTML = ''; }
+      return;
+    }
+
     if (!suggest) return;
 
     const q = (input && input.value) || '';
-    // leave-aware ordering stays
     items = sortForLeaveQuery(items, q);
-
-    // Name-like queries: prioritize people (keeps Chengappa fix)
-    if (isNameish(q, { allowSingle: true })) {
-      items = sortForNameQuery(items, q);
-    }
+    if (isNameish(q, { allowSingle: true })) items = sortForNameQuery(items, q);
 
     if (!items.length) {
       suggest.classList.remove('show');
@@ -706,26 +617,18 @@
       return;
     }
 
-    // group by type
     const groupsOrder = ['faculty','staff','student','link','section','spotlight','announce','page'];
-    const labelMap = {
-      faculty:'Faculty', staff:'Staff', student:'Students',
-      link:'Links', section:'Sections', spotlight:'Spotlight',
-      announce:'Announcements', page:'Pages'
-    };
+    const labelMap = { faculty:'Faculty', staff:'Staff', student:'Students', link:'Links', section:'Sections', spotlight:'Spotlight', announce:'Announcements', page:'Pages' };
     const groups = {};
-    items.forEach(it => {
-      const k = getType(it).key || 'page';
-      (groups[k] = groups[k] || []).push(it);
-    });
+    items.forEach(it => { const k = (getType(it).key || 'page'); (groups[k] = groups[k] || []).push(it); });
 
-    // Optional Top hit
+    // top hit
     let topHitHtml = '';
     const first = items[0];
     if (first && (first.title_lc || '').startsWith(norm(q)) && q.length >= 2) {
       const { key, label } = getType(first);
       const s = (first.snippet || first.content || '').slice(0, 120);
-      const jump = hasAnchor(first.url) ? `<span class="srch-pill" title="Jump to section">↪</span>` : '';
+      const jump = hasAnchorFlag(first) ? `<span class="srch-pill" title="Jump to section">↪</span>` : '';
       topHitHtml = `
         <div class="srch-group">
           <div class="srch-group__title">Top hit</div>
@@ -740,12 +643,11 @@
     }
 
     const htmlGroups = groupsOrder.map(k => {
-      const arr = groups[k];
-      if (!arr || !arr.length) return '';
+      const arr = groups[k]; if (!arr || !arr.length) return '';
       const label = labelMap[k] || 'Results';
       const rows = arr.slice(0, 5).map(it => {
         const s = (it.snippet || it.content || '').slice(0, 110);
-        const jump = hasAnchor(it.url) ? `<span class="srch-pill" title="Jump to section">↪</span>` : '';
+        const jump = hasAnchorFlag(it) ? `<span class="srch-pill" title="Jump to section">↪</span>` : '';
         return `
           <a href="${it.url}" class="srch-suggest-row" role="option" data-href="${it.url}">
             <span class="srch-badge srch-badge--${k}">${label.replace(/s$/,'')}</span>
@@ -761,28 +663,17 @@
       </div>`;
     }).join('');
 
-    const footer = `
-      <div class="srch-footer">
-        <a href="search.html?q=${encodeURIComponent(q)}" aria-label="View all results for ${q}">View all results ↵</a>
-      </div>`;
+    const footer = `<div class="srch-footer"><a href="search.html?q=${encodeURIComponent(q)}" aria-label="View all results for ${q}">View all results ↵</a></div>`;
 
     suggest.innerHTML = `${topHitHtml}${htmlGroups}${footer}`;
     suggest.style.display = 'block';
     requestAnimationFrame(() => suggest.classList.add('show'));
     input && input.setAttribute('aria-expanded', 'true');
 
-    // Hover selection & click behavior
     const rows = [...suggest.querySelectorAll('.srch-suggest-row')];
     rows.forEach((row, i) => {
-      row.addEventListener('mouseenter', () => {
-        rows.forEach(n => n.removeAttribute('aria-selected'));
-        row.setAttribute('aria-selected', 'true');
-        selIdx = i;
-      });
-      row.addEventListener('mouseleave', () => {
-        row.removeAttribute('aria-selected');
-        selIdx = -1;
-      });
+      row.addEventListener('mouseenter', () => { rows.forEach(n => n.removeAttribute('aria-selected')); row.setAttribute('aria-selected', 'true'); selIdx = i; });
+      row.addEventListener('mouseleave', () => { row.removeAttribute('aria-selected'); selIdx = -1; });
       row.addEventListener('click', (e) => {
         const href = row.getAttribute('data-href') || row.getAttribute('href');
         if (href) { e.preventDefault(); window.location.href = href; }
@@ -798,7 +689,6 @@
     rows.forEach((n,i) => n.setAttribute('aria-selected', i === selIdx ? 'true' : 'false'));
   }
 
-  // auto-redirect helper for “leave” queries on results page
   function tryAutoRedirect(query, items){
     const nq = norm(query);
     if (!/(^|\b)(leave|vacation|absence|on duty|od|el|cl|ml|leave portal|leave rules)($|\b)/.test(nq)) return false;
@@ -815,14 +705,10 @@
       if (picked && picked.url) { window.location.href = picked.url; return true; }
     }
 
-    if (links.length === 1 && links[0].url) {
-      window.location.href = links[0].url;
-      return true;
-    }
+    if (links.length === 1 && links[0].url) { window.location.href = links[0].url; return true; }
     return false;
   }
 
-  // ---------- live search helpers (results page) ----------
   function runSearch(q, { limit = 50 } = {}) {
     return new Promise((resolve) => {
       if (worker) {
@@ -837,7 +723,6 @@
 
   function rankAndMaybeRedirect(query, items) {
     if (!items || !items.length) return { redirected:false, items: [] };
-
     if (tryAutoRedirect(query, items)) return { redirected:true, items: [] };
     items = sortForLeaveQuery(items, query);
     if (isNameish(query, { allowSingle: true })) items = sortForNameQuery(items, query);
@@ -846,14 +731,11 @@
 
   function renderResultsList(container, items, q) {
     if (!container) return;
-    if (!items || !items.length) {
-      container.innerHTML = `<p>No results found.</p>`;
-      return;
-    }
+    if (!items || !items.length) { container.innerHTML = `<p>No results found.</p>`; return; }
     container.innerHTML = items.map(item => {
       const s = (item.snippet || item.content || '').slice(0, 180);
       const { key, label } = getType(item);
-      const jump = hasAnchor(item.url) ? `<a href="${item.url}" class="srch-pill" style="margin-left:6px" title="Jump to section">Jump ↪</a>` : '';
+      const jump = hasAnchorFlag(item) ? `<a href="${item.url}" class="srch-pill" style="margin-left:6px" title="Jump to section">Jump ↪</a>` : '';
       return `<article class="search-result" style="padding:12px 0;border-bottom:1px solid #eee">
         <div style="display:flex;align-items:flex-start;gap:10px">
           <span class="srch-badge srch-badge--${key}">${label}</span>
@@ -893,34 +775,26 @@
       const raw = await runSearch(q, { limit: 50 });
       let items = raw && raw.length ? raw : fallbackFilter(q);
       const res = rankAndMaybeRedirect(q, items);
-      if (res.redirected) return; // navigated away
+      if (res.redirected) return;
       statusEl && (statusEl.textContent = '');
       renderResultsList(outEl, res.items, q);
     }
 
-    // 1) Render initial query
     await searchAndRender(initialQuery);
 
-    // 2) Live typing on results page input
     if (input) {
-      const liveResults = (() => {
-        let t;
-        return () => {
-          clearTimeout(t);
-          t = setTimeout(() => {
-            const q = input.value.trim();
-            if (qEl) qEl.textContent = q ? `for “${q}”` : '';
-            searchAndRender(q);
-          }, 150);
-        };
-      })();
+      const liveResults = (() => { let t; return () => { clearTimeout(t); t = setTimeout(() => {
+        const q = input.value.trim();
+        if (qEl) qEl.textContent = q ? `for “${q}”` : '';
+        searchAndRender(q);
+      }, 150); }; })();
       input.addEventListener('input', liveResults);
     }
   }
 
   (async function init() {
     try {
-      // Warm start from cache (non-blocking) so UI is instant
+      // warm cache (non-blocking)
       (function tryWarmStart() {
         try {
           const raw = localStorage.getItem('siteSearchIndex');
@@ -928,20 +802,12 @@
           const data = JSON.parse(raw);
           if (data && Array.isArray(data.index) && data.index.length) {
             indexData = data.index;
-            // build worker index immediately
             if (worker) worker.postMessage({
               type: 'BUILD',
               pages: indexData,
               fuseConfig: {
-                includeScore: true,
-                minMatchCharLength: 2,
-                threshold: 0.45,
-                ignoreLocation: true,
-                keys: [
-                  { name: 'title_lc', weight: 0.5 },
-                  { name: 'content',  weight: 0.35 },
-                  { name: 'tags',     weight: 0.15 }
-                ]
+                includeScore: true, minMatchCharLength: 2, threshold: 0.45, ignoreLocation: true,
+                keys: [{name:'title_lc',weight:0.5},{name:'content',weight:0.35},{name:'tags',weight:0.15}]
               }
             });
           }
@@ -952,6 +818,9 @@
         await loadIndex();
 
         const liveSearch = debounce(() => {
+          // guard: never run live suggestions on mobile/tablet
+          if (window.matchMedia('(max-width: 900px)').matches) return;
+
           const q = input.value.trim();
           if (q.length < 2) { renderSuggestion([]); return; }
 
@@ -963,9 +832,7 @@
             queryWorker(q, { limit: 10 }).then(items => {
               if (!items.length) items = fallbackFilter(q).slice(0,10);
               items = sortForLeaveQuery(items, q);
-              if (isNameish(input.value, { allowSingle: true })) {
-                items = sortForNameQuery(items, input.value);
-              }
+              if (isNameish(input.value, { allowSingle: true })) items = sortForNameQuery(items, input.value);
               renderSuggestion(items);
               input.setAttribute('placeholder', oldPh);
             });
@@ -973,9 +840,7 @@
             let items = (fuse && fuse.search ? fuse.search(norm(q)) : []).slice(0, 10).map(r => r.item);
             if (!items.length) items = fallbackFilter(q).slice(0, 10);
             items = sortForLeaveQuery(items, q);
-            if (isNameish(input.value, { allowSingle: true })) {
-              items = sortForNameQuery(items, input.value);
-            }
+            if (isNameish(input.value, { allowSingle: true })) items = sortForNameQuery(items, input.value);
             renderSuggestion(items);
             input.setAttribute('placeholder', oldPh);
           }
@@ -983,37 +848,33 @@
 
         input.addEventListener('input', liveSearch);
 
-        // Keyboard: arrows + Enter + Escape (niceties)
+        // keys
         input.addEventListener('keydown', e => {
           if (e.key === 'ArrowDown') { e.preventDefault(); moveSel(1); }
           else if (e.key === 'ArrowUp') { e.preventDefault(); moveSel(-1); }
           else if (e.key === 'Enter') {
             const rows = suggest ? [...suggest.querySelectorAll('.srch-suggest-row')] : [];
             if (rows.length) {
-              // If nothing selected, open first suggestion
               if (selIdx === -1) {
                 const first = rows[0];
                 const href = first.getAttribute('data-href') || first.getAttribute('href');
                 if (href) { e.preventDefault(); window.location.href = href; return; }
               }
-              // Open selected
               if (selIdx >= 0) {
                 const row = rows[selIdx];
                 const href = row.getAttribute('data-href') || row.getAttribute('href');
                 if (href) { e.preventDefault(); window.location.href = href; return; }
               }
             }
-            // fallback: go to results page
             const q = input.value.trim();
             if (q) window.location.href = `search.html?q=${encodeURIComponent(q)}`;
           } else if (e.key === 'Escape') {
-            renderSuggestion([]);
-            input.setAttribute('aria-expanded', 'false');
+            renderSuggestion([]); input.setAttribute('aria-expanded', 'false');
           }
         });
 
-        // Keep dropdown open on focus if we already have results
         input.addEventListener('focus', () => {
+          if (window.matchMedia('(max-width: 900px)').matches) return;
           if (suggest && suggest.innerHTML.trim()) {
             suggest.style.display = 'block';
             requestAnimationFrame(() => suggest.classList.add('show'));
@@ -1021,7 +882,6 @@
           }
         });
 
-        // click-away to close suggestions
         document.addEventListener('click', e => {
           if (!form.contains(e.target)) renderSuggestion([]);
         });

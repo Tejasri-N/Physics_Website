@@ -117,12 +117,13 @@
     if (has('spotlight') || tl.includes('spotlight'))  return { key:'spotlight', label:'Spotlight' };
     if (has('announcements'))                           return { key:'announce',  label:'Announcement' };
     if (has('download'))                                 return { key:'download',  label:'Download' };
+    if (has('link'))                                     return { key:'link',      label:'Link' };
     if (has('section') || has('block'))                 return { key:'section',   label:'Section' };
     return { key:'page', label:'Page' };
   }
   function sortForNameQuery(items, q){
     const nq = norm(q);
-    const pri = { faculty:3, staff:3, student:3, spotlight:1, announce:1, section:0, download:0, page:0 };
+    const pri = { faculty:3, staff:3, student:3, spotlight:1, announce:1, section:0, download:0, link:0, page:0 };
     const score = it => {
       const t = getType(it).key;
       let s = pri[t] || 0;
@@ -180,7 +181,7 @@
   }
 
   // ---------- extractors ----------
-  // Rich generic extractor (page + sections + tabs/accordions/cards + spotlight + downloads)
+  // Rich generic extractor (page + sections + tabs/accordions/cards + spotlight + downloads + links)
   function extractGeneric(doc, url) {
     const pageUrl = url.replace(/^\/+/, '');
     const rawTitle = getText(doc.querySelector('title')) || pageUrl;
@@ -286,6 +287,26 @@
         snippet: 'Download',
         title_lc: norm(entryTitle),
         tags: Array.from(new Set(['download', ...txt.toLowerCase().split(/\W+/).slice(0,8)].filter(Boolean))),
+        content: norm(txt)
+      });
+    });
+
+    // Plain links (useful-links/portals) — create lightweight entries (NEW)
+    doc.querySelectorAll('a[href]').forEach(a => {
+      const txt = (a.textContent || a.getAttribute('aria-label') || '').trim();
+      if (!txt || txt.length < 3) return;
+
+      const href = a.getAttribute('href') || '';
+      if (/^mailto:|^tel:/i.test(href)) return;           // skip mail/tel
+      if (/\.(pdf|docx?|pptx?)$/i.test(href)) return;     // already covered as downloads
+
+      const entryTitle = `${title}: ${txt}`;
+      entries.push({
+        title: entryTitle,
+        url: href || pageUrl,           // external links are fine; browser will navigate
+        snippet: 'Link',
+        title_lc: norm(entryTitle),
+        tags: Array.from(new Set(['link', ...txt.toLowerCase().split(/\W+/).slice(0, 8)].filter(Boolean))),
         content: norm(txt)
       });
     });
@@ -560,9 +581,9 @@
       ]
     });
 
-    // Persist to localStorage for warm reloads
+    // Persist to localStorage for warm reloads (BUMP v => reindex)
     try {
-      const payload = { v: '1.0.0', ts: Date.now(), index: indexData };
+      const payload = { v: '1.0.2', ts: Date.now(), index: indexData };
       localStorage.setItem('siteSearchIndex', JSON.stringify(payload));
     } catch (_) {}
 

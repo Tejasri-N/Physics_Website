@@ -26,11 +26,18 @@
     placeholder="Search the Physics website…"
     autocomplete="off"
     aria-label="Search the Physics website"
+    aria-controls="search-suggest"
+    aria-expanded="false"
+    aria-autocomplete="list"
     style="width:100%;padding:10px 14px;border:1px solid #ccc;border-radius:8px"
   />
-  <!-- (Optional) live suggestions: remove this div if you don't want it -->
-  <div id="search-suggest" style="display:none;position:absolute;left:0;right:0;top:42px;background:#fff;border:1px solid #ddd;border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,.08);z-index:1000;max-height:320px;overflow:auto;"></div>
+  <div id="search-suggest"
+       role="listbox"
+       aria-live="polite"
+       aria-label="Search suggestions"
+       style="display:none;position:absolute;left:0;right:0;top:42px;background:#fff;border:1px solid #ddd;border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,.08);z-index:1000;max-height:320px;overflow:auto;"></div>
 </form>
+
 
 <!-- Fuse.js (fuzzy search) -->
 <script src="https://cdn.jsdelivr.net/npm/fuse.js@7.0.0"></script>

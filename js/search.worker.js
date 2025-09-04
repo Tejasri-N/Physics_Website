@@ -36,7 +36,7 @@ const SYN = {
   announcements: ['notice','update','news'],
   academics: ['courses','curriculum','programs','syllabus','teaching'],
   links: ['useful links','resources','external links'],
-  // NEW: help users who type “leave”
+  // leave-related
   leave: [
     'leave portal','leave rules','leave application',
     'vacation','holiday','absence','on duty','od',

@@ -735,25 +735,3 @@ hr {
     color: #000;
 }
 
-#search-suggest {
-  max-height: 60vh;
-  overflow:auto;
-  transform-origin: top center;
-  opacity: 0;
-  transform: scaleY(0.98) translateY(-4px);
-  transition: transform .18s ease, opacity .18s ease;
-  will-change: transform, opacity;
-}
-#search-suggest.show { opacity: 1; transform: scaleY(1) translateY(0); }
-
-.skel { position: relative; overflow: hidden; background: #eee; }
-.skel::after {
-  content: ''; position: absolute; inset: 0; transform: translateX(-100%);
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,.6), transparent);
-  animation: shimmer 1.1s infinite;
-}
-@keyframes shimmer { 100% { transform: translateX(100%); } }
-
-.search-result { transition: background-color .15s ease, box-shadow .15s ease, transform .1s ease; }
-.search-result:hover { background: rgba(0,0,0,0.02); box-shadow: 0 2px 12px rgba(0,0,0,0.08); }
-

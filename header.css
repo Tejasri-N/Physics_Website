@@ -396,3 +396,104 @@ background: linear-gradient(to right, #c0392b, #f39c12);
     min-width: unset;
   } */
 }
+
+/* === Search UX polish === */
+.header-search #search-input:focus {
+  outline: none;
+  border-color: var(--color-bg2);
+  box-shadow: 0 0 0 3px rgba(66,72,144,.15);
+}
+
+/* dropdown animation */
+#search-suggest {
+  transform-origin: top;
+  opacity: 0;
+  transform: translateY(-4px) scale(.98);
+  transition: opacity .15s ease, transform .15s ease;
+}
+#search-suggest.show {
+  display: block;
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+/* grouped sections */
+.srch-group {
+  padding: 6px 8px 4px;
+  border-top: 1px solid #f3f3f3;
+}
+.srch-group:first-child { border-top: 0; }
+.srch-group__title {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: .04em;
+  color: #777;
+  text-transform: uppercase;
+  margin: 6px 10px 4px;
+}
+
+/* rows */
+.srch-suggest-row {
+  display: flex;
+  gap: 10px;
+  padding: 10px 12px;
+  text-decoration: none;
+  color: #222;
+  border-radius: 8px;
+  margin: 2px 6px;
+}
+.srch-suggest-row:hover,
+.srch-suggest-row[aria-selected="true"] {
+  background: rgba(0,0,0,.04);
+}
+
+/* badges */
+.srch-badge {
+  font-size: 11px;
+  line-height: 1;
+  padding: 6px 8px;
+  border-radius: 999px;
+  background: #eee;
+  align-self: flex-start;
+  white-space: nowrap;
+}
+.srch-badge--faculty   { background: rgba(108,99,255,.12); color: #444; }
+.srch-badge--staff     { background: rgba(0,191,142,.14);  color: #244; }
+.srch-badge--student   { background: rgba(247,88,66,.12);  color: #442; }
+.srch-badge--link      { background: rgba(66,133,244,.12); color: #234; }
+.srch-badge--section   { background: rgba(66,66,66,.08);   color: #333; }
+.srch-badge--announce  { background: rgba(255,152,0,.14);  color: #432; }
+.srch-badge--spotlight { background: rgba(246,229,141,.28); color:#333; }
+.srch-badge--page      { background: rgba(0,0,0,.06);      color: #333; }
+
+/* tiny “jump” pill for anchored results */
+.srch-pill {
+  display: inline-block;
+  font-size: 11px;
+  border: 1px solid #ddd;
+  padding: 3px 6px;
+  border-radius: 999px;
+  margin-left: 6px;
+}
+
+/* footer action */
+.srch-footer {
+  border-top: 1px solid #eee;
+  padding: 8px 12px;
+  text-align: right;
+  font-size: 12px;
+  background: #fafafa;
+}
+.srch-footer a { text-decoration: none; }
+
+/* shimmer skeleton (also used on search.html) */
+.skel {
+  background: linear-gradient(90deg, #f4f4f4 25%, #ececec 37%, #f4f4f4 63%);
+  background-size: 400% 100%;
+  animation: skel 1.2s ease infinite;
+}
+@keyframes skel {
+  0% { background-position: 100% 0; }
+  100% { background-position: 0 0; }
+}
+

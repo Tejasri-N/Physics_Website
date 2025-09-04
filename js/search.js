@@ -291,7 +291,7 @@
       });
     });
 
-    // Plain links (useful-links/portals) — create lightweight entries (NEW)
+    // Plain links (useful-links/portals) — create lightweight entries
     doc.querySelectorAll('a[href]').forEach(a => {
       const txt = (a.textContent || a.getAttribute('aria-label') || '').trim();
       if (!txt || txt.length < 3) return;
@@ -583,7 +583,7 @@
 
     // Persist to localStorage for warm reloads (BUMP v => reindex)
     try {
-      const payload = { v: '1.0.2', ts: Date.now(), index: indexData };
+      const payload = { v: '1.0.3', ts: Date.now(), index: indexData };
       localStorage.setItem('siteSearchIndex', JSON.stringify(payload));
     } catch (_) {}
 
@@ -664,13 +664,54 @@
     input.addEventListener('keydown', e => {
       if (e.key === 'ArrowDown') { e.preventDefault(); moveSel(1); }
       else if (e.key === 'ArrowUp') { e.preventDefault(); moveSel(-1); }
-      else if (e.key === 'Enter' && selIdx >= 0 && suggest && suggest.children[selIdx]) {
-        e.preventDefault();
-        const a = suggest.children[selIdx];
-        const href = a.getAttribute('href') || (a.querySelector('a') && a.querySelector('a').getAttribute('href'));
-        if (href) window.location.href = href;
+      else if (e.key === 'Enter') {
+        // If nothing is selected but suggestions exist, go to the first suggestion directly
+        if (selIdx === -1 && suggest && suggest.children && suggest.children[0]) {
+          const first = suggest.children[0];
+          const href = first.getAttribute('href') || (first.querySelector('a') && first.querySelector('a').getAttribute('href'));
+          if (href) { e.preventDefault(); window.location.href = href; return; }
+        }
+        // If a suggestion is selected, open it
+        if (selIdx >= 0 && suggest && suggest.children[selIdx]) {
+          e.preventDefault();
+          const a = suggest.children[selIdx];
+          const href = a.getAttribute('href') || (a.querySelector('a') && a.querySelector('a').getAttribute('href'));
+          if (href) { window.location.href = href; return; }
+        }
+        // fallback: go to results page
+        const q = input.value.trim();
+        if (q) window.location.href = `search.html?q=${encodeURIComponent(q)}`;
       }
     });
+  }
+
+  // auto-redirect helper for “leave” queries on results page
+  function tryAutoRedirect(query, items){
+    const nq = norm(query);
+
+    // Only trigger for leave-ish queries
+    if (!/(^|\b)(leave|vacation|absence|on duty|od|el|cl|ml|leave portal|leave rules)($|\b)/.test(nq)) return false;
+
+    // Candidate leave links
+    const links = items.filter(it => (it.tags||[]).includes('link') &&
+      ((it.title_lc||'').includes('leave') || (it.content||'').includes('leave')));
+
+    if (!links.length) return false;
+
+    // If user hints at role, prefer that link
+    const wantFaculty = /\bfaculty\b/i.test(query);
+    const wantStaff   = /\bstaff\b/i.test(query);
+    if (wantFaculty || wantStaff) {
+      const picked = links.find(it => (wantFaculty ? /faculty/i : /staff/i).test(it.title || ''));
+      if (picked && picked.url) { window.location.href = picked.url; return true; }
+    }
+
+    // If there's exactly one leave link, jump to it
+    if (links.length === 1 && links[0].url) {
+      window.location.href = links[0].url;
+      return true;
+    }
+    return false;
   }
 
   async function runResultsPage() {
@@ -693,6 +734,9 @@
     // route results to a resolver
     pendingResultsResolver = (items) => {
       if (!items.length) items = fallbackFilter(query);
+
+      // If this is a "leave" search and we can safely jump, do it
+      if (tryAutoRedirect(query, items)) return;
 
       // Prefer people for name-like queries
       if (isNameish(query, { allowSingle: true })) {
@@ -791,15 +835,7 @@
 
         input.addEventListener('input', liveSearch);
 
-        // Enter -> full results page (when no selection)
-        input.addEventListener('keydown', (e) => {
-          if (e.key === 'Enter' && selIdx === -1) {
-            const q = input.value.trim();
-            if (q) window.location.href = `search.html?q=${encodeURIComponent(q)}`;
-          }
-        });
-
-        // click-away to close suggestions
+        // Enter behavior handled in keydown above
         document.addEventListener('click', e => {
           if (!form.contains(e.target)) renderSuggestion([]);
         });

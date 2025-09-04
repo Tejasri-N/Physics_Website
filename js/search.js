@@ -136,6 +136,15 @@
   }
   function hasAnchor(url){ return (url||'').indexOf('#') !== -1; }
 
+  // Leave-aware prioritization: put link results first for leave-ish queries
+  function sortForLeaveQuery(items, q){
+    const nq = norm(q);
+    if (!/(leave|vacation|absence|on duty|od|el|cl|ml)/.test(nq)) return items;
+    const links = [], others = [];
+    for (const it of items) ((it.tags||[]).includes('link') ? links : others).push(it);
+    return [...links, ...others];
+  }
+
   // ---------- site-wide discovery (no sitemap needed) ----------
   function normalizeUrl(u) {
     try {
@@ -550,6 +559,25 @@
         } else {
           // every other page: rich generic extraction
           index.push(...extractGeneric(doc, page));
+
+          // EXTRA: links.html — force-capture all anchors as "link" entries so "leave" matches top
+          if (/links\.html/.test(lower)) {
+            doc.querySelectorAll('a[href]').forEach(a => {
+              const txt = (a.textContent || a.getAttribute('aria-label') || '').trim();
+              const href = a.getAttribute('href') || '';
+              if (!txt || txt.length < 3) return;
+              if (/^mailto:|^tel:/i.test(href)) return;
+              const entryTitle = `Link: ${txt}`;
+              index.push({
+                title: entryTitle,
+                url: href,
+                snippet: 'Link from Links page',
+                title_lc: norm(entryTitle),
+                tags: ['link'],
+                content: norm(txt)
+              });
+            });
+          }
         }
       } catch (e) {
         log('Skip', page, e && e.message);
@@ -632,6 +660,9 @@
       return;
     }
     const q = (input && input.value) || '';
+    // leave-aware ordering in suggestions
+    items = sortForLeaveQuery(items, q);
+
     suggest.innerHTML = items.map(it => {
       const s   = ((it.snippet || it.content || '')).slice(0, 120);
       const url = it.url || '#';
@@ -738,6 +769,9 @@
       // If this is a "leave" search and we can safely jump, do it
       if (tryAutoRedirect(query, items)) return;
 
+      // leave-aware ordering
+      items = sortForLeaveQuery(items, query);
+
       // Prefer people for name-like queries
       if (isNameish(query, { allowSingle: true })) {
         items = sortForNameQuery(items, query);
@@ -815,6 +849,8 @@
           if (worker) {
             queryWorker(q, { limit: 10 }).then(items => {
               if (!items.length) items = fallbackFilter(q).slice(0,10);
+              // leave-aware ordering in suggestions
+              items = sortForLeaveQuery(items, q);
               // Prefer people in suggestions when name-like
               if (isNameish(input.value, { allowSingle: true })) {
                 items = sortForNameQuery(items, input.value);
@@ -825,6 +861,7 @@
           } else {
             let items = (fuse && fuse.search ? fuse.search(norm(q)) : []).slice(0, 10).map(r => r.item);
             if (!items.length) items = fallbackFilter(q).slice(0, 10);
+            items = sortForLeaveQuery(items, q);
             if (isNameish(input.value, { allowSingle: true })) {
               items = sortForNameQuery(items, input.value);
             }

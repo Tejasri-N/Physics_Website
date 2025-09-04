@@ -7,7 +7,7 @@ let indexData = null;
 // ---------- helpers ----------
 const norm = s => (s||'').normalize('NFKD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
 
-// tiny Fuse-like fallback (when Fuse isn't present in worker scope)
+// tiny Fuse-like fallback (used unless Fuse is injected into the worker)
 class MiniFuse {
   constructor(items, { keys }) {
     this.items = items || [];
@@ -33,7 +33,9 @@ const SYN = {
   faculty: ['professor','prof','teaching staff'],
   staff: ['administrative','office staff'],
   spotlight: ['feature','highlight'],
-  announcements: ['notice','update','news']
+  announcements: ['notice','update','news'],
+  academics: ['courses','curriculum','programs','syllabus','teaching'],
+  links: ['useful links','resources','external links']
 };
 
 function expandQuery(q) {

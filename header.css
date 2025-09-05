@@ -374,3 +374,70 @@
   max-height: 320px;
   overflow: auto;
 }
+/* ---- Fix old selectors to match the new markup ---- */
+
+/* Input sizing/focus — was .header-search #search-input */
+.header-search-right #search-input {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 16px; /* iOS zoom fix */
+}
+.header-search-right #search-input:focus {
+  outline: none;
+  border-color: var(--color-bg2);
+  box-shadow: 0 0 0 3px rgba(66,72,144,.15);
+}
+
+/* Suggestions dropdown — remove outdated .header-search prefix */
+#search-suggest {
+  /* keep your existing dropdown styles; duplicated on purpose to ensure override */
+  display: none;
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 48px;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0,0,0,.08);
+  z-index: 1200;
+  max-height: 320px;
+  overflow: auto;
+  transform-origin: top;
+  opacity: 0;
+  transform: translateY(-4px) scale(.98);
+  transition: opacity .15s ease, transform .15s ease;
+}
+#search-suggest.show { display: block; opacity: 1; transform: translateY(0) scale(1); }
+
+/* Hide search on mobile — fix the class name */
+@media (max-width: 900px) {
+  .header-search-right { display: none; }
+}
+
+/* ---- Header & nav alignment hardening ---- */
+
+/* Keep the right column compact so the nav has room */
+.header-search-right {
+  justify-self: end;
+  max-width: 320px;   /* desktop cap; adjust if you want 360/400 */
+  width: 100%;
+}
+
+/* The navbar should fully span a new row and center items */
+.navbar { width: 100%; }
+.nav_container {
+  display: flex !important;
+  align-items: center;
+  justify-content: center;  /* center the menu across the row */
+  gap: 8px;                  /* subtle spacing between items */
+}
+
+/* Optional: let menu distribute space evenly on large screens */
+@media (min-width: 1100px) {
+  .nav_container { justify-content: space-between; }
+}
+
+/* On mobile we already switch to stacked menu via your existing rules */

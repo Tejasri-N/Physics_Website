@@ -528,15 +528,98 @@
       }
     }
 
-    // virtual page
+    // ---- Virtual page: Room booking (Resources) ----
     index.push({
-      title: 'Room booking',
-      title_lc: 'room booking',
+      title: 'Resources: Room booking',
+      title_lc: 'resources room booking',
       url: '#',
-      tags: ['room','booking','reservation','resources'],
+      tags: ['room','booking','reservation','resources','link'],
       snippet: 'Reserve seminar rooms and departmental facilities.',
       content: 'room booking portal; reserve rooms; room reservation; departmental facilities booking.'
     });
+
+    // ---- Virtual entries for Important Links (from links.html) ----
+    const VIRTUAL_LINKS = [
+      // 1) Campus Facilities & Services
+      { t:'Library',                    u:'https://library.iith.ac.in/', tags:['link','library','resources'], sn:'Library homepage',
+        c:'library catalogue journals e-resources books' },
+      { t:'Hostel Coordinating Unit',   u:'https://hostel.iith.ac.in/',  tags:['link','hostel','hcu','student','resources'], sn:'HCU portal',
+        c:'hostel coordinating unit student housing mess' },
+      { t:'AIMS',                       u:'https://aims.iith.ac.in/aims/', tags:['link','aims','erp','portal'], sn:'AIMS portal',
+        c:'aims erp attendance leave grades academics portal' },
+      { t:'Intranet (IITH)',            u:'https://intranet.iith.ac.in/', tags:['link','intranet','internal'], sn:'IITH Intranet',
+        c:'intranet internal resources forms notices' },
+      { t:'Health Care @ IITH – Clinic',u:'https://iith.ac.in/Medical-Facilities/#clinic', tags:['link','medical','clinic','health'], sn:'Medical facilities',
+        c:'medical facilities clinic ambulance health' },
+      { t:'Students’ Gymkhana',         u:'https://gymkhana.iith.ac.in/', tags:['link','gymkhana','student','club'], sn:'Students’ Gymkhana',
+        c:'students gymkhana clubs activities sports' },
+      { t:'FAQ – Academic Matters',     u:'https://docs.google.com/document/d/e/2PACX-1vTY3UqQ_B8COc-dDLUtEajb7JFc9qTVj9cloe2zE-VyITq3fWgpqwSnpn0QTTH6PQ/pub', tags:['link','faq','academics'], sn:'Academic FAQs',
+        c:'faq academics forms rules procedures grades' },
+      { t:'NSS @ IITH',                 u:'https://nss.iith.ac.in/', tags:['link','nss','students','service'], sn:'National Service Scheme (IITH)',
+        c:'nss community service outreach' },
+
+      // 2) Department Activities
+      { t:'Seminars & Events (Dept.)',  u:'https://tejasri-n.github.io/Physics_Website/index.html#seminars', tags:['link','seminars','events','department'], sn:'Department seminars',
+        c:'seminars events department physics talks colloquium' },
+      { t:'Spotlight / News (Dept.)',   u:'https://tejasri-n.github.io/Physics_Website/', tags:['link','spotlight','news','department'], sn:'Department home',
+        c:'spotlight news updates department physics' },
+
+      // 3) Academic Resources
+      { t:'Academic Calendar (IITH)',   u:'https://www.iith.ac.in/academics/', tags:['link','academics','calendar'], sn:'IITH academics',
+        c:'academic calendar academics regulations curriculum' },
+      { t:'Course Timetables',          u:'https://iith.ac.in/academics/calendars-timetables/', tags:['link','timetable','academics'], sn:'Course timetables',
+        c:'course timetable schedule classes' },
+      { t:'Forms & Downloads (IITH)',   u:'https://www.iith.ac.in/academics/forms/', tags:['link','forms','downloads','academics'], sn:'Academics forms',
+        c:'forms downloads certificates applications academics' },
+      { t:'Certificate Charges (IITH)', u:'https://www.iith.ac.in/academics/assets/files/pdf/Charges-for-Issue-of-Various-Certificates.pdf', tags:['link','download','pdf','academics'], sn:'Charges PDF',
+        c:'certificate charges fees' },
+      { t:'QIP Admission Portal',       u:'https://iith.ac.in/news/2021/02/18/QIP-Application-Portal/', tags:['link','qip','admissions'], sn:'QIP applications',
+        c:'qip admission portal' },
+
+      // 4) Student Support
+      { t:'Counseling / Wellness (Sunshine)', u:'https://sunshine.iith.ac.in/', tags:['link','counseling','wellness','sunshine','student'], sn:'Sunshine portal',
+        c:'counselling wellness mental health support' },
+      { t:'Nakshatra Club (IITH)',      u:'https://sites.google.com/phy.iith.ac.in/nakshatraclubiith/home?authuser=0', tags:['link','nakshatra','club','students'], sn:'Nakshatra Club',
+        c:'nakshatra club students astronomy physics' },
+
+      // 5) Research & Facilities
+      { t:'Central Research Facilities (CRF)', u:'https://crf.iith.ac.in/', tags:['link','crf','research','facilities'], sn:'CRF',
+        c:'central research facilities instruments booking' },
+      { t:'Physics Research Areas',      u:'https://tejasri-n.github.io/Physics_Website/research.html', tags:['link','research','department'], sn:'Department research',
+        c:'physics research areas groups labs' },
+      { t:'Department Labs & Facilities',u:'https://tejasri-n.github.io/Physics_Website/research.html', tags:['link','labs','facilities','department'], sn:'Labs & Facilities',
+        c:'labs facilities instruments' },
+
+      // 6) Internships & Placements
+      { t:'OCS – Internships & Placements', u:'https://ocs.iith.ac.in/', tags:['link','ocs','placements','internships','career'], sn:'OCS portal',
+        c:'internships placements ocs campus recruitment' },
+
+      // 7) Forms (Internal Use)
+      { t:'Faculty Leave Form',          u:'https://docs.google.com/forms/d/e/1FAIpQLSc3alqVL8kb-9XnXtLdj-qd5_auC0RrRMcI7Qjmp7U6i0Bm0w/viewform', tags:['link','forms','leave','faculty'], sn:'Google Form',
+        c:'faculty leave form application cl el od' },
+      { t:'Staff Leave Form',            u:'https://docs.google.com/forms/d/e/1FAIpQLSdS65lLerPB2e20hSCb5yJktWlcujPxIp-yiS4T4186YhNZOg/viewform', tags:['link','forms','leave','staff'], sn:'Google Form',
+        c:'staff leave form application cl el od' },
+      { t:'CDPA Form',                   u:'https://docs.google.com/forms/d/e/1FAIpQLSfUWMgbR9TWND4lTaVN4Np9Mrr_fpV4kjrk-c6Pcfi2FYEdiQ/viewform', tags:['link','forms','cdpa'], sn:'Google Form',
+        c:'cdpa form application' },
+      { t:'International Travel Support – External Agencies', u:'https://docs.google.com/document/d/13f8IVkhSawRKBGM_M4MRnjSWhifHxkPBaGGbYLrO5ME/edit?tab=t.0', tags:['link','travel','support','external'], sn:'Google Doc',
+        c:'international travel support external agencies' },
+
+      // 8) Emergency & Help
+      { t:'Campus Security',             u:'https://security.iith.ac.in', tags:['link','security','emergency','help'], sn:'Security portal',
+        c:'campus security main gate emergency contact' }
+    ];
+
+    for (const L of VIRTUAL_LINKS) {
+      const title = L.t;
+      index.push({
+        title,
+        title_lc: title.toLowerCase(),
+        url: L.u,
+        tags: L.tags,
+        snippet: L.sn,
+        content: (L.c || title).toLowerCase()
+      });
+    }
 
     indexData = index;
 
@@ -553,7 +636,8 @@
     });
 
     try {
-      const payload = { v: '1.0.4', ts: Date.now(), index: indexData };
+      // bump version to force rebuild
+      const payload = { v: '1.0.6', ts: Date.now(), index: indexData };
       localStorage.setItem('siteSearchIndex', JSON.stringify(payload));
     } catch (_) {}
 
@@ -689,23 +773,45 @@
     rows.forEach((n,i) => n.setAttribute('aria-selected', i === selIdx ? 'true' : 'false'));
   }
 
+  // SMARTER auto-redirect
   function tryAutoRedirect(query, items){
     const nq = norm(query);
-    if (!/(^|\b)(leave|vacation|absence|on duty|od|el|cl|ml|leave portal|leave rules)($|\b)/.test(nq)) return false;
 
-    const links = items.filter(it => (it.tags||[]).includes('link') &&
-      ((it.title_lc||'').includes('leave') || (it.content||'').includes('leave')));
-
-    if (!links.length) return false;
-
-    const wantFaculty = /\bfaculty\b/i.test(query);
-    const wantStaff   = /\bstaff\b/i.test(query);
-    if (wantFaculty || wantStaff) {
-      const picked = links.find(it => (wantFaculty ? /faculty/i : /staff/i).test(it.title || ''));
-      if (picked && picked.url) { window.location.href = picked.url; return true; }
+    // Existing "leave" logic
+    if (/(^|\b)(leave|vacation|absence|on duty|od|el|cl|ml|leave portal|leave rules)($|\b)/.test(nq)) {
+      const links = items.filter(it => (it.tags||[]).includes('link') &&
+        ((it.title_lc||'').includes('leave') || (it.content||'').includes('leave')));
+      if (!links.length) return false;
+      const wantFaculty = /\bfaculty\b/i.test(query);
+      const wantStaff   = /\bstaff\b/i.test(query);
+      if (wantFaculty || wantStaff) {
+        const picked = links.find(it => (wantFaculty ? /faculty/i : /staff/i).test(it.title || ''));
+        if (picked && picked.url) { window.location.href = picked.url; return true; }
+      }
+      if (links.length === 1 && links[0].url) { window.location.href = links[0].url; return true; }
     }
 
-    if (links.length === 1 && links[0].url) { window.location.href = links[0].url; return true; }
+    // New keywords → direct link if only one good match
+    const KEYWORDS = [
+      {k:/(^|\b)(library|lib)($|\b)/, tag:'library'},
+      {k:/(^|\b)(aims)($|\b)/, tag:'aims'},
+      {k:/(^|\b)(intranet)($|\b)/, tag:'intranet'},
+      {k:/(^|\b)(ocs|placements|internships)($|\b)/, tag:'ocs'},
+      {k:/(^|\b)(crf|central research facilities?)($|\b)/, tag:'crf'},
+      {k:/(^|\b)(sunshine|counsel(ling|ing)|wellness)($|\b)/, tag:'counseling'},
+      {k:/(^|\b)(security|main gate)($|\b)/, tag:'security'},
+      {k:/(^|\b)(gymkhana)($|\b)/, tag:'gymkhana'},
+      {k:/(^|\b)(room booking|seminar room)($|\b)/, tag:'room'}
+    ];
+
+    for (const rule of KEYWORDS) {
+      if (rule.k.test(nq)) {
+        const links = items.filter(it => (it.tags||[]).includes('link') && (
+          (it.title_lc||'').includes(rule.tag) || (it.content||'').includes(rule.tag)
+        ));
+        if (links.length === 1 && links[0].url) { window.location.href = links[0].url; return true; }
+      }
+    }
     return false;
   }
 
@@ -892,71 +998,72 @@
       onError(e);
     }
   })();
-})();
-// ---------- Typing placeholder animation ----------
-(function(){
-  var input = document.getElementById('search-input');
-  if (!input) return;
 
-  // Skip animation for users who prefer reduced motion
-  var reduceMotion = window.matchMedia &&
-                     window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  if (reduceMotion) return;
+  // ---------- Typing placeholder animation ----------
+  (function(){
+    var input = document.getElementById('search-input');
+    if (!input) return;
 
-  // Rotating phrases
-  var phrases = [
-    "Search faculty, staff, students…",
-    "Try: leave / OD / CL / EL",
-    "Forms, timetables, CRF, committees…",
-    "eg. “Ramesh”, “SQUID”, “Zeeman effect”"
-  ];
-
-  var typingSpeed = 55;     // ms per character
-  var holdAfterType = 1300; // ms hold when full phrase typed
-  var eraseSpeed = 35;      // ms per character erase speed
-  var holdAfterErase = 400; // ms before typing next phrase
-  var active = true;        // paused when user types
-
-  var p = 0, i = 0, dir = 1; // phrase index, char index, direction
-  input.placeholder = "";    // start blank
-  input.classList.add('typing');
-
-  function step() {
-    if (!active) return;
-    var text = phrases[p];
-    i += dir;
-
-    if (i < 0) i = 0;
-    if (i > text.length) i = text.length;
-
-    input.setAttribute('placeholder', text.slice(0, i));
-
-    if (dir > 0 && i === text.length) {
-      setTimeout(function(){ dir = -1; tick(); }, holdAfterType);
-      return;
-    }
-    if (dir < 0 && i === 0) {
-      p = (p + 1) % phrases.length;
-      setTimeout(function(){ dir = 1; tick(); }, holdAfterErase);
-      return;
-    }
-    setTimeout(tick, dir > 0 ? typingSpeed : eraseSpeed);
-  }
-  function tick(){ if (active) step(); }
-
-  function pause() { active = false; input.classList.remove('typing'); }
-  function resume() {
-    if (input.value && input.value.trim()) return; // don’t animate over real input
+    // Skip animation for users who prefer reduced motion
+    var reduceMotion = window.matchMedia &&
+                       window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (reduceMotion) return;
-    active = true; input.classList.add('typing'); tick();
-  }
 
-  input.addEventListener('focus', pause);
-  input.addEventListener('input', pause);
-  input.addEventListener('blur', resume);
-  document.addEventListener('visibilitychange', function(){
-    if (document.hidden) pause(); else resume();
-  });
+    // Rotating phrases
+    var phrases = [
+      "Search faculty, staff, students…",
+      "Try: leave / OD / CL / EL",
+      "Forms, timetables, CRF, committees…",
+      "eg. “Ramesh”, “SQUID”, “Zeeman effect”"
+    ];
 
-  tick();
+    var typingSpeed = 55;     // ms per character
+    var holdAfterType = 1300; // ms hold when full phrase typed
+    var eraseSpeed = 35;      // ms per character erase speed
+    var holdAfterErase = 400; // ms before typing next phrase
+    var active = true;        // paused when user types
+
+    var p = 0, i = 0, dir = 1; // phrase index, char index, direction
+    input.placeholder = "";    // start blank
+    input.classList.add('typing');
+
+    function step() {
+      if (!active) return;
+      var text = phrases[p];
+      i += dir;
+
+      if (i < 0) i = 0;
+      if (i > text.length) i = text.length;
+
+      input.setAttribute('placeholder', text.slice(0, i));
+
+      if (dir > 0 && i === text.length) {
+        setTimeout(function(){ dir = -1; tick(); }, holdAfterType);
+        return;
+      }
+      if (dir < 0 && i === 0) {
+        p = (p + 1) % phrases.length;
+        setTimeout(function(){ dir = 1; tick(); }, holdAfterErase);
+        return;
+      }
+      setTimeout(tick, dir > 0 ? typingSpeed : eraseSpeed);
+    }
+    function tick(){ if (active) step(); }
+
+    function pause() { active = false; input.classList.remove('typing'); }
+    function resume() {
+      if (input.value && input.value.trim()) return; // don’t animate over real input
+      if (reduceMotion) return;
+      active = true; input.classList.add('typing'); tick();
+    }
+
+    input.addEventListener('focus', pause);
+    input.addEventListener('input', pause);
+    input.addEventListener('blur', resume);
+    document.addEventListener('visibilitychange', function(){
+      if (document.hidden) pause(); else resume();
+    });
+
+    tick();
+  })();
 })();

@@ -53,11 +53,22 @@
   // allow single-word proper names (≥3 chars) — keep (Chengappa/Guhan)
   function isNameish(s, { allowSingle = true } = {}) {
     if (!s) return false;
-    const txt   = cleanText(s);
-    const parts = txt.replace(/[(),;:/\-]+/g, ' ').split(/\s+/).filter(Boolean);
+    const txt = cleanText(s);
+    if (!txt) return false;
+
+    // Heuristics for multi-word proper names (TitleCase-like)
+    const parts = txt.replace(/[(),;:\/\-]+/g, ' ').split(/\s+/).filter(Boolean);
     const capish = parts.filter(w => /^[A-Z][A-Za-z.\-']+$/.test(w));
     if (capish.length >= 2 && capish.length <= 4) return true;
-    if (allowSingle && parts[0] && parts[0].length >= 3) return true;
+
+    // NEW: Accept single-token names (any case), min length 3, letters with optional . - '
+    if (allowSingle && parts.length === 1) {
+      const w = parts[0];
+      const STOP = new Set(['and','or','of','in','to','for','with','by','at','on','a','an','the','dept','staff','student','faculty']);
+      if (STOP.has(w.toLowerCase())) return false;
+      if (!/^[A-Za-z][A-Za-z.\-']{2,}$/.test(w)) return false;
+      return true;
+    }
     return false;
   }
   const debounce = (fn, ms=150) => { let t; return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), ms); }; };
@@ -84,7 +95,7 @@
   }
 
   // ---------- UI/Ranking helpers ----------
-  function esc(s){return (s||'').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));}
+  function esc(s){return (s||'').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[m]));}
   function highlight(text, q){
     if (!text) return '';
     if (!q) return esc(text);
@@ -274,7 +285,7 @@
       const href = a.getAttribute('href') || '';
       if (!txt || txt.length < 3) return;
       if (/^mailto:|^tel:/i.test(href)) return;
-      if (/\.(pdf|docx?|pptx?)$/i.test(href)) return;
+      if (/(\.(pdf|docx?|pptx?))$/i.test(href)) return;
 
       const entryTitle = `${title}: ${txt}`;
       entries.push({
@@ -295,14 +306,24 @@
     const list = [];
     const pushItem = (name, role, areas, extra, elForAnchor=null) => {
       if (!name || name.length < 3) return;
-      const displayTitle = `${titlePrefix}: ${name}`;
-      const snippet = (role || areas || extra || `Profile of ${name}.`).slice(0,160);
+
+      // Canonicalize single-token lowercase/uppercase names for display
+      function canonicalName(n) {
+        const t = cleanText(n);
+        if (!t) return n;
+        const cap = (w) => w.length ? w[0].toUpperCase() + w.slice(1).toLowerCase() : w;
+        return t.split(/\s+/).map(cap).join(' ');
+      }
+
+      const display = canonicalName(name);
+      const displayTitle = `${titlePrefix}: ${display}`;
+      const snippet = (role || areas || extra || `Profile of ${display}.`).slice(0,160);
       const content = norm([role, areas, extra].filter(Boolean).join(' ').slice(0,1200));
       const ntokens = nameTokens(name);
-      const atokens = areas ? norm(areas).split(/[,;/]\s*|\s+/) : [];
+      const atokens = areas ? norm(areas).split(/[;,\/]\s*|\s+/) : [];
 
-      // Prefer real element anchor; otherwise use text fragment of the name
-      const jump = anchorForElement(elForAnchor, name, { prefix: baseTag });
+      // Prefer real element anchor; otherwise use text fragment of the (canonical) name
+      const jump = anchorForElement(elForAnchor, display, { prefix: baseTag });
 
       list.push({
         title: displayTitle,
@@ -442,7 +463,7 @@
     });
   }
 
-  // ---------- build index ----------
+  // ---------- build index (legacy eager builder kept for fallback) ----------
   async function loadIndex() {
     if (indexData) return indexData;
 
@@ -540,7 +561,6 @@
 
     // ---- Virtual entries for Important Links (from links.html) ----
     const VIRTUAL_LINKS = [
-      // 1) Campus Facilities & Services
       { t:'Library',                    u:'https://library.iith.ac.in/', tags:['link','library','resources'], sn:'Library homepage',
         c:'library catalogue journals e-resources books' },
       { t:'Hostel Coordinating Unit',   u:'https://hostel.iith.ac.in/',  tags:['link','hostel','hcu','student','resources'], sn:'HCU portal',
@@ -557,14 +577,10 @@
         c:'faq academics forms rules procedures grades' },
       { t:'NSS @ IITH',                 u:'https://nss.iith.ac.in/', tags:['link','nss','students','service'], sn:'National Service Scheme (IITH)',
         c:'nss community service outreach' },
-
-      // 2) Department Activities
       { t:'Seminars & Events (Dept.)',  u:'https://tejasri-n.github.io/Physics_Website/index.html#seminars', tags:['link','seminars','events','department'], sn:'Department seminars',
         c:'seminars events department physics talks colloquium' },
       { t:'Spotlight / News (Dept.)',   u:'https://tejasri-n.github.io/Physics_Website/', tags:['link','spotlight','news','department'], sn:'Department home',
         c:'spotlight news updates department physics' },
-
-      // 3) Academic Resources
       { t:'Academic Calendar (IITH)',   u:'https://www.iith.ac.in/academics/', tags:['link','academics','calendar'], sn:'IITH academics',
         c:'academic calendar academics regulations curriculum' },
       { t:'Course Timetables',          u:'https://iith.ac.in/academics/calendars-timetables/', tags:['link','timetable','academics'], sn:'Course timetables',
@@ -575,26 +591,18 @@
         c:'certificate charges fees' },
       { t:'QIP Admission Portal',       u:'https://iith.ac.in/news/2021/02/18/QIP-Application-Portal/', tags:['link','qip','admissions'], sn:'QIP applications',
         c:'qip admission portal' },
-
-      // 4) Student Support
       { t:'Counseling / Wellness (Sunshine)', u:'https://sunshine.iith.ac.in/', tags:['link','counseling','wellness','sunshine','student'], sn:'Sunshine portal',
         c:'counselling wellness mental health support' },
       { t:'Nakshatra Club (IITH)',      u:'https://sites.google.com/phy.iith.ac.in/nakshatraclubiith/home?authuser=0', tags:['link','nakshatra','club','students'], sn:'Nakshatra Club',
         c:'nakshatra club students astronomy physics' },
-
-      // 5) Research & Facilities
       { t:'Central Research Facilities (CRF)', u:'https://crf.iith.ac.in/', tags:['link','crf','research','facilities'], sn:'CRF',
         c:'central research facilities instruments booking' },
       { t:'Physics Research Areas',      u:'https://tejasri-n.github.io/Physics_Website/research.html', tags:['link','research','department'], sn:'Department research',
         c:'physics research areas groups labs' },
       { t:'Department Labs & Facilities',u:'https://tejasri-n.github.io/Physics_Website/research.html', tags:['link','labs','facilities','department'], sn:'Labs & Facilities',
         c:'labs facilities instruments' },
-
-      // 6) Internships & Placements
       { t:'OCS – Internships & Placements', u:'https://ocs.iith.ac.in/', tags:['link','ocs','placements','internships','career'], sn:'OCS portal',
         c:'internships placements ocs campus recruitment' },
-
-      // 7) Forms (Internal Use)
       { t:'Faculty Leave Form',          u:'https://docs.google.com/forms/d/e/1FAIpQLSc3alqVL8kb-9XnXtLdj-qd5_auC0RrRMcI7Qjmp7U6i0Bm0w/viewform', tags:['link','forms','leave','faculty'], sn:'Google Form',
         c:'faculty leave form application cl el od' },
       { t:'Staff Leave Form',            u:'https://docs.google.com/forms/d/e/1FAIpQLSdS65lLerPB2e20hSCb5yJktWlcujPxIp-yiS4T4186YhNZOg/viewform', tags:['link','forms','leave','staff'], sn:'Google Form',
@@ -603,8 +611,6 @@
         c:'cdpa form application' },
       { t:'International Travel Support – External Agencies', u:'https://docs.google.com/document/d/13f8IVkhSawRKBGM_M4MRnjSWhifHxkPBaGGbYLrO5ME/edit?tab=t.0', tags:['link','travel','support','external'], sn:'Google Doc',
         c:'international travel support external agencies' },
-
-      // 8) Emergency & Help
       { t:'Campus Security',             u:'https://security.iith.ac.in', tags:['link','security','emergency','help'], sn:'Security portal',
         c:'campus security main gate emergency contact' }
     ];
@@ -662,6 +668,18 @@
     } catch (_) {}
 
     return indexData;
+  }
+
+  // ---------- NEW: Small helpers for progress & status ----------
+  function setProgress(pct) {
+    var wrap = document.getElementById('search-progress');
+    var bar  = document.getElementById('search-progress-bar');
+    if (!wrap || !bar) return;
+    wrap.style.display = (pct > 0 && pct < 100) ? 'block' : 'none';
+    bar.style.width = Math.max(0, Math.min(100, pct)) + '%';
+  }
+  function showStatus(msg) {
+    if (statusEl) statusEl.textContent = msg || '';
   }
 
   // ---------- substring fallback ----------
@@ -855,47 +873,168 @@
     }).join('');
   }
 
+  // ---------- NEW: ensureIndexBuilt (fast: searchIndex.json; slow: crawl) ----------
+  async function ensureIndexBuilt() {
+    if (indexData) return indexData;
+
+    showStatus('Preparing search index…');
+    setProgress(8);
+
+    // 1) Try prebuilt static index for instant results
+    try {
+      const res = await fetch('searchIndex.json', { cache: 'no-store' });
+      if (res.ok) {
+        const pages = await res.json();
+        indexData = pages.map(it => ({
+          title: it.title,
+          url: it.url,
+          snippet: it.snippet || '',
+          title_lc: (it.title || '').toLowerCase(),
+          tags: it.tags || [],
+          content: (it.content || '').toLowerCase()
+        }));
+        // Tell the worker to build from JSON (fast path)
+        if (worker) worker.postMessage({
+          type: 'BUILD',
+          pages: indexData,
+          fuseConfig: { keys: ['title_lc','content','tags'] }
+        });
+        showStatus('');
+        setProgress(0);
+        return indexData;
+      }
+    } catch (_) {}
+
+    // 2) Slow path: crawl + extract (your existing logic), but with progress updates
+    showStatus('Indexing site… this can take a moment');
+    setProgress(15);
+
+    const SEED_PAGES = [
+      'index.html','about-glance.html','hod-desk.html',
+      'faculty.html','staff.html','students.html','alumni.html',
+      'research.html','programs.html','academic_docs.html','academics.html',
+      'opportunities.html','links.html','documents.html',
+      'gallery.html','committees.html'
+    ];
+
+    let PAGES = await discoverPages(SEED_PAGES, 300);
+    SEED_PAGES.forEach(p => { if (!PAGES.includes(p)) PAGES.unshift(p); });
+
+    const index = [];
+    let done = 0;
+    for (const page of PAGES) {
+      try {
+        const loaded = await loadPageResilient(page);
+        if (!loaded) continue;
+        const { doc, url } = loaded;
+        const lower = url.toLowerCase();
+
+        if (/faculty\.html(\?|$)|staff\.html(\?|$)|students\.html(\?|$)/.test(lower)) {
+          index.push(...extractGeneric(doc, url.split('#')[0]));
+          let baseTag = 'faculty', titlePrefix = 'Faculty';
+          if (/staff\.html/.test(lower))   { baseTag = 'staff';   titlePrefix = 'Staff'; }
+          if (/students\.html/.test(lower)){ baseTag = 'student'; titlePrefix = 'Student'; }
+          index.push(...extractPeople(doc, url, baseTag, titlePrefix));
+        } else if (/index\.html/.test(lower)) {
+          index.push(...extractGeneric(doc, 'index.html'));
+          ['announcements','seminars-events','publications','spotlight','spotlights'].forEach(id => {
+            const el = doc.getElementById(id); if (!el) return;
+            const map = { announcements:'Announcements', 'seminars-events':'Seminars & Events', publications:'Recent Publications', spotlight:'Spotlight', spotlights:'Spotlight' };
+            const t = map[id] || id;
+            const text = (el.textContent || '').trim().slice(0, 240);
+            index.push({ title: `${t}`, title_lc: norm(t), url: `index.html#${id}`, tags: ['home', id], snippet: text, content: norm(text), hasAnchor:true });
+          });
+        } else {
+          index.push(...extractGeneric(doc, page));
+        }
+      } catch (_) {}
+      // Update progress gently
+      done++;
+      const pct = 15 + Math.round((done / PAGES.length) * 80); // 15%..95%
+      setProgress(pct);
+      if (done % 5 === 0) showStatus(`Indexing… ${done}/${PAGES.length} pages`);
+    }
+
+    indexData = index;
+    if (worker) worker.postMessage({
+      type: 'BUILD',
+      pages: indexData,
+      fuseConfig: { keys: ['title_lc','content','tags'] }
+    });
+
+    showStatus('');
+    setProgress(0);
+    return indexData;
+  }
+
+  // ---------- NEW: live suggestions with inline “loading” state ----------
+  async function liveSuggest(q) {
+    if (!q || q.trim().length === 0) { renderSuggestion([]); return; }
+
+    // Show a subtle “loading” shimmer row if the index isn’t ready yet
+    const loadingRow = `
+      <div class="srch-suggest-row" aria-disabled="true"
+           style="display:flex;gap:8px;align-items:center;padding:10px 12px;opacity:.85">
+        <div class="skeleton" style="width:14px;height:14px;border-radius:50%;
+             background:linear-gradient(90deg,#eee,#f5f5f5,#eee);animation:shimmer 1.2s infinite"></div>
+        <div class="skeleton" style="flex:1;height:12px;border-radius:6px;
+             background:linear-gradient(90deg,#eee,#f5f5f5,#eee);animation:shimmer 1.2s infinite"></div>
+      </div>
+      <style>@keyframes shimmer{0%{background-position:-120px 0}100%{background-position:120px 0}}</style>
+    `;
+    suggest.innerHTML = loadingRow;
+    suggest.style.display = 'block';
+    input && input.setAttribute('aria-expanded', 'true');
+
+    // Ensure index exists (shows top bar progress if needed)
+    await ensureIndexBuilt();
+
+    // For very short queries, keep worker responsive
+    setProgress(30);
+    const items = await queryWorker(q, { limit: 15 });
+    setProgress(0);
+    renderSuggestion(items || []);
+  }
+
+  // ---------- RESULTS PAGE (lazy render) ----------
   async function runResultsPage() {
     if (!isResultsPage) return;
-    await loadIndex();
-
     const params = new URLSearchParams(location.search);
-    const initialQuery  = (params.get('q') || '').trim();
+    const q = (params.get('q') || '').trim();
+    if (qEl) qEl.textContent = q ? `for “${q}”` : '';
 
-    if (qEl) qEl.textContent = initialQuery ? `for “${initialQuery}”` : '';
-    if (!initialQuery) { outEl && (outEl.innerHTML = `<p>No query given.</p>`); }
+    showStatus('Searching…');
+    setProgress(35);
+    await ensureIndexBuilt();
 
-    function showSkeleton() {
+    const items = await queryWorker(q, { limit: 200 });
+    setProgress(0);
+    showStatus(items.length ? `${items.length} result${items.length>1?'s':''}` : 'No results');
+
+    // Lazy paint: render 20, then 20 more during idle time
+    const batch = 20;
+    let i = 0;
+    outEl && (outEl.innerHTML = '');
+    function renderChunk() {
       if (!outEl) return;
-      outEl.innerHTML = `
-        <div class="skel" style="height:18px;width:40%;margin:8px 0;border-radius:4px;"></div>
-        <div class="skel" style="height:12px;width:85%;margin:8px 0;border-radius:4px;"></div>
-        <div class="skel" style="height:12px;width:78%;margin:8px 0;border-radius:4px;"></div>
-      `;
-      statusEl && (statusEl.textContent = 'Searching…');
+      const stop = Math.min(i + batch, items.length);
+      for (; i < stop; i++) {
+        const it = items[i];
+        const el = document.createElement('div');
+        el.className = 'search-result';
+        el.innerHTML = `
+          <h3><a href="${it.url}">${highlight(it.title || '', q)}</a></h3>
+          <div>${highlight(it.snippet || '', q)}</div>
+          <div class="search-url">${it.url}</div>
+        `;
+        outEl.appendChild(el);
+      }
+      if (i < items.length) {
+        if ('requestIdleCallback' in window) requestIdleCallback(renderChunk, { timeout: 300 });
+        else setTimeout(renderChunk, 0);
+      }
     }
-
-    async function searchAndRender(q) {
-      if (!q) { renderResultsList(outEl, [], q); statusEl && (statusEl.textContent = ''); return; }
-      showSkeleton();
-      const raw = await runSearch(q, { limit: 50 });
-      let items = raw && raw.length ? raw : fallbackFilter(q);
-      const res = rankAndMaybeRedirect(q, items);
-      if (res.redirected) return;
-      statusEl && (statusEl.textContent = '');
-      renderResultsList(outEl, res.items, q);
-    }
-
-    await searchAndRender(initialQuery);
-
-    if (input) {
-      const liveResults = (() => { let t; return () => { clearTimeout(t); t = setTimeout(() => {
-        const q = input.value.trim();
-        if (qEl) qEl.textContent = q ? `for “${q}”` : '';
-        searchAndRender(q);
-      }, 150); }; })();
-      input.addEventListener('input', liveResults);
-    }
+    renderChunk();
   }
 
   (async function init() {
@@ -921,38 +1060,16 @@
       })();
 
       if (form && input) {
-        await loadIndex();
+        // NOTE: we now build index lazily via ensureIndexBuilt() inside liveSuggest/runResultsPage
 
-        const liveSearch = debounce(() => {
-          // guard: never run live suggestions on mobile/tablet
-          if (window.matchMedia('(max-width: 900px)').matches) return;
-
+        const debouncedSuggest = debounce(() => {
+          if (window.matchMedia('(max-width: 900px)').matches) return; // no dropdown on mobile
           const q = input.value.trim();
-          if (q.length < 2) { renderSuggestion([]); return; }
+          if (q.length < 1) { renderSuggestion([]); return; }
+          liveSuggest(q);
+        }, 120);
 
-          const oldPh = input.getAttribute('placeholder') || '';
-          input.setAttribute('data-ph', oldPh);
-          input.setAttribute('placeholder', 'Searching…');
-
-          if (worker) {
-            queryWorker(q, { limit: 10 }).then(items => {
-              if (!items.length) items = fallbackFilter(q).slice(0,10);
-              items = sortForLeaveQuery(items, q);
-              if (isNameish(input.value, { allowSingle: true })) items = sortForNameQuery(items, input.value);
-              renderSuggestion(items);
-              input.setAttribute('placeholder', oldPh);
-            });
-          } else {
-            let items = (fuse && fuse.search ? fuse.search(norm(q)) : []).slice(0, 10).map(r => r.item);
-            if (!items.length) items = fallbackFilter(q).slice(0, 10);
-            items = sortForLeaveQuery(items, q);
-            if (isNameish(input.value, { allowSingle: true })) items = sortForNameQuery(items, input.value);
-            renderSuggestion(items);
-            input.setAttribute('placeholder', oldPh);
-          }
-        }, 150);
-
-        input.addEventListener('input', liveSearch);
+        input.addEventListener('input', debouncedSuggest);
 
         // keys
         input.addEventListener('keydown', e => {

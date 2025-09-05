@@ -1184,3 +1184,27 @@
     tick();
   })();
 })();
+
+
+<script>
+  const searchInput = document.getElementById("search-input");
+  const progressBar = document.getElementById("search-progress-bar");
+
+  let progressTimer;
+
+  searchInput.addEventListener("input", () => {
+    // Reset bar
+    progressBar.style.width = "0%";
+
+    // Simulate progress bar growing
+    setTimeout(() => { progressBar.style.width = "40%"; }, 100);
+    setTimeout(() => { progressBar.style.width = "70%"; }, 300);
+    setTimeout(() => { progressBar.style.width = "100%"; }, 600);
+
+    // Hide it after 1.5s
+    clearTimeout(progressTimer);
+    progressTimer = setTimeout(() => {
+      progressBar.style.width = "0%";
+    }, 1500);
+  });
+</script>

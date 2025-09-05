@@ -36,6 +36,13 @@
        aria-live="polite"
        aria-label="Search suggestions"
        style="display:none;position:absolute;left:0;right:0;top:42px;background:#fff;border:1px solid #ddd;border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,.08);z-index:1000;max-height:320px;overflow:auto;"></div>
+ <!-- Progress bar shown while the index is building or a slow query is running -->
+<div id="search-progress" aria-hidden="true"
+     style="display:none;height:3px;position:absolute;left:0;right:0;top:42px;background:transparent;">
+  <div id="search-progress-bar"
+       style="width:0%;height:100%;background:linear-gradient(90deg,#4f46e5,#22c55e);transition:width .25s"></div>
+</div>
+
 </form>
 
 

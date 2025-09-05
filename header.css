@@ -47,11 +47,12 @@
 .logo-vertical img { cursor: pointer; height: 60px; width: auto; }
 .logo-vertical { display: none; }
 
-.header-search {
-  position: relative;
+.header-search-right {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
   max-width: 520px;
   width: 100%;
-  margin-left: auto;
 }
 /* Search input styling */
 .header-search #search-input {

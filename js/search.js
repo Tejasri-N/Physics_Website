@@ -228,14 +228,14 @@
 
   
   // ---------- site-wide discovery ----------
-  function normalizeUrl(u) {
-    try {
-      const a = new URL(u, location.origin);
-      if (a.origin !== location.origin) return null;
-      const path = (a.pathname + (a.search || '')).replace(/^\/+/, '');
-      return path.replace(/#.*$/, '');
-    } catch { return null; }
-  }
+ function normalizeUrl(u) {
+  try {
+    const a = new URL(u, location.href);             // <- was location.origin
+    const path = (a.pathname + (a.search || '')).replace(/^\/+/, '');
+    return path.replace(/#.*$/, '');
+  } catch { return null; }
+}
+
   function isIndexablePath(path) {
     if (!path) return false;
     if (!/\.html?($|\?)/i.test(path)) return false;

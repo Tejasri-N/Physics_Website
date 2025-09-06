@@ -1,39 +1,39 @@
 /* people-anchors.js
  * Deep-link helper for Faculty/Staff/Students.
- * - Supports: #student-<slug>, #staff-<slug>, #faculty-<slug>, #section-<slug>, or #:~:text=<Name>
- * - Students: auto-activates Degree/Year and scrolls to the card
+ * - Adds predictable ids: section-<slug> to H2/H3/H4 so #section-... anchors work
+ * - Supports text fragments (#:~:text=...)
+ * - Students: auto-activates Degree/Year then scrolls to the card
  */
 (function () {
+  // ---------- tiny utils ----------
   const $  = (sel, root=document) => root.querySelector(sel);
   const $$ = (sel, root=document) => Array.from(root.querySelectorAll(sel));
   const norm = s => (s||"").normalize("NFKD").replace(/[\u0300-\u036f]/g,"").toLowerCase().trim();
+  const slug = s => norm(s).replace(/&/g," and ").replace(/[^a-z0-9\s-]/g,"").replace(/\s+/g,"-").replace(/-+/g,"-");
 
   function smoothScrollIntoView(el){
     if (!el) return;
-    try { el.scrollIntoView({behavior:"smooth", block:"center"}); }
+    try { el.scrollIntoView({behavior:"smooth", block:"start"}); }
     catch { el.scrollIntoView(true); }
     el.classList.add("jump-highlight");
     setTimeout(()=> el && el.classList && el.classList.remove("jump-highlight"), 2500);
   }
 
-  // Parse name from URL:
-  //   #student-ramesh-kv / #staff-t-chengappa / #section-t-chengappa
-  //   #:~:text=T%20Chengappa
+  // get name from URL: #student-ramesh-kv   or   #:~:text=RAMESH%20K%20V
   function getTargetNameFromURL(){
     const href = String(window.location.href || "");
-    if (href.includes("#:~:text=")) {
-      const after = href.split("#:~:text=").pop();
-      if (after) {
-        try { return decodeURIComponent(after).split("&")[0]; } catch { return after; }
-      }
+    const afterFrag = href.split("#:~:text=").pop();
+    if (href.includes("#:~:text=") && afterFrag) {
+      try { return decodeURIComponent(afterFrag).split("&")[0]; } catch { return afterFrag; }
     }
     const h = window.location.hash || "";
-    const m = h.match(/^#(student|staff|faculty|section|block|spot)-(.+)$/i);
-    if (m) return decodeURIComponent(m[2]).replace(/-/g," ").trim();
+    if (h && h.startsWith("#student-")) {
+      return h.replace(/^#student-/, "").replace(/-/g, " ");
+    }
     return "";
   }
 
-  // Heuristic degree/year from something like "PH24RESCH01009"
+  // heuristic degree/year from enrollment like "PH24RESCH01009"
   function inferFromEnroll(enroll){
     const E = (enroll||"").toUpperCase();
     let degree = "";
@@ -54,8 +54,7 @@
   function clickPillByText(label){
     if (!label) return false;
     const want = norm(label);
-    const btn = $$("button, a, .pill, .chip, .tab")
-      .find(b => norm(b.textContent) === want);
+    const btn = $$("button, a, .pill, .chip, .tab").find(b => norm(b.textContent) === want);
     if (btn) { btn.click(); return true; }
     return false;
   }
@@ -67,18 +66,21 @@
       const candidates = $$("[data-name], .student-card, .card, .member, .people-card, .profile-card, .student", scope);
       for (const el of candidates) {
         const txt = norm(el.getAttribute("data-name") || el.textContent);
-        if (txt && txt.includes(want)) return el;
+        if (!txt) continue;
+        if (txt.includes(want)) return el;
       }
     }
     return null;
   }
 
   async function jumpToStudent(name){
+    // 1) try to use hidden dataset to pick Degree/Year
     let degree = "", year = "";
+    let dataNode = null;
     const nodes = $$("#studentData [data-name]");
     if (nodes.length){
       const want = norm(name);
-      const dataNode = nodes.find(n => norm(n.getAttribute("data-name")).includes(want));
+      dataNode = nodes.find(n => norm(n.getAttribute("data-name")).includes(want));
       if (dataNode) {
         const enroll = dataNode.getAttribute("data-enroll") || "";
         const hintDeg = dataNode.getAttribute("data-degree") || "";
@@ -109,28 +111,47 @@
     if (el) smoothScrollIntoView(el);
   }
 
-  function handleDeepLink(){
-    const targetName = getTargetNameFromURL();
-    if (!targetName) return;
-    const onStudentsPage = /\/?students\.html(\?|#|$)/i.test(location.pathname);
-    if (onStudentsPage) jumpToStudent(targetName);
-    else jumpToExistingAnchorByText(targetName);
+  // ensure predictable ids on headings: section-<slug>
+  function ensureSectionIds() {
+    $$("h2,h3,h4").forEach(h => {
+      if (!h.id) h.id = "section-" + slug(h.textContent || "");
+    });
   }
 
+  function scrollToHashIfPossible() {
+    const hash = (location.hash || "").replace(/^#/, "");
+    if (!hash) return;
+    const el = document.getElementById(hash);
+    if (el) smoothScrollIntoView(el);
+  }
+
+  // ---------- main ----------
   document.addEventListener("DOMContentLoaded", function(){
+    // highlight + fixed header offset
     const css = document.createElement("style");
     css.textContent = `
       .jump-highlight { outline: 3px solid rgba(66,72,144,.45); outline-offset: 3px; border-radius: 10px; transition: outline-color .4s; }
-      [id]{ scroll-margin-top:110px; } /* keep anchor below fixed header */
-      html:focus-within { scroll-behavior:smooth; }
+      [id]{ scroll-margin-top:110px; }
     `;
     document.head.appendChild(css);
-    handleDeepLink();
+
+    // Add ids then try to honor any hash present (e.g., #section-t-chengappa)
+    ensureSectionIds();
+    scrollToHashIfPossible();
+
+    // If a text fragment name is present, do the deeper student/fallback logic too
+    const targetName = getTargetNameFromURL();
+    if (targetName) {
+      const onStudentsPage = /\/?students\.html(\?|#|$)/i.test(location.pathname);
+      if (onStudentsPage) jumpToStudent(targetName);
+      else jumpToExistingAnchorByText(targetName);
+    }
+
+    // Re-honor hash if it changes after load (e.g., SPA-ish links)
+    window.addEventListener("hashchange", () => {
+      ensureSectionIds();
+      scrollToHashIfPossible();
+    });
   });
-
-  // react to hash changes too
-  window.addEventListener("hashchange", handleDeepLink);
-
-  // tiny ping for debugging
-  window.__peopleAnchorsLoaded = true;
 })();
+

@@ -28,7 +28,7 @@
   align-items: center;
   justify-content: space-between;
   /* background: #1a1b2b; */
-background: linear-gradient(to right, #c0392b, #f39c12);
+  background: linear-gradient(to right, #c0392b, #f39c12);
 
   color: var(--color-white);
   padding: 10px;
@@ -66,6 +66,8 @@ background: linear-gradient(to right, #c0392b, #f39c12);
   max-width: 520px;
   width: 100%;
   margin-left: auto;         /* push to the far right */
+  grid-column: 3;            /* NEW: place in rightmost grid column */
+  justify-self: end;         /* NEW: hug the right edge within that column */
 }
 /* Search input styling (moved from inline) */
 .header-search #search-input {

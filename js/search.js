@@ -989,6 +989,106 @@
     renderChunk();
   }
 
+  // ---------- Deep-link scroll & highlight (fixed-header safe + text-fragment polyfill) ----------
+  (function deepLinkScrollFix(){
+    const SCROLL_OFFSET = (() => {
+      // Try to detect a fixed header; fallback to 80px
+      const header = document.querySelector('#site-header, header[role="banner"], .site-header, .navbar, .topbar');
+      const h = header ? header.getBoundingClientRect().height : 80;
+      return Math.max(0, Math.min(200, Math.round(h)));
+    })();
+
+    // Inject minimal styles (smooth + highlight)
+    (function injectStyles(){
+      const css = `
+        html { scroll-behavior: smooth; }
+        :target { scroll-margin-top: ${SCROLL_OFFSET}px; }
+        .deeplink-highlight { animation: dlFlash 1.7s ease-out 1; }
+        @keyframes dlFlash { 0%{ background: rgba(255,236,153,.9) } 100%{ background: transparent } }
+      `;
+      const style = document.createElement('style');
+      style.setAttribute('data-deeplink-style','true');
+      style.textContent = css;
+      document.head.appendChild(style);
+    })();
+
+    function highlight(el){
+      if (!el) return;
+      el.classList.add('deeplink-highlight');
+      setTimeout(()=> el.classList.remove('deeplink-highlight'), 1800);
+    }
+
+    function findNodeContaining(text){
+      if (!text) return null;
+      text = decodeURIComponent(text).trim();
+      const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, {
+        acceptNode(node){
+          const t = (node.nodeValue || '').trim();
+          if (!t) return NodeFilter.FILTER_REJECT;
+          const el = node.parentElement;
+          const cs = el ? getComputedStyle(el) : null;
+          if (cs && (cs.visibility==='hidden' || cs.display==='none')) return NodeFilter.FILTER_REJECT;
+          return t.toLowerCase().includes(text.toLowerCase())
+            ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_SKIP;
+        }
+      });
+      const node = walker.nextNode();
+      return node ? node.parentElement : null;
+    }
+
+    function parseTextFragment(hash){
+      if (!hash || hash.indexOf(':~:text=') === -1) return null;
+      const q = hash.split(':~:text=')[1] || '';
+      const stop = q.split('&')[0];
+      return (stop.split(',')[0] || '').trim();
+    }
+
+    function scrollToHashTarget(){
+      const h = location.hash || '';
+      if (!h) return;
+
+      // 1) Normal #id → browser handles offset via :target; ensure highlight
+      if (h.indexOf(':~:text=') === -1) {
+        const el = document.getElementById(h.slice(1));
+        if (el) { // ensure visible + highlight
+          // extra nudge for some mobile browsers
+          setTimeout(()=>window.scrollBy(0, -1), 50);
+          highlight(el);
+        }
+        return;
+      }
+
+      // 2) Text Fragment — try to also find node & highlight; polyfill scroll if needed
+      const txt = parseTextFragment(h);
+      if (!txt) return;
+      setTimeout(() => {
+        const el = findNodeContaining(txt);
+        if (el) {
+          el.scrollIntoView({ block:'start' });
+          // compensate fixed header on browsers that ignore :target for text fragments
+          window.scrollBy(0, -SCROLL_OFFSET);
+          highlight(el);
+        }
+      }, 100);
+    }
+
+    window.addEventListener('DOMContentLoaded', scrollToHashTarget);
+    window.addEventListener('load', scrollToHashTarget);
+    window.addEventListener('hashchange', scrollToHashTarget);
+
+    // Optional: if suggestions link to same page anchors, smooth in-page jump
+    document.addEventListener('click', (e) => {
+      const a = e.target.closest('a[href]');
+      if (!a) return;
+      const url = new URL(a.getAttribute('href'), location.href);
+      const samePage = url.pathname.replace(/\/+$/,'') === location.pathname.replace(/\/+$/,'');
+      if (samePage && url.hash) {
+        // let hashchange handler do its job
+        setTimeout(()=>window.scrollBy(0, -SCROLL_OFFSET), 60);
+      }
+    });
+  })();
+
   // ---------- init ----------
   (async function init() {
     try {

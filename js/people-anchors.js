@@ -1,15 +1,12 @@
-<!-- /js/people-anchors.js -->
-<script>
 /* people-anchors.js
  * Deep-link helper for Faculty/Staff/Students.
- * - Supports anchors created by search: #student-<slug>, #staff-<slug>, #section-<slug>, or #:~:text=<Name>
- * - Auto-activates Degree/Year on Students page and scrolls to the card
+ * - Supports: #student-<slug>, #staff-<slug>, #faculty-<slug>, #section-<slug>, or #:~:text=<Name>
+ * - Students: auto-activates Degree/Year and scrolls to the card
  */
 (function () {
   const $  = (sel, root=document) => root.querySelector(sel);
   const $$ = (sel, root=document) => Array.from(root.querySelectorAll(sel));
   const norm = s => (s||"").normalize("NFKD").replace(/[\u0300-\u036f]/g,"").toLowerCase().trim();
-  const slug = s => norm(s).replace(/&/g," and ").replace(/[^a-z0-9\s-]/g,"").replace(/\s+/g,"-").replace(/-+/g,"-");
 
   function smoothScrollIntoView(el){
     if (!el) return;
@@ -20,30 +17,23 @@
   }
 
   // Parse name from URL:
-  //   #student-ramesh-kv
-  //   #staff-t-chengappa
-  //   #section-t-chengappa
+  //   #student-ramesh-kv / #staff-t-chengappa / #section-t-chengappa
   //   #:~:text=T%20Chengappa
   function getTargetNameFromURL(){
     const href = String(window.location.href || "");
-    // Text fragment
     if (href.includes("#:~:text=")) {
       const after = href.split("#:~:text=").pop();
       if (after) {
         try { return decodeURIComponent(after).split("&")[0]; } catch { return after; }
       }
     }
-    // Slugged fragments we generate or used to generate
     const h = window.location.hash || "";
     const m = h.match(/^#(student|staff|faculty|section|block|spot)-(.+)$/i);
-    if (m) {
-      // turn "t-chengappa" -> "t chengappa"
-      return decodeURIComponent(m[2]).replace(/-/g," ").trim();
-    }
+    if (m) return decodeURIComponent(m[2]).replace(/-/g," ").trim();
     return "";
   }
 
-  // Heuristic degree/year from enrollment like "PH24RESCH01009"
+  // Heuristic degree/year from something like "PH24RESCH01009"
   function inferFromEnroll(enroll){
     const E = (enroll||"").toUpperCase();
     let degree = "";
@@ -85,12 +75,10 @@
 
   async function jumpToStudent(name){
     let degree = "", year = "";
-    let dataNode = null;
-
     const nodes = $$("#studentData [data-name]");
     if (nodes.length){
       const want = norm(name);
-      dataNode = nodes.find(n => norm(n.getAttribute("data-name")).includes(want));
+      const dataNode = nodes.find(n => norm(n.getAttribute("data-name")).includes(want));
       if (dataNode) {
         const enroll = dataNode.getAttribute("data-enroll") || "";
         const hintDeg = dataNode.getAttribute("data-degree") || "";
@@ -133,14 +121,16 @@
     const css = document.createElement("style");
     css.textContent = `
       .jump-highlight { outline: 3px solid rgba(66,72,144,.45); outline-offset: 3px; border-radius: 10px; transition: outline-color .4s; }
-      [id]{ scroll-margin-top:110px; }
+      [id]{ scroll-margin-top:110px; } /* keep anchor below fixed header */
       html:focus-within { scroll-behavior:smooth; }
     `;
     document.head.appendChild(css);
     handleDeepLink();
   });
 
-  // Also react if hash changes after load
+  // react to hash changes too
   window.addEventListener("hashchange", handleDeepLink);
+
+  // tiny ping for debugging
+  window.__peopleAnchorsLoaded = true;
 })();
-</script>

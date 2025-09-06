@@ -66,8 +66,9 @@
   max-width: 520px;
   width: 100%;
   margin-left: auto;         /* push to the far right */
-  grid-column: 3;            /* NEW: place in rightmost grid column */
+  grid-column: 3;  /* NEW: place in rightmost grid column */
   justify-self: end;         /* NEW: hug the right edge within that column */
+  align-self: center;    /* vertical centering */
 }
 /* Search input styling (moved from inline) */
 .header-search #search-input {

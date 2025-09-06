@@ -388,6 +388,83 @@
     return list;
   }
 
+  // === Live search on search.html ===
+(function attachResultsPageLiveSearch() {
+  try {
+    const isResultsPage = /\/?search\.html$/i.test(location.pathname);
+    if (!isResultsPage) return;
+
+    const input   = document.getElementById('search-input');
+    const outEl   = document.getElementById('srch-out');
+    const statusEl= document.getElementById('search-status');
+
+    // small helpers already exist in your file; reuse if present
+    const debounce = (fn, ms=150) => { let t; return (...a)=>{ clearTimeout(t); t=setTimeout(()=>fn(...a),ms); }; };
+
+    async function doSearch(q) {
+      const query = (q || '').trim();
+      if (!query) {
+        statusEl && (statusEl.textContent = '');
+        outEl && (outEl.innerHTML = '');
+        return;
+      }
+      // show progress
+      const wrap = document.getElementById('search-progress');
+      const bar  = document.getElementById('search-progress-bar');
+      if (wrap && bar) { wrap.style.display='block'; bar.style.width='35%'; }
+
+      statusEl && (statusEl.textContent = 'Searching…');
+
+      // make sure index exists (fast path: searchIndex.json; else crawl)
+      if (typeof ensureIndexBuilt === 'function') {
+        await ensureIndexBuilt();
+      }
+
+      // query (worker if available)
+      let items = [];
+      if (typeof queryWorker === 'function') {
+        items = await queryWorker(query, { limit: 200 });
+      } else if (typeof runSearch === 'function') {
+        items = await runSearch(query, { limit: 200 });
+      }
+
+      // hide progress
+      if (wrap && bar) { bar.style.width='100%'; setTimeout(()=>{ wrap.style.display='none'; bar.style.width='0%'; }, 250); }
+
+      statusEl && (statusEl.textContent = items.length ? `${items.length} result${items.length>1?'s':''}` : 'No results');
+
+      // render — reuse your renderer if it exists
+      if (typeof renderResultsList === 'function') {
+        renderResultsList(outEl, items, query);
+      } else {
+        outEl.innerHTML = items.map(it => `
+          <article class="search-result">
+            <h3><a href="${it.url}">${it.title || ''}</a></h3>
+            <div>${(it.snippet || it.content || '').slice(0,180)}…</div>
+            <div class="search-url">${it.url}</div>
+          </article>`).join('');
+      }
+    }
+
+    if (!input || !outEl) return;
+
+    // 1) If there’s a ?q=... in the URL, preload it
+    const urlQ = new URLSearchParams(location.search).get('q') || '';
+    if (urlQ) { input.value = urlQ; doSearch(urlQ); }
+
+    // 2) Live search as you type (debounced)
+    input.addEventListener('input', debounce(e => doSearch(e.target.value), 160));
+
+    // 3) Prevent Enter from navigating away; just search
+    input.addEventListener('keydown', e => {
+      if (e.key === 'Enter') { e.preventDefault(); doSearch(input.value); }
+    });
+  } catch (e) {
+    console && console.error && console.error('[search live]', e);
+  }
+})();
+
+
   // ---------- loaders ----------
   function loadDynamicPage(url, timeoutMs = 9000, readySelector) {
     const DEFAULT_READY = readySelector || 'main, article, section, .page-container, .container, [role="main"], body > *';

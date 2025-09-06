@@ -63,9 +63,10 @@
 }
 .header-search {
   position: relative;
-  max-width: 520px;
+  max-width: 320px;
   width: 100%;
   margin-left: auto;         /* push to the far right */
+  margin-right: 20px; /* give space from edge */
   grid-column: 3;  /* NEW: place in rightmost grid column */
   justify-self: end;         /* NEW: hug the right edge within that column */
   align-self: center;    /* vertical centering */
@@ -76,6 +77,7 @@
   padding: 10px 14px;
   border: 1px solid #ccc;
   border-radius: 8px;
+  box-sizing: border-box; /* ensures padding doesn’t cut width */
 }
 
 /* Suggestions dropdown (moved from inline) */

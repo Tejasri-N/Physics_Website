@@ -95,7 +95,16 @@
   }
 
   // ---------- UI/Ranking helpers ----------
-  function esc(s){return (s||'').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[m]);}
+  function esc(s){
+  return (s || '').replace(/[&<>"']/g, m => ({
+    '&'  : '&amp;',
+    '<'  : '&lt;',
+    '>'  : '&gt;',
+    '"'  : '&quot;',
+    "'"  : '&#39;'
+  })[m]);
+}
+
   function highlight(text, q){
     if (!text) return '';
     if (!q) return esc(text);

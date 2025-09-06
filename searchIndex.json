@@ -160,4 +160,64 @@
     "snippet": "Department committees and roles.",
     "content": "List of committees, coordinators and responsibilities."
   }
+
+  // ---- ADD THIS helper near other loaders/extractors ----
+async function augmentPeopleFromPages(pages = ['faculty.html','staff.html','students.html']) {
+  const added = [];
+  for (const page of pages) {
+    try {
+      const { doc, url } = await loadPageResilient(page);
+      const lower = (url || page).toLowerCase();
+      // generic sections on those pages (optional but useful)
+      added.push(...extractGeneric(doc, url.split('#')[0]));
+
+      let baseTag = 'faculty', titlePrefix = 'Faculty';
+      if (/staff\.html/.test(lower))   { baseTag = 'staff';   titlePrefix = 'Staff'; }
+      if (/students\.html/.test(lower)){ baseTag = 'student'; titlePrefix = 'Student'; }
+      added.push(...extractPeople(doc, url, baseTag, titlePrefix));
+    } catch (e) { /* ignore */ }
+  }
+  return added;
+}
+// ---- Inside ensureIndexBuilt(), right after you load JSON successfully ----
+// (right after: indexData = pages.map(...); and after you build `fuse`)
+try {
+  // If JSON has only generic pages, augment with people so names work.
+  const people = await augmentPeopleFromPages(['faculty.html','staff.html','students.html']);
+  if (people && people.length) {
+    // De-dup by URL+title
+    const seen = new Set(indexData.map(it => (it.url||'') + '|' + (it.title||'')));
+    for (const it of people) {
+      const key = (it.url||'') + '|' + (it.title||'');
+      if (!seen.has(key)) { seen.add(key); indexData.push(it); }
+    }
+
+    // Rebuild Fuse (local)…
+    fuse = new FuseCtor(indexData, {
+      includeScore: true,
+      minMatchCharLength: 2,
+      threshold: 0.45,
+      ignoreLocation: true,
+      keys: [
+        { name: 'title_lc', weight: 0.5 },
+        { name: 'content',  weight: 0.35 },
+        { name: 'tags',     weight: 0.15 }
+      ]
+    });
+
+    // …and notify the worker (if present)
+    if (worker) worker.postMessage({
+      type: 'BUILD',
+      pages: indexData,
+      fuseConfig: { keys: ['title_lc','content','tags'] }
+    });
+
+    // (optional) cache the augmented index so refreshes stay fast
+    try {
+      const payload = { v: '1.0.6+people', ts: Date.now(), index: indexData };
+      localStorage.setItem('siteSearchIndex', JSON.stringify(payload));
+    } catch (_) {}
+  }
+} catch (_) { /* non-fatal */ }
+
 ]

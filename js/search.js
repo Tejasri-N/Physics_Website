@@ -257,7 +257,7 @@
       const path = queue.shift();
       out.push(path);
       try {
-        const res = await fetch('/' + path, { cache: 'no-store' });
+       
         if (!res.ok) continue;
         const html = await res.text();
         const doc = new DOMParser().parseFromString(html, 'text/html');

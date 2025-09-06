@@ -13,6 +13,11 @@
   const slug = s => norm(s).replace(/&/g," and ").replace(/[^a-z0-9\s-]/g,"").replace(/\s+/g,"-").replace(/-+/g,"-");
   const sleep = (ms) => new Promise(r => setTimeout(r, ms));
 
+  // token helpers (so single-word names like “Chengappa” work reliably)
+  function nameTokens(s){
+    return norm(s).split(/[^a-z0-9]+/).filter(Boolean);
+  }
+
   function smoothScrollIntoView(el){
     if (!el) return;
     try { el.scrollIntoView({behavior:"smooth", block:"center"}); }
@@ -31,7 +36,13 @@
       }
     }
     const h = window.location.hash || "";
-    if (h && h.startsWith("#student-")) return h.replace(/^#student-/, "").replace(/-/g, " ");
+    if (h && h.startsWith("#student-")) {
+      // Allow slugs like "niladri-karmakar-mp23mscst14005" → "niladri karmakar"
+      const raw = h.replace(/^#student-/, "").replace(/-/g, " ");
+      // drop trailing tokens that are mostly digits (roll-like)
+      const cleaned = raw.split(/\s+/).filter(t => /\d/.test(t) ? false : true).join(" ").trim();
+      return cleaned || raw.trim();
+    }
     return "";
   }
 
@@ -55,10 +66,10 @@
 
     $$(selectors).forEach(el => {
       const nameEl =
-        el.querySelector(".member-name,.faculty-name,.staff-name,.student-name,.faculty-profile,h1,h2,h3,h4,h5,b,strong,a")
+        el.querySelector(".member-name,.faculty-name,.staff-name,.student-name,.faculty-profile,h1,h2,h3,h4,h5,b,strong,a,[aria-label],[alt],[data-name]")
         || el;
-      const nameText = (nameEl.textContent || "").trim();
-      const candidate = nameText.split(/\n/)[0].trim();
+      const src = nameEl.getAttribute?.("data-name") || nameEl.getAttribute?.("aria-label") || nameEl.getAttribute?.("alt") || nameEl.textContent || "";
+      const candidate = (src || "").split(/\n/)[0].trim();
       const s = slug(candidate);
       if (!s || s.length < 3) return;
       if (!el.id) el.id = uniqId("section-" + s);
@@ -92,22 +103,26 @@
 
   function findRenderedStudentNodeByName(name){
     const want = norm(name);
+    const wantTokens = nameTokens(name);
 
     // Table rows
     const table = $("#studentTable");
     if (table && table.style.display !== "none") {
       for (const tr of table.querySelectorAll("tbody tr")) {
-        if (norm(tr.textContent).includes(want)) return tr;
+        const text = norm(tr.textContent);
+        // exact token coverage preferred
+        if (wantTokens.every(t => text.includes(t))) return tr;
       }
     }
     // PhD cards
     for (const card of $$(".phd-student-card")) {
-      if (norm(card.textContent).includes(want)) return card;
+      const text = norm(card.textContent);
+      if (wantTokens.every(t => text.includes(t))) return card;
     }
     // Generic fallbacks
     for (const el of $$("[data-name], .student-card, .card, .member, .people-card, .profile-card, .student")) {
       const txt = norm(el.getAttribute("data-name") || el.textContent);
-      if (txt && txt.includes(want)) return el;
+      if (wantTokens.every(t => txt.includes(t))) return el;
     }
     return null;
   }
@@ -133,7 +148,6 @@
     }
 
     async function showCourse(course){
-      // click course pill if exists, otherwise call showSubcourses()
       const pill = $(`.course-pill[data-course="${course}"]`);
       if (pill) pill.click();
       else if (typeof window.showSubcourses === "function") window.showSubcourses(course, pill || {});
@@ -141,8 +155,7 @@
     }
     async function showSubcourse(sub){
       if (!sub) return;
-      // sub pills are rendered after course click
-      for (let i=0;i<12;i++){ // wait up to ~1.2s
+      for (let i=0;i<12;i++){
         const sp = $(`.subcourse-pill[data-subcourse="${sub}"]`);
         if (sp) { sp.click(); break; }
         await sleep(100);
@@ -159,7 +172,6 @@
       const degreeKey = (courseKeys.find(k => norm($(`.course-pill[data-course="${k}"]`)?.textContent) === norm(hinted.degree)) || hinted.degree || "").toLowerCase();
       if (degreeKey) {
         await showCourse(degreeKey);
-        // try every visible subcourse for that degree (or none)
         const subs = (window.courses?.[degreeKey]?.subcourses) ? Object.keys(window.courses[degreeKey].subcourses) : [null];
         for (const sub of subs) {
           await showSubcourse(sub);
@@ -179,7 +191,6 @@
       for (const sub of subs) {
         await showSubcourse(sub);
 
-        // Collect years currently available for this selection
         const groups = Array.from(document.querySelectorAll(
           `#studentData > div[data-course="${degree}"]${sub ? `[data-subcourse="${sub}"]` : `:not([data-subcourse])`}`
         ));
@@ -195,12 +206,46 @@
     return false;
   }
 
-  // generic fallback (faculty/staff pages)
+  // ---------- robust staff/faculty jump ----------
   function jumpToExistingAnchorByText(name){
+    if (!name) return;
+
+    // 1) Prefer direct ID hit: #section-<slug(name)>
+    const idHit = document.getElementById("section-" + slug(name));
+    if (idHit) { smoothScrollIntoView(idHit); return; }
+
     const want = norm(name);
-    const candidates = $$("h1,h2,h3,h4,h5,.faculty-card,.staff-card,.profile-card,.member,.person,.card");
-    const el = candidates.find(n => norm(n.textContent).includes(want));
-    if (el) smoothScrollIntoView(el);
+    const tokens = nameTokens(name);
+
+    // 2) Search elements by attributes first (data-name / aria-label / alt)
+    const attrSel = [
+      "[data-name]", "[aria-label]", "img[alt]",
+      ".member-name",".faculty-name",".staff-name",".faculty-profile"
+    ].join(",");
+    const attrCandidates = $$(attrSel);
+    // exact text first
+    let el = attrCandidates.find(n => {
+      const v = (n.getAttribute("data-name")||n.getAttribute("aria-label")||n.getAttribute("alt")||n.textContent||"");
+      return norm(v) === want;
+    }) || attrCandidates.find(n => {
+      const v = (n.getAttribute("data-name")||n.getAttribute("aria-label")||n.getAttribute("alt")||n.textContent||"");
+      const t = norm(v);
+      return tokens.every(tok => t.includes(tok));
+    });
+    if (el) { smoothScrollIntoView(el.closest(".faculty-card,.staff-card,.profile-card,.member,.person,.card") || el); return; }
+
+    // 3) Headings / cards (exact → tokenized → partial)
+    const cardSel = "h1,h2,h3,h4,h5,.faculty-card,.staff-card,.profile-card,.member,.person,.card";
+    const cards = $$(cardSel);
+
+    el = cards.find(n => norm(n.textContent) === want)
+      || cards.find(n => {
+        const t = norm(n.textContent);
+        return tokens.every(tok => t.includes(tok));
+      })
+      || cards.find(n => norm(n.textContent).includes(want));
+
+    if (el) { smoothScrollIntoView(el); }
   }
 
   // ---------- main ----------
@@ -225,8 +270,7 @@
     if (targetName) {
       const onStudentsPage = /\/?students\.html(\?|#|$)/i.test(location.pathname);
       if (onStudentsPage) {
-        // let Students page wire up first (year pills, etc.)
-        await sleep(120);
+        await sleep(120);             // let Students UI render subnav/pills
         await openCohortAndFind(targetName);
       } else {
         jumpToExistingAnchorByText(targetName);
@@ -240,11 +284,11 @@
       scrollToHashIfPossible();
     });
 
-    // Minor safety: if content populates late (images/cards), retry hash once
+    // Minor safety: retry once after images/cards settle
     setTimeout(() => scrollToHashIfPossible(), 600);
   });
 
-  // (Optional) expose a tiny API if you ever want to call from elsewhere
+  // Optional tiny API
   window.peopleAnchors = {
     jumpToName: async (name) => {
       if (/\/?students\.html(\?|#|$)/i.test(location.pathname)) return openCohortAndFind(name);

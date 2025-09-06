@@ -10,7 +10,7 @@
     } catch (_) {}
   }
 
-  // Fuse shim
+  // ---------- Fuse shim ----------
   var FuseCtor = (typeof window !== 'undefined' && window.Fuse) ? window.Fuse : function(items, opts){
     this._items = Array.isArray(items) ? items : [];
     this._keys = (opts && opts.keys ? opts.keys.map(k=>k.name||k) : ['title_lc','content','tags']);
@@ -32,50 +32,18 @@
       return out;
     };
   };
-// --- Augment JSON index with people (faculty/staff/students)
-try {
-  const people = await augmentPeopleFromPages(['faculty.html','staff.html','students.html']);
-  if (people && people.length) {
-    const seen = new Set(indexData.map(it => (it.url||'') + '|' + (it.title||'')));
-    for (const it of people) {
-      const key = (it.url||'') + '|' + (it.title||'');
-      if (!seen.has(key)) { seen.add(key); indexData.push(it); }
-    }
-    // Rebuild local Fuse
-    fuse = new FuseCtor(indexData, {
-      includeScore: true,
-      minMatchCharLength: 2,
-      threshold: 0.45,
-      ignoreLocation: true,
-      keys: [
-        { name: 'title_lc', weight: 0.5 },
-        { name: 'content',  weight: 0.35 },
-        { name: 'tags',     weight: 0.15 }
-      ]
-    });
-    // Notify worker
-    if (worker) worker.postMessage({
-      type: 'BUILD',
-      pages: indexData,
-      fuseConfig: { keys: ['title_lc','content','tags'] }
-    });
-    // Cache augmented index
-    try {
-      localStorage.setItem('siteSearchIndex',
-        JSON.stringify({ v:'1.0.6+people', ts:Date.now(), index:indexData }));
-    } catch(_) {}
-  }
-} catch(_) {}
 
+  // ---------- DOM refs ----------
   const form    = document.getElementById('site-search');
   const input   = document.getElementById('search-input');
   const suggest = document.getElementById('search-suggest');
 
-  const isResultsPage = /\/?search\.html$/.test(location.pathname);
+  const isResultsPage = /\/?search\.html$/i.test(location.pathname);
   const outEl    = document.getElementById('srch-out');
   const qEl      = document.getElementById('srch-q');
   const statusEl = document.getElementById('search-status'); // only on search.html
 
+  // ---------- state ----------
   let fuse = null, indexData = null;
 
   // ---------- helpers ----------
@@ -83,19 +51,21 @@ try {
   const getText   = el => el ? el.textContent.replace(/\s+/g, ' ').trim() : '';
   const norm = (s) => (s || '').normalize('NFKD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
   const slug = s => norm(s).replace(/&/g, ' and ').replace(/[^a-z0-9\s-]/g, '').trim().replace(/\s+/g, '-').replace(/-+/g, '-');
+  const debounce = (fn, ms=150) => { let t; return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), ms); }; };
+  function nameTokens(name) { const lower = norm(name); const parts = lower.split(/[^a-z0-9]+/).filter(Boolean); return Array.from(new Set([lower, ...parts])); }
 
-  // allow single-word proper names (≥3 chars) — keep (Chengappa/Guhan)
+  // allow single-word proper names (≥3 chars) — ensures “Chengappa”/“Guhan” work
   function isNameish(s, { allowSingle = true } = {}) {
     if (!s) return false;
     const txt = cleanText(s);
     if (!txt) return false;
 
-    // Heuristics for multi-word proper names (TitleCase-like)
+    // Multi-word TitleCase-like heuristic
     const parts = txt.replace(/[(),;:\/\-]+/g, ' ').split(/\s+/).filter(Boolean);
     const capish = parts.filter(w => /^[A-Z][A-Za-z.\-']+$/.test(w));
     if (capish.length >= 2 && capish.length <= 4) return true;
 
-    // NEW: Accept single-token names (any case), min length 3, letters with optional . - '
+    // Single-token names (any case), min length 3, letters with optional . - '
     if (allowSingle && parts.length === 1) {
       const w = parts[0];
       const STOP = new Set(['and','or','of','in','to','for','with','by','at','on','a','an','the','dept','staff','student','faculty']);
@@ -105,10 +75,7 @@ try {
     }
     return false;
   }
-  const debounce = (fn, ms=150) => { let t; return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), ms); }; };
-  function nameTokens(name) { const lower = norm(name); const parts = lower.split(/[^a-z0-9]+/).filter(Boolean); return Array.from(new Set([lower, ...parts])); }
 
-  // --- section helpers ---
   function textAfter(el, limit=200) {
     let p = el && el.nextElementSibling;
     while (p && !/^(p|div|section|article)$/i.test(p.tagName)) p = p.nextElementSibling;
@@ -116,7 +83,7 @@ try {
     return t.replace(/\s+/g,' ').trim().slice(0, limit);
   }
 
-  // NEW: Never mutate IDs. Use existing #id or Text Fragment.
+  // Never mutate IDs. Prefer existing #id or Text Fragment.
   function anchorForElement(el, fallbackText, { prefix='sec' } = {}) {
     const existed = !!(el && el.id);
     if (existed) return { urlFrag: '#' + el.id, hasAnchor: true };
@@ -128,16 +95,15 @@ try {
     return { urlFrag: '', hasAnchor: false };
   }
 
-  // ---------- UI/Ranking helpers ----------
   function esc(s){
-  return (s || '').replace(/[&<>"']/g, m => ({
-    '&'  : '&amp;',
-    '<'  : '&lt;',
-    '>'  : '&gt;',
-    '"'  : '&quot;',
-    "'"  : '&#39;'
-  })[m]);
-}
+    return (s || '').replace(/[&<>"']/g, m => ({
+      '&'  : '&amp;',
+      '<'  : '&lt;',
+      '>'  : '&gt;',
+      '"'  : '&quot;',
+      "'"  : '&#39;'
+    })[m]);
+  }
 
   function highlight(text, q){
     if (!text) return '';
@@ -149,152 +115,13 @@ try {
   }
 
   function normalizeUrl(u) {
-  try {
-    const a = new URL(u, location.origin);
-    if (a.origin !== location.origin) return null;       // keep only same-site
-    const path = (a.pathname + (a.search || '')).replace(/^\/+/, '');
-    return path.replace(/#.*$/, '');
-  } catch { return null; }
-}
-  while (queue.length && out.length < maxPages) {
-  const path = queue.shift();
-  out.push(path);
-  try {
-    const res = await fetch('/' + path, { cache: 'no-store' }); // ← add this
-    if (!res.ok) continue;
-    const html = await res.text();
-    const doc = new DOMParser().parseFromString(html, 'text/html');
-    doc.querySelectorAll('a[href]').forEach(a => {
-      const n = normalizeUrl(a.getAttribute('href'));
-      if (!n || !isIndexablePath(n)) return;
-      if (!seen.has(n)) { seen.add(n); queue.push(n); }
-    });
-  } catch {}
-}
-
-
-  function getType(item){
-    const tags = item.tags || [];
-    const tl   = (item.title || '').toLowerCase();
-    const has  = t => tags.includes(t);
-    if (tl.startsWith('faculty:') || has('faculty'))   return { key:'faculty',   label:'Faculty' };
-    if (tl.startsWith('staff:')   || has('staff'))     return { key:'staff',     label:'Staff' };
-    if (tl.startsWith('student:') || has('student'))   return { key:'student',   label:'Student' };
-    if (has('spotlight') || tl.includes('spotlight'))  return { key:'spotlight', label:'Spotlight' };
-    if (has('announcements'))                           return { key:'announce',  label:'Announcement' };
-    if (has('download'))                                 return { key:'download',  label:'Download' };
-    if (has('link'))                                     return { key:'link',      label:'Link' };
-    if (has('section') || has('block'))                 return { key:'section',   label:'Section' };
-    return { key:'page', label:'Page' };
+    try {
+      const a = new URL(u, location.origin); // keep only same-site
+      if (a.origin !== location.origin) return null;
+      const path = (a.pathname + (a.search || '')).replace(/^\/+/, '');
+      return path.replace(/#.*$/, '');
+    } catch { return null; }
   }
-  function sortForNameQuery(items, q){
-    const nq = norm(q);
-    const pri = { faculty:3, staff:3, student:3, spotlight:1, announce:1, section:0, download:0, link:0, page:0 };
-    const score = it => {
-      const t = getType(it).key;
-      let s = pri[t] || 0;
-      const tl = it.title_lc || '';
-      if (tl === nq) s += 3;
-      else if (tl.startsWith(nq)) s += 2;
-      return s;
-    };
-    return items.slice().sort((a,b) => score(b) - score(a));
-  }
-  function hasAnchorFlag(item){ return !!(item && (item.hasAnchor || ((item.url||'').indexOf('#') !== -1))); }
-  function sortForLeaveQuery(items, q){
-    const nq = norm(q);
-    if (!/(leave|vacation|absence|on duty|od|el|cl|ml)/.test(nq)) return items;
-    const links = [], others = [];
-    for (const it of items) ((it.tags||[]).includes('link') ? links : others).push(it);
-    return [...links, ...others];
-  }
-
-// === Live search on search.html ===
-(function attachResultsPageLiveSearch() {
-  try {
-    const isResultsPage = /\/?search\.html$/i.test(location.pathname);
-    if (!isResultsPage) return;
-
-    const input   = document.getElementById('search-input');
-    const outEl   = document.getElementById('srch-out');
-    const statusEl= document.getElementById('search-status');
-
-    // small helpers already exist in your file; reuse if present
-    const debounce = (fn, ms=150) => { let t; return (...a)=>{ clearTimeout(t); t=setTimeout(()=>fn(...a),ms); }; };
-
-    async function doSearch(q) {
-      const query = (q || '').trim();
-      if (!query) {
-        statusEl && (statusEl.textContent = '');
-        outEl && (outEl.innerHTML = '');
-        return;
-      }
-      // show progress
-      const wrap = document.getElementById('search-progress');
-      const bar  = document.getElementById('search-progress-bar');
-      if (wrap && bar) { wrap.style.display='block'; bar.style.width='35%'; }
-
-      statusEl && (statusEl.textContent = 'Searching…');
-
-      // make sure index exists (fast path: searchIndex.json; else crawl)
-      if (typeof ensureIndexBuilt === 'function') {
-        await ensureIndexBuilt();
-      }
-
-      // query (worker if available)
-      let items = [];
-      if (typeof queryWorker === 'function') {
-        items = await queryWorker(query, { limit: 200 });
-      } else if (typeof runSearch === 'function') {
-        items = await runSearch(query, { limit: 200 });
-      }
-
-      // hide progress
-      if (wrap && bar) { bar.style.width='100%'; setTimeout(()=>{ wrap.style.display='none'; bar.style.width='0%'; }, 250); }
-
-      statusEl && (statusEl.textContent = items.length ? `${items.length} result${items.length>1?'s':''}` : 'No results');
-
-      // render — reuse your renderer if it exists
-      if (typeof renderResultsList === 'function') {
-        renderResultsList(outEl, items, query);
-      } else {
-        outEl.innerHTML = items.map(it => `
-          <article class="search-result">
-            <h3><a href="${it.url}">${it.title || ''}</a></h3>
-            <div>${(it.snippet || it.content || '').slice(0,180)}…</div>
-            <div class="search-url">${it.url}</div>
-          </article>`).join('');
-      }
-    }
-
-    if (!input || !outEl) return;
-
-    // 1) If there’s a ?q=... in the URL, preload it
-    const urlQ = new URLSearchParams(location.search).get('q') || '';
-    if (urlQ) { input.value = urlQ; doSearch(urlQ); }
-
-    // 2) Live search as you type (debounced)
-    input.addEventListener('input', debounce(e => doSearch(e.target.value), 160));
-
-    // 3) Prevent Enter from navigating away; just search
-    input.addEventListener('keydown', e => {
-      if (e.key === 'Enter') { e.preventDefault(); doSearch(input.value); }
-    });
-  } catch (e) {
-    console && console.error && console.error('[search live]', e);
-  }
-})();
-
-
-  
-  // ---------- site-wide discovery ----------
- function normalizeUrl(u) {
-  try {
-    const a = new URL(u, location.href);             // <- was location.origin
-    const path = (a.pathname + (a.search || '')).replace(/^\/+/, '');
-    return path.replace(/#.*$/, '');
-  } catch { return null; }
-}
 
   function isIndexablePath(path) {
     if (!path) return false;
@@ -302,35 +129,6 @@ try {
     if (/(^|\/)(assets?|static|img|images|css|js|fonts?)\//i.test(path)) return false;
     if (/^mailto:|^tel:/i.test(path)) return false;
     return true;
-  }
-  async function augmentPeopleFromPages(pages = ['faculty.html','staff.html','students.html']) { /* …as you pasted… */ }
-
-  async function discoverPages(seedPaths, maxPages = 300) {
-    const seen = new Set();
-    const queue = [];
-    const out = [];
-
-    seedPaths.forEach(p => {
-      const n = normalizeUrl(p);
-      if (n && isIndexablePath(n) && !seen.has(n)) { seen.add(n); queue.push(n); }
-    });
-
-    while (queue.length && out.length < maxPages) {
-      const path = queue.shift();
-      out.push(path);
-      try {
-       
-        if (!res.ok) continue;
-        const html = await res.text();
-        const doc = new DOMParser().parseFromString(html, 'text/html');
-        doc.querySelectorAll('a[href]').forEach(a => {
-          const n = normalizeUrl(a.getAttribute('href'));
-          if (!n || !isIndexablePath(n)) return;
-          if (!seen.has(n)) { seen.add(n); queue.push(n); }
-        });
-      } catch {}
-    }
-    return out;
   }
 
   // ---------- extractors ----------
@@ -537,82 +335,34 @@ try {
     return list;
   }
 
-  // === Live search on search.html ===
-(function attachResultsPageLiveSearch() {
-  try {
-    const isResultsPage = /\/?search\.html$/i.test(location.pathname);
-    if (!isResultsPage) return;
+  // ---------- site-wide discovery ----------
+  async function discoverPages(seedPaths, maxPages = 300) {
+    const seen = new Set();
+    const queue = [];
+    const out = [];
 
-    const input   = document.getElementById('search-input');
-    const outEl   = document.getElementById('srch-out');
-    const statusEl= document.getElementById('search-status');
-
-    // small helpers already exist in your file; reuse if present
-    const debounce = (fn, ms=150) => { let t; return (...a)=>{ clearTimeout(t); t=setTimeout(()=>fn(...a),ms); }; };
-
-    async function doSearch(q) {
-      const query = (q || '').trim();
-      if (!query) {
-        statusEl && (statusEl.textContent = '');
-        outEl && (outEl.innerHTML = '');
-        return;
-      }
-      // show progress
-      const wrap = document.getElementById('search-progress');
-      const bar  = document.getElementById('search-progress-bar');
-      if (wrap && bar) { wrap.style.display='block'; bar.style.width='35%'; }
-
-      statusEl && (statusEl.textContent = 'Searching…');
-
-      // make sure index exists (fast path: searchIndex.json; else crawl)
-      if (typeof ensureIndexBuilt === 'function') {
-        await ensureIndexBuilt();
-      }
-
-      // query (worker if available)
-      let items = [];
-      if (typeof queryWorker === 'function') {
-        items = await queryWorker(query, { limit: 200 });
-      } else if (typeof runSearch === 'function') {
-        items = await runSearch(query, { limit: 200 });
-      }
-
-      // hide progress
-      if (wrap && bar) { bar.style.width='100%'; setTimeout(()=>{ wrap.style.display='none'; bar.style.width='0%'; }, 250); }
-
-      statusEl && (statusEl.textContent = items.length ? `${items.length} result${items.length>1?'s':''}` : 'No results');
-
-      // render — reuse your renderer if it exists
-      if (typeof renderResultsList === 'function') {
-        renderResultsList(outEl, items, query);
-      } else {
-        outEl.innerHTML = items.map(it => `
-          <article class="search-result">
-            <h3><a href="${it.url}">${it.title || ''}</a></h3>
-            <div>${(it.snippet || it.content || '').slice(0,180)}…</div>
-            <div class="search-url">${it.url}</div>
-          </article>`).join('');
-      }
-    }
-
-    if (!input || !outEl) return;
-
-    // 1) If there’s a ?q=... in the URL, preload it
-    const urlQ = new URLSearchParams(location.search).get('q') || '';
-    if (urlQ) { input.value = urlQ; doSearch(urlQ); }
-
-    // 2) Live search as you type (debounced)
-    input.addEventListener('input', debounce(e => doSearch(e.target.value), 160));
-
-    // 3) Prevent Enter from navigating away; just search
-    input.addEventListener('keydown', e => {
-      if (e.key === 'Enter') { e.preventDefault(); doSearch(input.value); }
+    seedPaths.forEach(p => {
+      const n = normalizeUrl(p);
+      if (n && isIndexablePath(n) && !seen.has(n)) { seen.add(n); queue.push(n); }
     });
-  } catch (e) {
-    console && console.error && console.error('[search live]', e);
-  }
-})();
 
+    while (queue.length && out.length < maxPages) {
+      const path = queue.shift();
+      out.push(path);
+      try {
+        const res = await fetch('/' + path, { cache: 'no-store' });
+        if (!res.ok) continue;
+        const html = await res.text();
+        const doc = new DOMParser().parseFromString(html, 'text/html');
+        doc.querySelectorAll('a[href]').forEach(a => {
+          const n = normalizeUrl(a.getAttribute('href'));
+          if (!n || !isIndexablePath(n)) return;
+          if (!seen.has(n)) { seen.add(n); queue.push(n); }
+        });
+      } catch {}
+    }
+    return out;
+  }
 
   // ---------- loaders ----------
   function loadDynamicPage(url, timeoutMs = 9000, readySelector) {
@@ -681,16 +431,66 @@ try {
   }
   startWorker();
 
-  // PATCH A: robust worker query with local fallback
+  // ---------- search helpers ----------
+  function setProgress(pct) {
+    var wrap = document.getElementById('search-progress');
+    var bar  = document.getElementById('search-progress-bar');
+    if (!wrap || !bar) return;
+    wrap.style.display = (pct > 0 && pct < 100) ? 'block' : 'none';
+    bar.style.width = Math.max(0, Math.min(100, pct)) + '%';
+  }
+  function showStatus(msg) {
+    if (statusEl) statusEl.textContent = msg || '';
+  }
+
+  function getType(item){
+    const tags = item.tags || [];
+    const tl   = (item.title || '').toLowerCase();
+    const has  = t => tags.includes(t);
+    if (tl.startsWith('faculty:') || has('faculty'))   return { key:'faculty',   label:'Faculty' };
+    if (tl.startsWith('staff:')   || has('staff'))     return { key:'staff',     label:'Staff' };
+    if (tl.startsWith('student:') || has('student'))   return { key:'student',   label:'Student' };
+    if (has('spotlight') || tl.includes('spotlight'))  return { key:'spotlight', label:'Spotlight' };
+    if (has('announcements'))                           return { key:'announce',  label:'Announcement' };
+    if (has('download'))                                 return { key:'download',  label:'Download' };
+    if (has('link'))                                     return { key:'link',      label:'Link' };
+    if (has('section') || has('block'))                 return { key:'section',   label:'Section' };
+    return { key:'page', label:'Page' };
+  }
+
+  function sortForNameQuery(items, q){
+    const nq = norm(q);
+    const pri = { faculty:3, staff:3, student:3, spotlight:1, announce:1, section:0, download:0, link:0, page:0 };
+    const score = it => {
+      const t = getType(it).key;
+      let s = pri[t] || 0;
+      const tl = it.title_lc || '';
+      if (tl === nq) s += 3;
+      else if (tl.startsWith(nq)) s += 2;
+      return s;
+    };
+    return items.slice().sort((a,b) => score(b) - score(a));
+  }
+
+  function hasAnchorFlag(item){ return !!(item && (item.hasAnchor || ((item.url||'').indexOf('#') !== -1))); }
+
+  function sortForLeaveQuery(items, q){
+    const nq = norm(q);
+    if (!/(leave|vacation|absence|on duty|od|el|cl|ml)/.test(nq)) return items;
+    const links = [], others = [];
+    for (const it of items) ((it.tags||[]).includes('link') ? links : others).push(it);
+    return [...links, ...others];
+  }
+
+  // Worker + local fallback
   function queryWorker(q, { limit = 50 } = {}) {
     return new Promise(resolve => {
-      // If worker is ready, use it
       if (worker && workerReady) {
         pendingSuggestResolver = items => resolve(items || []);
         worker.postMessage({ type: 'QUERY', q, limit });
         return;
       }
-      // Fallback: Fuse (if built) or substring filter
+      // Fallback: local Fuse or substring filter
       let items = [];
       if (fuse && typeof fuse.search === 'function') {
         try { items = (fuse.search(norm(q), { limit }) || []).map(r => r.item); } catch(_) {}
@@ -702,9 +502,205 @@ try {
     });
   }
 
-  // ---------- build index (legacy eager builder kept for fallback) ----------
-  async function loadIndex() {
+  function runSearch(q, { limit = 50 } = {}) {
+    return new Promise((resolve) => {
+      if (worker && workerReady) {
+        pendingResultsResolver = (items) => resolve(items || []);
+        worker.postMessage({ type: 'QUERY', q, limit });
+      } else {
+        const items = (fuse && fuse.search ? fuse.search(norm(q), { limit }) : []).map(r => r.item);
+        resolve(items);
+      }
+    });
+  }
+
+  function fallbackFilter(query) {
+    const q = norm(query);
+    return (indexData || []).filter(it => {
+      const inTitle = (it.title_lc || '').includes(q);
+      const inTags  = (it.tags || []).some(t => (t || '').includes(q));
+      const inBody  = (it.content || '').includes(q);
+      return inTitle || inTags || inBody;
+    });
+  }
+
+  function rankAndMaybeRedirect(query, items) {
+    if (!items || !items.length) return { redirected:false, items: [] };
+    if (tryAutoRedirect(query, items)) return { redirected:true, items: [] };
+    items = sortForLeaveQuery(items, query);
+    if (isNameish(query, { allowSingle: true })) items = sortForNameQuery(items, query);
+    return { redirected:false, items };
+  }
+
+  // SMARTER auto-redirect
+  function tryAutoRedirect(query, items){
+    const nq = norm(query);
+
+    // "leave" logic
+    if (/(^|\b)(leave|vacation|absence|on duty|od|el|cl|ml|leave portal|leave rules)($|\b)/.test(nq)) {
+      const links = items.filter(it => (it.tags||[]).includes('link') &&
+        ((it.title_lc||'').includes('leave') || (it.content||'').includes('leave')));
+      if (!links.length) return false;
+      const wantFaculty = /\bfaculty\b/i.test(query);
+      const wantStaff   = /\bstaff\b/i.test(query);
+      if (wantFaculty || wantStaff) {
+        const picked = links.find(it => (wantFaculty ? /faculty/i : /staff/i).test(it.title || ''));
+        if (picked && picked.url) { window.location.href = picked.url; return true; }
+      }
+      if (links.length === 1 && links[0].url) { window.location.href = links[0].url; return true; }
+    }
+
+    // Single-keyword → direct link if only one good match
+    const KEYWORDS = [
+      {k:/(^|\b)(library|lib)($|\b)/, tag:'library'},
+      {k:/(^|\b)(aims)($|\b)/, tag:'aims'},
+      {k:/(^|\b)(intranet)($|\b)/, tag:'intranet'},
+      {k:/(^|\b)(ocs|placements|internships)($|\b)/, tag:'ocs'},
+      {k:/(^|\b)(crf|central research facilities?)($|\b)/, tag:'crf'},
+      {k:/(^|\b)(sunshine|counsel(ling|ing)|wellness)($|\b)/, tag:'counseling'},
+      {k:/(^|\b)(security|main gate)($|\b)/, tag:'security'},
+      {k:/(^|\b)(gymkhana)($|\b)/, tag:'gymkhana'},
+      {k:/(^|\b)(room booking|seminar room)($|\b)/, tag:'room'}
+    ];
+
+    for (const rule of KEYWORDS) {
+      if (rule.k.test(nq)) {
+        const links = items.filter(it => (it.tags||[]).includes('link') && (
+          (it.title_lc||'').includes(rule.tag) || (it.content||'').includes(rule.tag)
+        ));
+        if (links.length === 1 && links[0].url) { window.location.href = links[0].url; return true; }
+      }
+    }
+    return false;
+  }
+
+  function renderResultsList(container, items, q) {
+    if (!container) return;
+    if (!items || !items.length) { container.innerHTML = `<p>No results found.</p>`; return; }
+    container.innerHTML = items.map(item => {
+      const s = (item.snippet || item.content || '').slice(0, 180);
+      const { key, label } = getType(item);
+      const jump = hasAnchorFlag(item) ? `<a href="${item.url}" class="srch-pill" style="margin-left:6px" title="Jump to section">Jump ↪</a>` : '';
+      return `<article class="search-result" style="padding:12px 0;border-bottom:1px solid #eee">
+        <div style="display:flex;align-items:flex-start;gap:10px">
+          <span class="srch-badge srch-badge--${key}">${label}</span>
+          <div style="flex:1 1 auto;min-width:0">
+            <h3 style="margin:0 0 6px 0;font-size:18px"><a href="${item.url}">${highlight(item.title, q)}</a>${jump}</h3>
+            <div style="font-size:13px;color:#555">${highlight(s, q)}…</div>
+            <div style="font-size:12px;color:#888">${(item.url || '')}</div>
+          </div>
+        </div>
+      </article>`;
+    }).join('');
+  }
+
+  // ---------- people augmentation ----------
+  async function augmentPeopleFromPages(pages = ['faculty.html','staff.html','students.html']) {
+    const added = [];
+    for (const page of pages) {
+      try {
+        const { doc, url } = await loadPageResilient(page);
+        const lower = (url || page).toLowerCase();
+
+        // generic entries for the page too
+        added.push(...extractGeneric(doc, url.split('#')[0]));
+
+        let baseTag = 'faculty', titlePrefix = 'Faculty';
+        if (/staff\.html/.test(lower))   { baseTag = 'staff';   titlePrefix = 'Staff'; }
+        if (/students\.html/.test(lower)){ baseTag = 'student'; titlePrefix = 'Student'; }
+
+        added.push(...extractPeople(doc, url, baseTag, titlePrefix));
+      } catch(_) {}
+    }
+    return added;
+  }
+
+  // ---------- build index (lazy; tries prebuilt JSON, else crawl) ----------
+  async function ensureIndexBuilt() {
     if (indexData) return indexData;
+
+    showStatus('Preparing search index…');
+    setProgress(8);
+
+    // 1) Try prebuilt static index for instant results
+    try {
+      const res = await fetch('searchIndex.json', { cache: 'no-store' });
+      if (res.ok) {
+        const pages = await res.json();
+        indexData = pages.map(it => ({
+          title: it.title,
+          url: it.url,
+          snippet: it.snippet || '',
+          title_lc: (it.title || '').toLowerCase(),
+          tags: it.tags || [],
+          content: (it.content || '').toLowerCase()
+        }));
+
+        // Local Fuse
+        fuse = new FuseCtor(indexData, {
+          includeScore: true,
+          minMatchCharLength: 2,
+          threshold: 0.45,
+          ignoreLocation: true,
+          keys: [
+            { name: 'title_lc', weight: 0.5 },
+            { name: 'content',  weight: 0.35 },
+            { name: 'tags',     weight: 0.15 }
+          ]
+        });
+
+        // Build worker too
+        if (worker) worker.postMessage({
+          type: 'BUILD',
+          pages: indexData,
+          fuseConfig: { keys: ['title_lc','content','tags'] }
+        });
+
+        // --- Augment with people so single-token names (e.g., "Chengappa") are findable
+        try {
+          const people = await augmentPeopleFromPages(['faculty.html','staff.html','students.html']);
+          if (people && people.length) {
+            const seen = new Set(indexData.map(it => (it.url||'') + '|' + (it.title||'')));
+            for (const it of people) {
+              const key = (it.url||'') + '|' + (it.title||'');
+              if (!seen.has(key)) { seen.add(key); indexData.push(it); }
+            }
+
+            // Rebuild local Fuse with people included
+            fuse = new FuseCtor(indexData, {
+              includeScore: true,
+              minMatchCharLength: 2,
+              threshold: 0.45,
+              ignoreLocation: true,
+              keys: [
+                { name: 'title_lc', weight: 0.5 },
+                { name: 'content',  weight: 0.35 },
+                { name: 'tags',     weight: 0.15 }
+              ]
+            });
+
+            // Notify worker and cache augmented index
+            if (worker) worker.postMessage({
+              type: 'BUILD',
+              pages: indexData,
+              fuseConfig: { keys: ['title_lc','content','tags'] }
+            });
+            try {
+              localStorage.setItem('siteSearchIndex',
+                JSON.stringify({ v: '1.0.6+people', ts: Date.now(), index: indexData }));
+            } catch(_) {}
+          }
+        } catch(_) {}
+
+        showStatus('');
+        setProgress(0);
+        return indexData;
+      }
+    } catch (_) {}
+
+    // 2) Slow path: crawl + extract
+    showStatus('Indexing site… this can take a moment');
+    setProgress(15);
 
     const SEED_PAGES = [
       'index.html','about-glance.html','hod-desk.html',
@@ -718,11 +714,11 @@ try {
     SEED_PAGES.forEach(p => { if (!PAGES.includes(p)) PAGES.unshift(p); });
 
     const index = [];
+    let done = 0;
     for (const page of PAGES) {
       try {
         const loaded = await loadPageResilient(page);
-        if (!loaded) { log('Skip (load failed)', page); continue; }
-
+        if (!loaded) continue;
         const { doc, url } = loaded;
         const lower = url.toLowerCase();
 
@@ -735,8 +731,7 @@ try {
         } else if (/index\.html/.test(lower)) {
           index.push(...extractGeneric(doc, 'index.html'));
           ['announcements','seminars-events','publications','spotlight','spotlights'].forEach(id => {
-            const el = doc.getElementById(id);
-            if (!el) return;
+            const el = doc.getElementById(id); if (!el) return;
             const map = { announcements:'Announcements', 'seminars-events':'Seminars & Events', publications:'Recent Publications', spotlight:'Spotlight', spotlights:'Spotlight' };
             const t = map[id] || id;
             const text = (el.textContent || '').trim().slice(0, 240);
@@ -782,91 +777,17 @@ try {
             });
           }
         }
-      } catch (e) {
-        log('Skip', page, e && e.message);
-      }
-    }
-
-    // ---- Virtual page: Room booking (Resources) ----
-    index.push({
-      title: 'Resources: Room booking',
-      title_lc: 'resources room booking',
-      url: '#',
-      tags: ['room','booking','reservation','resources','link'],
-      snippet: 'Reserve seminar rooms and departmental facilities.',
-      content: 'room booking portal; reserve rooms; room reservation; departmental facilities booking.'
-    });
-
-    // ---- Virtual entries for Important Links (from links.html) ----
-    const VIRTUAL_LINKS = [
-      { t:'Library',                    u:'https://library.iith.ac.in/', tags:['link','library','resources'], sn:'Library homepage',
-        c:'library catalogue journals e-resources books' },
-      { t:'Hostel Coordinating Unit',   u:'https://hostel.iith.ac.in/',  tags:['link','hostel','hcu','student','resources'], sn:'HCU portal',
-        c:'hostel coordinating unit student housing mess' },
-      { t:'AIMS',                       u:'https://aims.iith.ac.in/aims/', tags:['link','erp','portal','aims'], sn:'AIMS portal',
-        c:'aims erp attendance leave grades academics portal' },
-      { t:'Intranet (IITH)',            u:'https://intranet.iith.ac.in/', tags:['link','intranet','internal'], sn:'IITH Intranet',
-        c:'intranet internal resources forms notices' },
-      { t:'Health Care @ IITH – Clinic',u:'https://iith.ac.in/Medical-Facilities/#clinic', tags:['link','medical','clinic','health'], sn:'Medical facilities',
-        c:'medical facilities clinic ambulance health' },
-      { t:'Students’ Gymkhana',         u:'https://gymkhana.iith.ac.in/', tags:['link','gymkhana','student','club'], sn:'Students’ Gymkhana',
-        c:'students gymkhana clubs activities sports' },
-      { t:'FAQ – Academic Matters',     u:'https://docs.google.com/document/d/e/2PACX-1vTY3UqQ_B8COc-dDLUtEajb7JFc9qTVj9cloe2zE-VyITq3fWgpqwSnpn0QTTH6PQ/pub', tags:['link','faq','academics'], sn:'Academic FAQs',
-        c:'faq academics forms rules procedures grades' },
-      { t:'NSS @ IITH',                 u:'https://nss.iith.ac.in/', tags:['link','nss','students','service'], sn:'National Service Scheme (IITH)',
-        c:'nss community service outreach' },
-      { t:'Seminars & Events (Dept.)',  u:'https://tejasri-n.github.io/Physics_Website/index.html#seminars', tags:['link','seminars','events','department'], sn:'Department seminars',
-        c:'seminars events department physics talks colloquium' },
-      { t:'Spotlight / News (Dept.)',   u:'https://tejasri-n.github.io/Physics_Website/', tags:['link','spotlight','news','department'], sn:'Department home',
-        c:'spotlight news updates department physics' },
-      { t:'Academic Calendar (IITH)',   u:'https://www.iith.ac.in/academics/', tags:['link','academics','calendar'], sn:'IITH academics',
-        c:'academic calendar academics regulations curriculum' },
-      { t:'Course Timetables',          u:'https://iith.ac.in/academics/calendars-timetables/', tags:['link','timetable','academics'], sn:'Course timetables',
-        c:'course timetable schedule classes' },
-      { t:'Forms & Downloads (IITH)',   u:'https://www.iith.ac.in/academics/forms/', tags:['link','forms','downloads','academics'], sn:'Academics forms',
-        c:'forms downloads certificates applications academics' },
-      { t:'Certificate Charges (IITH)', u:'https://www.iith.ac.in/academics/assets/files/pdf/Charges-for-Issue-of-Various-Certificates.pdf', tags:['link','download','pdf','academics'], sn:'Charges PDF',
-        c:'certificate charges fees' },
-      { t:'QIP Admission Portal',       u:'https://iith.ac.in/news/2021/02/18/QIP-Application-Portal/', tags:['link','qip','admissions'], sn:'QIP applications',
-        c:'qip admission portal' },
-      { t:'Counseling / Wellness (Sunshine)', u:'https://sunshine.iith.ac.in/', tags:['link','counseling','wellness','sunshine','student'], sn:'Sunshine portal',
-        c:'counselling wellness mental health support' },
-      { t:'Nakshatra Club (IITH)',      u:'https://sites.google.com/phy.iith.ac.in/nakshatraclubiith/home?authuser=0', tags:['link','nakshatra','club','students'], sn:'Nakshatra Club',
-        c:'nakshatra club students astronomy physics' },
-      { t:'Central Research Facilities (CRF)', u:'https://crf.iith.ac.in/', tags:['link','crf','research','facilities'], sn:'CRF',
-        c:'central research facilities instruments booking' },
-      { t:'Physics Research Areas',      u:'https://tejasri-n.github.io/Physics_Website/research.html', tags:['link','research','department'], sn:'Department research',
-        c:'physics research areas groups labs' },
-      { t:'Department Labs & Facilities',u:'https://tejasri-n.github.io/Physics_Website/research.html', tags:['link','labs','facilities','department'], sn:'Labs & Facilities',
-        c:'labs facilities instruments' },
-      { t:'OCS – Internships & Placements', u:'https://ocs.iith.ac.in/', tags:['link','ocs','placements','internships','career'], sn:'OCS portal',
-        c:'internships placements ocs campus recruitment' },
-      { t:'Faculty Leave Form',          u:'https://docs.google.com/forms/d/e/1FAIpQLSc3alqVL8kb-9XnXtLdj-qd5_auC0RrRMcI7Qjmp7U6i0Bm0w/viewform', tags:['link','forms','leave','faculty'], sn:'Google Form',
-        c:'faculty leave form application cl el od' },
-      { t:'Staff Leave Form',            u:'https://docs.google.com/forms/d/e/1FAIpQLSdS65lLerPB2e20hSCb5yJktWlcujPxIp-yiS4T4186YhNZOg/viewform', tags:['link','forms','leave','staff'], sn:'Google Form',
-        c:'staff leave form application cl el od' },
-      { t:'CDPA Form',                   u:'https://docs.google.com/forms/d/e/1FAIpQLSfUWMgbR9TWND4lTaVN4Np9Mrr_fpV4kjrk-c6Pcfi2FYEdiQ/viewform', tags:['link','forms','cdpa'], sn:'Google Form',
-        c:'cdpa form application' },
-      { t:'International Travel Support – External Agencies', u:'https://docs.google.com/document/d/13f8IVkhSawRKBGM_M4MRnjSWhifHxkPBaGGbYLrO5ME/edit?tab=t.0', tags:['link','travel','support','external'], sn:'Google Doc',
-        c:'international travel support external agencies' },
-      { t:'Campus Security',             u:'https://security.iith.ac.in', tags:['link','security','emergency','help'], sn:'Security portal',
-        c:'campus security main gate emergency contact' }
-    ];
-
-    for (const L of VIRTUAL_LINKS) {
-      const title = L.t;
-      index.push({
-        title,
-        title_lc: title.toLowerCase(),
-        url: L.u,
-        tags: L.tags,
-        snippet: L.sn,
-        content: (L.c || title).toLowerCase()
-      });
+      } catch (_) {}
+      // Update progress gently
+      done++;
+      const pct = 15 + Math.round((done / PAGES.length) * 80); // 15%..95%
+      setProgress(pct);
+      if (done % 5 === 0) showStatus(`Indexing… ${done}/${PAGES.length} pages`);
     }
 
     indexData = index;
 
+    // Local Fuse
     fuse = new FuseCtor(indexData, {
       includeScore: true,
       minMatchCharLength: 2,
@@ -879,69 +800,39 @@ try {
       ]
     });
 
-    try {
-      // bump version to force rebuild
-      const payload = { v: '1.0.6', ts: Date.now(), index: indexData };
-      localStorage.setItem('siteSearchIndex', JSON.stringify(payload));
-    } catch (_) {}
+    // Worker
+    if (worker) {
+      worker.postMessage({
+        type: 'BUILD',
+        pages: indexData,
+        fuseConfig: {
+          includeScore: true,
+          minMatchCharLength: 2,
+          threshold: 0.45,
+          ignoreLocation: true,
+          keys: [
+            { name: 'title_lc', weight: 0.5 },
+            { name: 'content',  weight: 0.35 },
+            { name: 'tags',     weight: 0.15 }
+          ]
+        }
+      });
+    }
 
-    try {
-      if (worker) {
-        worker.postMessage({
-          type: 'BUILD',
-          pages: indexData,
-          fuseConfig: {
-            includeScore: true,
-            minMatchCharLength: 2,
-            threshold: 0.45,
-            ignoreLocation: true,
-            keys: [
-              { name: 'title_lc', weight: 0.5 },
-              { name: 'content',  weight: 0.35 },
-              { name: 'tags',     weight: 0.15 }
-            ]
-          }
-        });
-      }
-    } catch (_) {}
-
+    showStatus('');
+    setProgress(0);
     return indexData;
   }
 
-  // ---------- NEW: Small helpers for progress & status ----------
-  function setProgress(pct) {
-    var wrap = document.getElementById('search-progress');
-    var bar  = document.getElementById('search-progress-bar');
-    if (!wrap || !bar) return;
-    wrap.style.display = (pct > 0 && pct < 100) ? 'block' : 'none';
-    bar.style.width = Math.max(0, Math.min(100, pct)) + '%';
-  }
-  function showStatus(msg) {
-    if (statusEl) statusEl.textContent = msg || '';
-  }
-
-  // ---------- substring fallback ----------
-  function fallbackFilter(query) {
-    const q = norm(query);
-    return (indexData || []).filter(it => {
-      const inTitle = (it.title_lc || '').includes(q);
-      const inTags  = (it.tags || []).some(t => (t || '').includes(q));
-      const inBody  = (it.content || '').includes(q);
-      return inTitle || inTags || inBody;
-    });
-  }
-
-  // ---------- UI ----------
+  // ---------- live suggestions ----------
   let selIdx = -1;
 
-  // Grouped suggestions (with mobile guard)
   function renderSuggestion(items) {
     // guard: never render dropdown on mobile/tablet
     if (window.matchMedia('(max-width: 900px)').matches) {
       if (suggest) { suggest.classList.remove('show'); suggest.style.display = 'none'; suggest.innerHTML = ''; }
       return;
     }
-
     if (!suggest) return;
 
     const q = (input && input.value) || '';
@@ -1029,202 +920,10 @@ try {
     rows.forEach((n,i) => n.setAttribute('aria-selected', i === selIdx ? 'true' : 'false'));
   }
 
-  // SMARTER auto-redirect
-  function tryAutoRedirect(query, items){
-    const nq = norm(query);
-
-    // Existing "leave" logic
-    if (/(^|\b)(leave|vacation|absence|on duty|od|el|cl|ml|leave portal|leave rules)($|\b)/.test(nq)) {
-      const links = items.filter(it => (it.tags||[]).includes('link') &&
-        ((it.title_lc||'').includes('leave') || (it.content||'').includes('leave')));
-      if (!links.length) return false;
-      const wantFaculty = /\bfaculty\b/i.test(query);
-      const wantStaff   = /\bstaff\b/i.test(query);
-      if (wantFaculty || wantStaff) {
-        const picked = links.find(it => (wantFaculty ? /faculty/i : /staff/i).test(it.title || ''));
-        if (picked && picked.url) { window.location.href = picked.url; return true; }
-      }
-      if (links.length === 1 && links[0].url) { window.location.href = links[0].url; return true; }
-    }
-
-    // New keywords → direct link if only one good match
-    const KEYWORDS = [
-      {k:/(^|\b)(library|lib)($|\b)/, tag:'library'},
-      {k:/(^|\b)(aims)($|\b)/, tag:'aims'},
-      {k:/(^|\b)(intranet)($|\b)/, tag:'intranet'},
-      {k:/(^|\b)(ocs|placements|internships)($|\b)/, tag:'ocs'},
-      {k:/(^|\b)(crf|central research facilities?)($|\b)/, tag:'crf'},
-      {k:/(^|\b)(sunshine|counsel(ling|ing)|wellness)($|\b)/, tag:'counseling'},
-      {k:/(^|\b)(security|main gate)($|\b)/, tag:'security'},
-      {k:/(^|\b)(gymkhana)($|\b)/, tag:'gymkhana'},
-      {k:/(^|\b)(room booking|seminar room)($|\b)/, tag:'room'}
-    ];
-
-    for (const rule of KEYWORDS) {
-      if (rule.k.test(nq)) {
-        const links = items.filter(it => (it.tags||[]).includes('link') && (
-          (it.title_lc||'').includes(rule.tag) || (it.content||'').includes(rule.tag)
-        ));
-        if (links.length === 1 && links[0].url) { window.location.href = links[0].url; return true; }
-      }
-    }
-    return false;
-  }
-
-  function runSearch(q, { limit = 50 } = {}) {
-    return new Promise((resolve) => {
-      if (worker && workerReady) {
-        pendingResultsResolver = (items) => resolve(items || []);
-        worker.postMessage({ type: 'QUERY', q, limit });
-      } else {
-        const items = (fuse && fuse.search ? fuse.search(norm(q), { limit }) : []).map(r => r.item);
-        resolve(items);
-      }
-    });
-  }
-
-  function rankAndMaybeRedirect(query, items) {
-    if (!items || !items.length) return { redirected:false, items: [] };
-    if (tryAutoRedirect(query, items)) return { redirected:true, items: [] };
-    items = sortForLeaveQuery(items, query);
-    if (isNameish(query, { allowSingle: true })) items = sortForNameQuery(items, query);
-    return { redirected:false, items };
-  }
-
-  function renderResultsList(container, items, q) {
-    if (!container) return;
-    if (!items || !items.length) { container.innerHTML = `<p>No results found.</p>`; return; }
-    container.innerHTML = items.map(item => {
-      const s = (item.snippet || item.content || '').slice(0, 180);
-      const { key, label } = getType(item);
-      const jump = hasAnchorFlag(item) ? `<a href="${item.url}" class="srch-pill" style="margin-left:6px" title="Jump to section">Jump ↪</a>` : '';
-      return `<article class="search-result" style="padding:12px 0;border-bottom:1px solid #eee">
-        <div style="display:flex;align-items:flex-start;gap:10px">
-          <span class="srch-badge srch-badge--${key}">${label}</span>
-          <div style="flex:1 1 auto;min-width:0">
-            <h3 style="margin:0 0 6px 0;font-size:18px"><a href="${item.url}">${highlight(item.title, q)}</a>${jump}</h3>
-            <div style="font-size:13px;color:#555">${highlight(s, q)}…</div>
-            <div style="font-size:12px;color:#888">${(item.url || '')}</div>
-          </div>
-        </div>
-      </article>`;
-    }).join('');
-  }
-
-  // ---------- NEW: ensureIndexBuilt (fast: searchIndex.json; slow: crawl) ----------
-  async function ensureIndexBuilt() {
-    if (indexData) return indexData;
-
-    showStatus('Preparing search index…');
-    setProgress(8);
-
-    // 1) Try prebuilt static index for instant results
-    try {
-      const res = await fetch('searchIndex.json', { cache: 'no-store' });
-      if (res.ok) {
-        const pages = await res.json();
-        indexData = pages.map(it => ({
-          title: it.title,
-          url: it.url,
-          snippet: it.snippet || '',
-          title_lc: (it.title || '').toLowerCase(),
-          tags: it.tags || [],
-          content: (it.content || '').toLowerCase()
-        }));
-
-        // PATCH B: Build local Fuse too (so searching works without worker)
-        fuse = new FuseCtor(indexData, {
-          includeScore: true,
-          minMatchCharLength: 2,
-          threshold: 0.45,
-          ignoreLocation: true,
-          keys: [
-            { name: 'title_lc', weight: 0.5 },
-            { name: 'content',  weight: 0.35 },
-            { name: 'tags',     weight: 0.15 }
-          ]
-        });
-
-        // Tell the worker to build from JSON (fast path)
-        if (worker) worker.postMessage({
-          type: 'BUILD',
-          pages: indexData,
-          fuseConfig: { keys: ['title_lc','content','tags'] }
-        });
-
-        showStatus('');
-        setProgress(0);
-        return indexData;
-      }
-    } catch (_) {}
-
-    // 2) Slow path: crawl + extract (your existing logic), but with progress updates
-    showStatus('Indexing site… this can take a moment');
-    setProgress(15);
-
-    const SEED_PAGES = [
-      'index.html','about-glance.html','hod-desk.html',
-      'faculty.html','staff.html','students.html','alumni.html',
-      'research.html','programs.html','academic_docs.html','academics.html',
-      'opportunities.html','links.html','documents.html',
-      'gallery.html','committees.html'
-    ];
-
-    let PAGES = await discoverPages(SEED_PAGES, 300);
-    SEED_PAGES.forEach(p => { if (!PAGES.includes(p)) PAGES.unshift(p); });
-
-    const index = [];
-    let done = 0;
-    for (const page of PAGES) {
-      try {
-        const loaded = await loadPageResilient(page);
-        if (!loaded) continue;
-        const { doc, url } = loaded;
-        const lower = url.toLowerCase();
-
-        if (/faculty\.html(\?|$)|staff\.html(\?|$)|students\.html(\?|$)/.test(lower)) {
-          index.push(...extractGeneric(doc, url.split('#')[0]));
-          let baseTag = 'faculty', titlePrefix = 'Faculty';
-          if (/staff\.html/.test(lower))   { baseTag = 'staff';   titlePrefix = 'Staff'; }
-          if (/students\.html/.test(lower)){ baseTag = 'student'; titlePrefix = 'Student'; }
-          index.push(...extractPeople(doc, url, baseTag, titlePrefix));
-        } else if (/index\.html/.test(lower)) {
-          index.push(...extractGeneric(doc, 'index.html'));
-          ['announcements','seminars-events','publications','spotlight','spotlights'].forEach(id => {
-            const el = doc.getElementById(id); if (!el) return;
-            const map = { announcements:'Announcements', 'seminars-events':'Seminars & Events', publications:'Recent Publications', spotlight:'Spotlight', spotlights:'Spotlight' };
-            const t = map[id] || id;
-            const text = (el.textContent || '').trim().slice(0, 240);
-            index.push({ title: `${t}`, title_lc: norm(t), url: `index.html#${id}`, tags: ['home', id], snippet: text, content: norm(text), hasAnchor:true });
-          });
-        } else {
-          index.push(...extractGeneric(doc, page));
-        }
-      } catch (_) {}
-      // Update progress gently
-      done++;
-      const pct = 15 + Math.round((done / PAGES.length) * 80); // 15%..95%
-      setProgress(pct);
-      if (done % 5 === 0) showStatus(`Indexing… ${done}/${PAGES.length} pages`);
-    }
-
-    indexData = index;
-    if (worker) worker.postMessage({
-      type: 'BUILD',
-      pages: indexData,
-      fuseConfig: { keys: ['title_lc','content','tags'] }
-    });
-
-    showStatus('');
-    setProgress(0);
-    return indexData;
-  }
-
-  // ---------- NEW: live suggestions with inline “loading” state ----------
+  // live suggest (with loading shimmer while index warms)
   async function liveSuggest(q) {
     if (!q || q.trim().length === 0) { renderSuggestion([]); return; }
 
-    // Show a subtle “loading” shimmer row if the index isn’t ready yet
     const loadingRow = `
       <div class="srch-suggest-row" aria-disabled="true"
            style="display:flex;gap:8px;align-items:center;padding:10px 12px;opacity:.85">
@@ -1241,17 +940,15 @@ try {
       input && input.setAttribute('aria-expanded', 'true');
     }
 
-    // Ensure index exists (shows top bar progress if needed)
     await ensureIndexBuilt();
 
-    // For very short queries, keep worker responsive
     setProgress(30);
     const items = await queryWorker(q, { limit: 15 });
     setProgress(0);
     renderSuggestion(items || []);
   }
 
-  // ---------- RESULTS PAGE (lazy render) ----------
+  // ---------- results page ----------
   async function runResultsPage() {
     if (!isResultsPage) return;
     const params = new URLSearchParams(location.search);
@@ -1292,6 +989,7 @@ try {
     renderChunk();
   }
 
+  // ---------- init ----------
   (async function init() {
     try {
       // warm cache (non-blocking)
@@ -1328,8 +1026,7 @@ try {
       })();
 
       if (form && input) {
-        // NOTE: we now build index lazily via ensureIndexBuilt() inside liveSuggest/runResultsPage
-
+        // Debounced suggestions (desktop only)
         const debouncedSuggest = debounce(() => {
           if (window.matchMedia('(max-width: 900px)').matches) return; // no dropdown on mobile
           const q = input.value.trim();
@@ -1378,6 +1075,69 @@ try {
         });
       }
 
+      // Live search inside search.html (type-to-search behavior)
+      (function attachResultsPageLiveSearch() {
+        try {
+          if (!/\/?search\.html$/i.test(location.pathname)) return;
+
+          const input   = document.getElementById('search-input');
+          const outEl   = document.getElementById('srch-out');
+          const statusEl= document.getElementById('search-status');
+
+          const debounceLocal = (fn, ms=150) => { let t; return (...a)=>{ clearTimeout(t); t=setTimeout(()=>fn(...a),ms); }; };
+
+          async function doSearch(q) {
+            const query = (q || '').trim();
+            if (!query) {
+              statusEl && (statusEl.textContent = '');
+              outEl && (outEl.innerHTML = '');
+              return;
+            }
+
+            const wrap = document.getElementById('search-progress');
+            const bar  = document.getElementById('search-progress-bar');
+            if (wrap && bar) { wrap.style.display='block'; bar.style.width='35%'; }
+            statusEl && (statusEl.textContent = 'Searching…');
+
+            await ensureIndexBuilt();
+
+            let items = [];
+            if (typeof queryWorker === 'function') {
+              items = await queryWorker(query, { limit: 200 });
+            } else if (typeof runSearch === 'function') {
+              items = await runSearch(query, { limit: 200 });
+            }
+
+            if (wrap && bar) { bar.style.width='100%'; setTimeout(()=>{ wrap.style.display='none'; bar.style.width='0%'; }, 250); }
+            statusEl && (statusEl.textContent = items.length ? `${items.length} result${items.length>1?'s':''}` : 'No results');
+
+            if (typeof renderResultsList === 'function') {
+              renderResultsList(outEl, items, query);
+            } else {
+              outEl.innerHTML = items.map(it => `
+                <article class="search-result">
+                  <h3><a href="${it.url}">${it.title || ''}</a></h3>
+                  <div>${(it.snippet || it.content || '').slice(0,180)}…</div>
+                  <div class="search-url">${it.url}</div>
+                </article>`).join('');
+            }
+          }
+
+          if (!input || !outEl) return;
+
+          const urlQ = new URLSearchParams(location.search).get('q') || '';
+          if (urlQ) { input.value = urlQ; doSearch(urlQ); }
+
+          input.addEventListener('input', debounceLocal(e => doSearch(e.target.value), 160));
+          input.addEventListener('keydown', e => {
+            if (e.key === 'Enter') { e.preventDefault(); doSearch(input.value); }
+          });
+        } catch (e) {
+          console && console.error && console.error('[search live]', e);
+        }
+      })();
+
+      // Full page results renderer
       runResultsPage();
     } catch (e) {
       onError(e);

@@ -113,6 +113,16 @@
     const re = new RegExp('(' + words.join('|') + ')', 'ig');
     return esc(text).replace(re, '<mark>$1</mark>');
   }
+
+  function normalizeUrl(u) {
+  try {
+    const a = new URL(u, location.origin);
+    if (a.origin !== location.origin) return null;       // keep only same-site
+    const path = (a.pathname + (a.search || '')).replace(/^\/+/, '');
+    return path.replace(/#.*$/, '');
+  } catch { return null; }
+}
+
   function getType(item){
     const tags = item.tags || [];
     const tl   = (item.title || '').toLowerCase();

@@ -32,6 +32,40 @@
       return out;
     };
   };
+// --- Augment JSON index with people (faculty/staff/students)
+try {
+  const people = await augmentPeopleFromPages(['faculty.html','staff.html','students.html']);
+  if (people && people.length) {
+    const seen = new Set(indexData.map(it => (it.url||'') + '|' + (it.title||'')));
+    for (const it of people) {
+      const key = (it.url||'') + '|' + (it.title||'');
+      if (!seen.has(key)) { seen.add(key); indexData.push(it); }
+    }
+    // Rebuild local Fuse
+    fuse = new FuseCtor(indexData, {
+      includeScore: true,
+      minMatchCharLength: 2,
+      threshold: 0.45,
+      ignoreLocation: true,
+      keys: [
+        { name: 'title_lc', weight: 0.5 },
+        { name: 'content',  weight: 0.35 },
+        { name: 'tags',     weight: 0.15 }
+      ]
+    });
+    // Notify worker
+    if (worker) worker.postMessage({
+      type: 'BUILD',
+      pages: indexData,
+      fuseConfig: { keys: ['title_lc','content','tags'] }
+    });
+    // Cache augmented index
+    try {
+      localStorage.setItem('siteSearchIndex',
+        JSON.stringify({ v:'1.0.6+people', ts:Date.now(), index:indexData }));
+    } catch(_) {}
+  }
+} catch(_) {}
 
   const form    = document.getElementById('site-search');
   const input   = document.getElementById('search-input');
@@ -122,6 +156,22 @@
     return path.replace(/#.*$/, '');
   } catch { return null; }
 }
+  while (queue.length && out.length < maxPages) {
+  const path = queue.shift();
+  out.push(path);
+  try {
+    const res = await fetch('/' + path, { cache: 'no-store' }); // ← add this
+    if (!res.ok) continue;
+    const html = await res.text();
+    const doc = new DOMParser().parseFromString(html, 'text/html');
+    doc.querySelectorAll('a[href]').forEach(a => {
+      const n = normalizeUrl(a.getAttribute('href'));
+      if (!n || !isIndexablePath(n)) return;
+      if (!seen.has(n)) { seen.add(n); queue.push(n); }
+    });
+  } catch {}
+}
+
 
   function getType(item){
     const tags = item.tags || [];

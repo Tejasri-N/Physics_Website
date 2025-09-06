@@ -243,6 +243,8 @@
     if (/^mailto:|^tel:/i.test(path)) return false;
     return true;
   }
+  async function augmentPeopleFromPages(pages = ['faculty.html','staff.html','students.html']) { /* …as you pasted… */ }
+
   async function discoverPages(seedPaths, maxPages = 300) {
     const seen = new Set();
     const queue = [];

@@ -1,67 +1,49 @@
+<!-- /js/people-anchors.js -->
+<script>
 /* people-anchors.js
  * Deep-link helper for Faculty/Staff/Students.
- * - Supports anchors created by search: #student-<slug>, #faculty-<slug>, #staff-<slug>, #id or #:~:text=<Name>
+ * - Supports anchors created by search: #student-<slug>, #staff-<slug>, #section-<slug>, or #:~:text=<Name>
  * - Auto-activates Degree/Year on Students page and scrolls to the card
- * - Applies offset for fixed headers and highlights the target
  */
-
 (function () {
-  // ---------- tiny utils ----------
   const $  = (sel, root=document) => root.querySelector(sel);
   const $$ = (sel, root=document) => Array.from(root.querySelectorAll(sel));
   const norm = s => (s||"").normalize("NFKD").replace(/[\u0300-\u036f]/g,"").toLowerCase().trim();
   const slug = s => norm(s).replace(/&/g," and ").replace(/[^a-z0-9\s-]/g,"").replace(/\s+/g,"-").replace(/-+/g,"-");
 
-  function headerOffsetPx(){
-    const topbar = $('.header-topbar');
-    const navbar = $('.navbar');
-    const h1 = topbar ? topbar.getBoundingClientRect().height : 0;
-    const h2 = navbar ? navbar.getBoundingClientRect().height : 0;
-    // add a tiny breathing room
-    return Math.max(0, Math.round(h1 + h2 + 8));
-  }
-
-  function scrollIntoViewWithOffset(el, {behavior='smooth'} = {}){
+  function smoothScrollIntoView(el){
     if (!el) return;
-    const off = headerOffsetPx();
-    try {
-      // native smooth first
-      el.scrollIntoView({behavior, block:'start'});
-    } catch {
-      el.scrollIntoView(true);
-    }
-    // then nudge up by header height
-    window.scrollBy({top: -off, left: 0, behavior});
-    // highlight
-    el.classList.add('jump-highlight');
-    setTimeout(() => el && el.classList && el.classList.remove('jump-highlight'), 2500);
+    try { el.scrollIntoView({behavior:"smooth", block:"center"}); }
+    catch { el.scrollIntoView(true); }
+    el.classList.add("jump-highlight");
+    setTimeout(()=> el && el.classList && el.classList.remove("jump-highlight"), 2500);
   }
 
-  // get name from URL: #student-ramesh-kv / #faculty-guhan ... or #:~:text=RAMESH%20K%20V
+  // Parse name from URL:
+  //   #student-ramesh-kv
+  //   #staff-t-chengappa
+  //   #section-t-chengappa
+  //   #:~:text=T%20Chengappa
   function getTargetNameFromURL(){
     const href = String(window.location.href || "");
+    // Text fragment
     if (href.includes("#:~:text=")) {
       const after = href.split("#:~:text=").pop();
       if (after) {
-        // stop at '&' or further '#' if present
-        const raw = after.split('&')[0].split('#')[0];
-        try { return decodeURIComponent(raw); } catch { return raw; }
+        try { return decodeURIComponent(after).split("&")[0]; } catch { return after; }
       }
     }
+    // Slugged fragments we generate or used to generate
     const h = window.location.hash || "";
-    if (/^#(student|faculty|staff)-/.test(h)) {
-      return h.replace(/^#(student|faculty|staff)-/, "").replace(/-/g, " ");
+    const m = h.match(/^#(student|staff|faculty|section|block|spot)-(.+)$/i);
+    if (m) {
+      // turn "t-chengappa" -> "t chengappa"
+      return decodeURIComponent(m[2]).replace(/-/g," ").trim();
     }
     return "";
   }
 
-  function hashTargetId(){
-    const h = window.location.hash || "";
-    if (h && /^#[A-Za-z][\w\-:.]*$/.test(h)) return h.slice(1);
-    return null;
-  }
-
-  // heuristic degree/year from enrollment like "PH24RESCH01009"
+  // Heuristic degree/year from enrollment like "PH24RESCH01009"
   function inferFromEnroll(enroll){
     const E = (enroll||"").toUpperCase();
     let degree = "";
@@ -79,22 +61,20 @@
     return {degree, year};
   }
 
-  // click a button/pill whose text matches label (case-insensitive)
   function clickPillByText(label){
     if (!label) return false;
     const want = norm(label);
-    const btn = $$("button, a, .pill, .chip, .tab").find(b => norm(b.textContent) === want);
+    const btn = $$("button, a, .pill, .chip, .tab")
+      .find(b => norm(b.textContent) === want);
     if (btn) { btn.click(); return true; }
     return false;
   }
 
-  // find a student card by visible name
-  function findRenderedCardByName(name, scopeRoots){
+  function findRenderedStudentCardByName(name){
     const want = norm(name);
-    const scopes = (scopeRoots && scopeRoots.length ? scopeRoots : [$("main"), $(".page-container"), $(".container"), document.body])
-      .filter(Boolean);
+    const scopes = $$("#students, main, .page-container, .container, body");
     for (const scope of scopes) {
-      const candidates = $$("[data-name], .student-card, .faculty-card, .staff-card, .profile-card, .member, .person, .card, .people-card, .team-card", scope);
+      const candidates = $$("[data-name], .student-card, .card, .member, .people-card, .profile-card, .student", scope);
       for (const el of candidates) {
         const txt = norm(el.getAttribute("data-name") || el.textContent);
         if (txt && txt.includes(want)) return el;
@@ -103,9 +83,7 @@
     return null;
   }
 
-  // ---------- students deep-link ----------
   async function jumpToStudent(name){
-    // 1) try to use hidden dataset to pick Degree/Year
     let degree = "", year = "";
     let dataNode = null;
 
@@ -123,72 +101,46 @@
       }
     }
 
-    // 2) Activate Degree and Year pills (best effort)
     if (degree) clickPillByText(degree);
-    await new Promise(r=>setTimeout(r, 70)); // allow render
+    await new Promise(r=>setTimeout(r, 60));
     if (year)   clickPillByText(year);
 
-    // 3) Wait for grid render, then locate/scroll to card
     let tries = 0, card = null;
-    while (tries++ < 30) { // up to ~3s
-      card = findRenderedCardByName(name, [$("#students"), $("main"), document.body]);
+    while (tries++ < 25) {
+      card = findRenderedStudentCardByName(name);
       if (card) break;
       await new Promise(r=>setTimeout(r, 100));
     }
-    if (card) scrollIntoViewWithOffset(card);
+    if (card) smoothScrollIntoView(card);
   }
 
-  // ---------- generic helpers ----------
   function jumpToExistingAnchorByText(name){
-    const el = findRenderedCardByName(name, [document.body]);
-    if (el) scrollIntoViewWithOffset(el);
-  }
-
-  function tryTextFragment(){
-    // browsers may already highlight; provide fallback
-    const name = getTargetNameFromURL();
-    if (!name) return false;
-    const el = findRenderedCardByName(name, [document.body]);
-    if (el) { scrollIntoViewWithOffset(el); return true; }
-    return false;
+    const want = norm(name);
+    const candidates = $$("h1,h2,h3,h4,h5,.faculty-card,.staff-card,.profile-card,.member,.person,.card");
+    const el = candidates.find(n => norm(n.textContent).includes(want));
+    if (el) smoothScrollIntoView(el);
   }
 
   function handleDeepLink(){
-    // 1) if there is an element id in hash, nudge & highlight
-    const id = hashTargetId();
-    if (id) {
-      const el = document.getElementById(id);
-      if (el) { scrollIntoViewWithOffset(el); return; }
-    }
-
-    // 2) if #:~:text=..., try to locate by text
-    if (window.location.href.includes("#:~:text=")) {
-      if (tryTextFragment()) return;
-    }
-
-    // 3) name-based deep link
     const targetName = getTargetNameFromURL();
     if (!targetName) return;
-
-    const onStudents = /\/?students\.html(\?|#|$)/i.test(location.pathname);
-    if (onStudents) jumpToStudent(targetName);
+    const onStudentsPage = /\/?students\.html(\?|#|$)/i.test(location.pathname);
+    if (onStudentsPage) jumpToStudent(targetName);
     else jumpToExistingAnchorByText(targetName);
   }
 
-  // ---------- init ----------
-  document.addEventListener("DOMContentLoaded", () => {
-    // Add tiny CSS for highlight + better native anchor offset when IDs exist
+  document.addEventListener("DOMContentLoaded", function(){
     const css = document.createElement("style");
     css.textContent = `
       .jump-highlight { outline: 3px solid rgba(66,72,144,.45); outline-offset: 3px; border-radius: 10px; transition: outline-color .4s; }
-      [id]{ scroll-margin-top:${Math.max(90, headerOffsetPx())}px; }
+      [id]{ scroll-margin-top:110px; }
+      html:focus-within { scroll-behavior:smooth; }
     `;
     document.head.appendChild(css);
     handleDeepLink();
   });
 
-  // In case assets change height (fonts/images), do another pass on window load
-  window.addEventListener('load', handleDeepLink);
-  // And respond to in-page hash changes
-  window.addEventListener('hashchange', handleDeepLink);
+  // Also react if hash changes after load
+  window.addEventListener("hashchange", handleDeepLink);
 })();
+</script>

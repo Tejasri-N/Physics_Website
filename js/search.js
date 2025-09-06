@@ -95,7 +95,7 @@
   }
 
   // ---------- UI/Ranking helpers ----------
-  function esc(s){return (s||'').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[m]));}
+  function esc(s){return (s||'').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[m]);}
   function highlight(text, q){
     if (!text) return '';
     if (!q) return esc(text);
@@ -455,11 +455,24 @@
   }
   startWorker();
 
-  function queryWorker(q, { limit=50 } = {}) {
+  // PATCH A: robust worker query with local fallback
+  function queryWorker(q, { limit = 50 } = {}) {
     return new Promise(resolve => {
-      if (!worker) { resolve([]); return; }
-      pendingSuggestResolver = resolve;
-      worker.postMessage({ type:'QUERY', q, limit });
+      // If worker is ready, use it
+      if (worker && workerReady) {
+        pendingSuggestResolver = items => resolve(items || []);
+        worker.postMessage({ type: 'QUERY', q, limit });
+        return;
+      }
+      // Fallback: Fuse (if built) or substring filter
+      let items = [];
+      if (fuse && typeof fuse.search === 'function') {
+        try { items = (fuse.search(norm(q), { limit }) || []).map(r => r.item); } catch(_) {}
+      }
+      if (!items || !items.length) {
+        items = fallbackFilter(q).slice(0, limit);
+      }
+      resolve(items || []);
     });
   }
 
@@ -506,7 +519,6 @@
         } else {
           index.push(...extractGeneric(doc, page));
 
-          // links.html hierarchy capture (breadcrumb-like)
           if (/links\.html/.test(lower)) {
             const crumbs = Array.from(doc.querySelectorAll('.breadcrumb li, .breadcrumb a, nav.breadcrumb a, .breadcrumbs li, .breadcrumbs a'))
               .map(el => (el.textContent || '').trim()).filter(Boolean);
@@ -565,7 +577,7 @@
         c:'library catalogue journals e-resources books' },
       { t:'Hostel Coordinating Unit',   u:'https://hostel.iith.ac.in/',  tags:['link','hostel','hcu','student','resources'], sn:'HCU portal',
         c:'hostel coordinating unit student housing mess' },
-      { t:'AIMS',                       u:'https://aims.iith.ac.in/aims/', tags:['link','aims','erp','portal'], sn:'AIMS portal',
+      { t:'AIMS',                       u:'https://aims.iith.ac.in/aims/', tags:['link','erp','portal','aims'], sn:'AIMS portal',
         c:'aims erp attendance leave grades academics portal' },
       { t:'Intranet (IITH)',            u:'https://intranet.iith.ac.in/', tags:['link','intranet','internal'], sn:'IITH Intranet',
         c:'intranet internal resources forms notices' },
@@ -835,7 +847,7 @@
 
   function runSearch(q, { limit = 50 } = {}) {
     return new Promise((resolve) => {
-      if (worker) {
+      if (worker && workerReady) {
         pendingResultsResolver = (items) => resolve(items || []);
         worker.postMessage({ type: 'QUERY', q, limit });
       } else {
@@ -893,12 +905,27 @@
           tags: it.tags || [],
           content: (it.content || '').toLowerCase()
         }));
+
+        // PATCH B: Build local Fuse too (so searching works without worker)
+        fuse = new FuseCtor(indexData, {
+          includeScore: true,
+          minMatchCharLength: 2,
+          threshold: 0.45,
+          ignoreLocation: true,
+          keys: [
+            { name: 'title_lc', weight: 0.5 },
+            { name: 'content',  weight: 0.35 },
+            { name: 'tags',     weight: 0.15 }
+          ]
+        });
+
         // Tell the worker to build from JSON (fast path)
         if (worker) worker.postMessage({
           type: 'BUILD',
           pages: indexData,
           fuseConfig: { keys: ['title_lc','content','tags'] }
         });
+
         showStatus('');
         setProgress(0);
         return indexData;
@@ -982,9 +1009,11 @@
       </div>
       <style>@keyframes shimmer{0%{background-position:-120px 0}100%{background-position:120px 0}}</style>
     `;
-    suggest.innerHTML = loadingRow;
-    suggest.style.display = 'block';
-    input && input.setAttribute('aria-expanded', 'true');
+    if (suggest) {
+      suggest.innerHTML = loadingRow;
+      suggest.style.display = 'block';
+      input && input.setAttribute('aria-expanded', 'true');
+    }
 
     // Ensure index exists (shows top bar progress if needed)
     await ensureIndexBuilt();
@@ -1054,6 +1083,19 @@
                 includeScore: true, minMatchCharLength: 2, threshold: 0.45, ignoreLocation: true,
                 keys: [{name:'title_lc',weight:0.5},{name:'content',weight:0.35},{name:'tags',weight:0.15}]
               }
+            });
+
+            // Ensure local Fuse exists even on warm start
+            fuse = new FuseCtor(indexData, {
+              includeScore: true,
+              minMatchCharLength: 2,
+              threshold: 0.45,
+              ignoreLocation: true,
+              keys: [
+                { name: 'title_lc', weight: 0.5 },
+                { name: 'content',  weight: 0.35 },
+                { name: 'tags',     weight: 0.15 }
+              ]
             });
           }
         } catch (_) {}
@@ -1184,27 +1226,3 @@
     tick();
   })();
 })();
-
-
-<script>
-  const searchInput = document.getElementById("search-input");
-  const progressBar = document.getElementById("search-progress-bar");
-
-  let progressTimer;
-
-  searchInput.addEventListener("input", () => {
-    // Reset bar
-    progressBar.style.width = "0%";
-
-    // Simulate progress bar growing
-    setTimeout(() => { progressBar.style.width = "40%"; }, 100);
-    setTimeout(() => { progressBar.style.width = "70%"; }, 300);
-    setTimeout(() => { progressBar.style.width = "100%"; }, 600);
-
-    // Hide it after 1.5s
-    clearTimeout(progressTimer);
-    progressTimer = setTimeout(() => {
-      progressBar.style.width = "0%";
-    }, 1500);
-  });
-</script>

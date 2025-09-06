@@ -1,8 +1,9 @@
 /* people-anchors.js
  * Deep-link helper for Faculty/Staff/Students.
- * - Adds predictable ids: section-<slug> to H2/H3/H4 so #section-... anchors work
+ * - Adds predictable ids: section-<slug> to person blocks AND H2/H3/H4
  * - Supports text fragments (#:~:text=...)
  * - Students: auto-activates Degree/Year then scrolls to the card
+ * - Smooth scroll + offset below fixed header
  */
 (function () {
   // ---------- tiny utils ----------
@@ -19,21 +20,70 @@
     setTimeout(()=> el && el.classList && el.classList.remove("jump-highlight"), 2500);
   }
 
-  // get name from URL: #student-ramesh-kv   or   #:~:text=RAMESH%20K%20V
+  // get name from URL: #student-ramesh-kv  or #:~:text=Ramesh%20K%20V
   function getTargetNameFromURL(){
     const href = String(window.location.href || "");
-    const afterFrag = href.split("#:~:text=").pop();
-    if (href.includes("#:~:text=") && afterFrag) {
-      try { return decodeURIComponent(afterFrag).split("&")[0]; } catch { return afterFrag; }
+    if (href.includes("#:~:text=")) {
+      const after = href.split("#:~:text=").pop();
+      if (after) {
+        try { return decodeURIComponent(after).split("&")[0]; } catch { return after; }
+      }
     }
     const h = window.location.hash || "";
-    if (h && h.startsWith("#student-")) {
-      return h.replace(/^#student-/, "").replace(/-/g, " ");
-    }
+    if (h && h.startsWith("#student-")) return h.replace(/^#student-/, "").replace(/-/g, " ");
     return "";
   }
 
-  // heuristic degree/year from enrollment like "PH24RESCH01009"
+  // ---------- anchor installers ----------
+  // 1) Give predictable IDs to headings
+  function ensureSectionIdsOnHeadings() {
+    $$("h2,h3,h4").forEach(h => {
+      if (!h.id) h.id = "section-" + slug(h.textContent || "");
+    });
+  }
+
+  // 2) Give predictable IDs to person cards/rows based on visible name
+  function ensureSectionIdsOnPeople() {
+    const selectors = [
+      // common “card” wrappers
+      ".faculty-card",".faculty-member",".profile-card",".person",".member",".card",
+      ".fac-card",".member-card",".staff-card",".staff-member",".staff",
+      ".student-card",".student",".people-card",".people-item",".team-card",".team-member",".bio",".bio-card",
+      // tables and generic rows
+      "table tr",".list li",".grid > *"
+    ].join(",");
+
+    const used = new Set($$("[id]").map(n => n.id));
+    function uniqId(base) {
+      let id = base, i = 2;
+      while (used.has(id)) id = base + "-" + i++;
+      used.add(id);
+      return id;
+    }
+
+    $$(selectors).forEach(el => {
+      // try to find the best “name” text within the block
+      const nameEl =
+        el.querySelector(".member-name,.faculty-name,.staff-name,.student-name,.faculty-profile,h1,h2,h3,h4,h5, b, strong, a")
+        || el;
+      const nameText = (nameEl.textContent || "").trim();
+      const candidate = nameText.split(/\n/)[0].trim(); // first line is usually the name
+      const s = slug(candidate);
+      if (!s || s.length < 3) return;
+
+      const id = "section-" + s;
+      if (!el.id) el.id = uniqId(id);
+    });
+  }
+
+  function scrollToHashIfPossible() {
+    const hash = (location.hash || "").replace(/^#/, "");
+    if (!hash) return;
+    const el = document.getElementById(hash);
+    if (el) smoothScrollIntoView(el);
+  }
+
+  // ---------- students helpers ----------
   function inferFromEnroll(enroll){
     const E = (enroll||"").toUpperCase();
     let degree = "";
@@ -76,11 +126,10 @@
   async function jumpToStudent(name){
     // 1) try to use hidden dataset to pick Degree/Year
     let degree = "", year = "";
-    let dataNode = null;
     const nodes = $$("#studentData [data-name]");
     if (nodes.length){
       const want = norm(name);
-      dataNode = nodes.find(n => norm(n.getAttribute("data-name")).includes(want));
+      const dataNode = nodes.find(n => norm(n.getAttribute("data-name")).includes(want));
       if (dataNode) {
         const enroll = dataNode.getAttribute("data-enroll") || "";
         const hintDeg = dataNode.getAttribute("data-degree") || "";
@@ -95,6 +144,7 @@
     await new Promise(r=>setTimeout(r, 60));
     if (year)   clickPillByText(year);
 
+    // 2) scroll to the visible card
     let tries = 0, card = null;
     while (tries++ < 25) {
       card = findRenderedStudentCardByName(name);
@@ -104,24 +154,11 @@
     if (card) smoothScrollIntoView(card);
   }
 
+  // generic fallback (faculty/staff)
   function jumpToExistingAnchorByText(name){
     const want = norm(name);
     const candidates = $$("h1,h2,h3,h4,h5,.faculty-card,.staff-card,.profile-card,.member,.person,.card");
     const el = candidates.find(n => norm(n.textContent).includes(want));
-    if (el) smoothScrollIntoView(el);
-  }
-
-  // ensure predictable ids on headings: section-<slug>
-  function ensureSectionIds() {
-    $$("h2,h3,h4").forEach(h => {
-      if (!h.id) h.id = "section-" + slug(h.textContent || "");
-    });
-  }
-
-  function scrollToHashIfPossible() {
-    const hash = (location.hash || "").replace(/^#/, "");
-    if (!hash) return;
-    const el = document.getElementById(hash);
     if (el) smoothScrollIntoView(el);
   }
 
@@ -135,11 +172,14 @@
     `;
     document.head.appendChild(css);
 
-    // Add ids then try to honor any hash present (e.g., #section-t-chengappa)
-    ensureSectionIds();
+    // 1) install IDs for both headings and person cards
+    ensureSectionIdsOnHeadings();
+    ensureSectionIdsOnPeople();
+
+    // 2) honor any current hash (e.g., #section-t-chengappa) now that IDs exist
     scrollToHashIfPossible();
 
-    // If a text fragment name is present, do the deeper student/fallback logic too
+    // 3) if there’s a text fragment or #student-… name, try smarter jumps
     const targetName = getTargetNameFromURL();
     if (targetName) {
       const onStudentsPage = /\/?students\.html(\?|#|$)/i.test(location.pathname);
@@ -147,11 +187,11 @@
       else jumpToExistingAnchorByText(targetName);
     }
 
-    // Re-honor hash if it changes after load (e.g., SPA-ish links)
+    // 4) re-honor future hash changes (SPA-ish behavior)
     window.addEventListener("hashchange", () => {
-      ensureSectionIds();
+      ensureSectionIdsOnHeadings();
+      ensureSectionIdsOnPeople();
       scrollToHashIfPossible();
     });
   });
 })();
-

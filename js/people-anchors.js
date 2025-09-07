@@ -139,26 +139,51 @@
   }
 
   // ---------- find rendered student node ----------
+  // ---------- find rendered student node ----------
   function findRenderedStudentNode({name="", enroll=""}){
     const want = norm(name||"");
     const wantEnroll = (enroll||"").toUpperCase();
 
+    // If the page uses a table view, prefer exact-enroll matches in rows
     const tbl = $("#studentTable");
     if (tbl && tbl.style.display !== "none") {
+      // 1) prefer explicit data-enroll attribute matches in rows
       for (const tr of tbl.querySelectorAll("tbody tr")) {
+        const rowEnrollAttr = (tr.getAttribute("data-enroll") || "").toUpperCase().trim();
         const txt = tr.textContent || "";
-        if ((want && norm(txt).includes(want)) || (wantEnroll && txt.toUpperCase().includes(wantEnroll))) return tr;
+        if (wantEnroll && rowEnrollAttr && rowEnrollAttr === wantEnroll) return tr;
+        if (wantEnroll) {
+          // fallback: check for enroll text inside the row
+          if (txt.toUpperCase().includes(wantEnroll)) return tr;
+        }
+      }
+      // 2) no enroll match found in table: fallback to name substring match (first hit)
+      if (want) {
+        for (const tr of tbl.querySelectorAll("tbody tr")) {
+          const txt2 = tr.textContent || "";
+          if (norm(txt2).includes(want)) return tr;
+        }
       }
     }
 
+    // If not in table or table didn't match, check card-like elements (phd-student-card, student-card or elements with data-name)
     for (const el of $$(".phd-student-card, .student-card, [data-name]")) {
       const txt = (el.getAttribute("data-name") || el.textContent || "").toString();
       const dEnroll = (el.getAttribute("data-enroll") || "").toUpperCase();
-      if ((want && norm(txt).includes(want)) || (wantEnroll && dEnroll.includes(wantEnroll))) return el;
+      // Prefer explicit enrollment match
+      if (wantEnroll && dEnroll && dEnroll === wantEnroll) return el;
+      if (wantEnroll && !dEnroll) {
+        // If element lacks data-enroll attribute, still check textual enrollment presence as fallback
+        if (txt.toUpperCase().includes(wantEnroll)) return el;
+      }
+      // Fallback to name match
+      if (want && norm(txt).includes(want)) return el;
     }
+
     return null;
   }
 
+ 
   // ---------- click + wait helpers ----------
   async function clickCourse(courseKey){
     if (!courseKey) return false;

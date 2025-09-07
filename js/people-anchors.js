@@ -1,4 +1,3 @@
-<script>
 /* people-anchors.js
  * Deep-link helper for Faculty/Staff/Students.
  * - Adds predictable ids: section-<slug> to person blocks AND H2/H3/H4
@@ -115,9 +114,10 @@
 
   // Drive your existing UI: course → subcourse → year, then locate student
   async function openCohortAndFind(name){
-    const courseKeys = (window.courses && Object.keys(window.courses)) || ["btech","msc","mtech","phd"];
+    // Prefer explicit courses map if present
+    const courseKeys = (window.courses && Object.keys(window.courses)) || [];
 
-    // Try to pick degree/year from your hidden dataset (fast hint)
+    // If we can hint degree/year from hidden dataset, use that first
     let hinted = null;
     const nodes = $$("#studentData [data-name]");
     if (nodes.length){
@@ -128,67 +128,58 @@
         const hintDeg = node.getAttribute("data-degree") || "";
         const hintYear= node.getAttribute("data-year") || "";
         const {degree, year} = inferFromEnroll(enroll);
-        hinted = { degree: (hintDeg || degree || "").toLowerCase(), year: (hintYear || year || "").toString() };
+        hinted = { degree: hintDeg || degree || "", year: hintYear || year || "" };
       }
     }
 
     async function showCourse(course){
+      // click course pill if exists, otherwise call showSubcourses()
       const pill = $(`.course-pill[data-course="${course}"]`);
       if (pill) pill.click();
       else if (typeof window.showSubcourses === "function") window.showSubcourses(course, pill || {});
-      // wait for subcourse/nav to appear (or year wrapper for PhD)
-      for (let i=0;i<15;i++){
-        if ($("#subcourseNav") || $("#yearScrollWrapper")) break;
-        await sleep(100);
-      }
-      await sleep(150);
+      await sleep(130);
     }
     async function showSubcourse(sub){
       if (!sub) return;
-      for (let i=0;i<15;i++){
+      // sub pills are rendered after course click
+      for (let i=0;i<12;i++){ // wait up to ~1.2s
         const sp = $(`.subcourse-pill[data-subcourse="${sub}"]`);
-        if (sp) { sp.classList.contains("active") || sp.click(); break; }
+        if (sp) { sp.click(); break; }
         await sleep(100);
       }
-      await sleep(150);
+      await sleep(120);
     }
     async function showYear(course, sub, year){
       if (typeof window.showStudents === "function") window.showStudents(course, sub || null, String(year));
-      for (let i=0;i<18;i++){
-        // wait until table/cards for that selection are visible
-        const tc = $("#tableContainer");
-        const phdWrap = $(".phd-wrapper");
-        if ((tc && !tc.classList.contains("hidden")) || phdWrap) break;
-        await sleep(100);
-      }
-      await sleep(150);
+      await sleep(160);
     }
 
-    // 1) If we have a hint, try that first (all subcourses for safety)
+    // Strategy 1: If hinted, try just the hinted cohort (fast path)
     if (hinted && hinted.degree && hinted.year) {
-      const deg = hinted.degree;
-      await showCourse(deg);
-      const subs = (window.courses?.[deg]?.subcourses) ? Object.keys(window.courses[deg].subcourses) : [null];
-      for (const sub of subs) {
-        await showSubcourse(sub);
-        await showYear(deg, sub, hinted.year);
-        for (let i=0;i<20;i++){
+      const degreeKey = (courseKeys.find(k => norm($(`.course-pill[data-course="${k}"]`)?.textContent) === norm(hinted.degree)) || hinted.degree || "").toLowerCase();
+      if (degreeKey) {
+        await showCourse(degreeKey);
+        // try every visible subcourse for that degree (or none)
+        const subs = (window.courses?.[degreeKey]?.subcourses) ? Object.keys(window.courses[degreeKey].subcourses) : [null];
+        for (const sub of subs) {
+          await showSubcourse(sub);
+          await showYear(degreeKey, sub, hinted.year);
           const node = findRenderedStudentNodeByName(name);
           if (node) { smoothScrollIntoView(node); return true; }
-          await sleep(100);
         }
       }
     }
 
-    // 2) Deterministic exploration across all cohorts
-    for (const degree of courseKeys) {
+    // Strategy 2: Explore all cohorts deterministically
+    const degrees = courseKeys.length ? courseKeys : ["btech","msc","mtech","phd"];
+    for (const degree of degrees) {
       await showCourse(degree);
 
       const subs = (window.courses?.[degree]?.subcourses) ? Object.keys(window.courses[degree].subcourses) : [null];
       for (const sub of subs) {
         await showSubcourse(sub);
 
-        // available groups/years for this selection
+        // Collect years currently available for this selection
         const groups = Array.from(document.querySelectorAll(
           `#studentData > div[data-course="${degree}"]${sub ? `[data-subcourse="${sub}"]` : `:not([data-subcourse])`}`
         ));
@@ -196,13 +187,8 @@
 
         for (const y of years) {
           await showYear(degree, sub, y);
-
-          // wait for render and check repeatedly
-          for (let i=0;i<20;i++){  // ~2s
-            const node = findRenderedStudentNodeByName(name);
-            if (node) { smoothScrollIntoView(node); return true; }
-            await sleep(100);
-          }
+          const node = findRenderedStudentNodeByName(name);
+          if (node) { smoothScrollIntoView(node); return true; }
         }
       }
     }
@@ -240,7 +226,7 @@
       const onStudentsPage = /\/?students\.html(\?|#|$)/i.test(location.pathname);
       if (onStudentsPage) {
         // let Students page wire up first (year pills, etc.)
-        await sleep(180);
+        await sleep(120);
         await openCohortAndFind(targetName);
       } else {
         jumpToExistingAnchorByText(targetName);
@@ -258,7 +244,7 @@
     setTimeout(() => scrollToHashIfPossible(), 600);
   });
 
-  // Optional tiny API for manual calls
+  // (Optional) expose a tiny API if you ever want to call from elsewhere
   window.peopleAnchors = {
     jumpToName: async (name) => {
       if (/\/?students\.html(\?|#|$)/i.test(location.pathname)) return openCohortAndFind(name);
@@ -266,4 +252,3 @@
     }
   };
 })();
-</script>

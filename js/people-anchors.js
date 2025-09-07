@@ -13,6 +13,19 @@
   const slug = s => norm(s).replace(/&/g," and ").replace(/[^a-z0-9\s-]/g,"").replace(/\s+/g,"-").replace(/-+/g,"-");
   const sleep = (ms) => new Promise(r => setTimeout(r, ms));
 
+  function getTargetStudentFromURL(){
+  const h = window.location.hash || "";
+  if (h.startsWith("#student-")) {
+    const slugged = h.replace(/^#student-/, "");
+    const parts = slugged.split("-");
+    const enroll = parts[parts.length-1]; // last part is enrollment
+    const name = parts.slice(0,-1).join(" ");
+    return { name: decodeURIComponent(name), enroll: enroll.toUpperCase() };
+  }
+  return null;
+}
+
+
   function smoothScrollIntoView(el){
     if (!el) return;
     try { el.scrollIntoView({behavior:"smooth", block:"center"}); }
@@ -112,8 +125,31 @@ function getHintForStudent(name){
 }
 
 
-  function findRenderedStudentNodeByName(name){
-    const want = norm(name);
+ function findRenderedStudentNode({name, enroll}){
+  const want = norm(name);
+  const wantEnroll = (enroll||"").toUpperCase();
+
+  // Table rows
+  const table = $("#studentTable");
+  if (table && table.style.display !== "none") {
+    for (const tr of table.querySelectorAll("tbody tr")) {
+      if ((want && norm(tr.textContent).includes(want)) || 
+          (wantEnroll && tr.textContent.toUpperCase().includes(wantEnroll))) {
+        return tr;
+      }
+    }
+  }
+  // Cards (PhD / grid)
+  for (const el of $$(".phd-student-card,.student-card,[data-name]")) {
+    const txt = norm(el.textContent);
+    const dataEnroll = (el.getAttribute("data-enroll")||"").toUpperCase();
+    if ((want && txt.includes(want)) || (wantEnroll && dataEnroll.includes(wantEnroll))) {
+      return el;
+    }
+  }
+  return null;
+}
+
 
     // Table rows
     const table = $("#studentTable");

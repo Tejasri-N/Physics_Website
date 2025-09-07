@@ -202,22 +202,22 @@
     const pill = $(`.course-pill[data-course="${courseKey}"]`);
     if (!pill) { debugLog('course pill missing', courseKey); return false; }
     if (!pill.classList.contains("active")) { pill.click(); debugLog('clicked course', courseKey); } else debugLog('course already active', courseKey);
-    await waitFor(()=> $("#subcourseNav") || $("#yearContainer"), 2000, 80);
-    await sleep(90);
+    await waitFor(()=> $("#subcourseNav") || $("#yearContainer"), 3000, 100);
+    await sleep(110);
     return true;
   }
   async function clickSubcourse(subKey){
     if (!subKey) return true;
-    const ok = await waitFor(()=> $(`.subcourse-pill[data-subcourse="${subKey}"]`), 1600, 80);
+    const ok = await waitFor(()=> $(`.subcourse-pill[data-subcourse="${subKey}"]`), 2000, 80);
     if (!ok) { debugLog('subcourse pill never appeared for', subKey); return false; }
     const sp = $(`.subcourse-pill[data-subcourse="${subKey}"]`);
     if (!sp) return false;
     if (!sp.classList.contains("active")) { sp.click(); debugLog('clicked subcourse', subKey); }
-    await sleep(90);
+    await sleep(110);
     return true;
   }
   async function clickYear(year){
-    const ok = await waitFor(()=> $$("#yearContainer .year-pill").length > 0, 1600, 80);
+    const ok = await waitFor(()=> $$("#yearContainer .year-pill").length > 0, 2200, 90);
     if (!ok) { debugLog('year pills missing'); return false; }
     const btn = $$("#yearContainer .year-pill").find(b => (b.textContent||"").trim() === String(year));
     if (!btn) { debugLog('year pill not found for', year); return false; }
@@ -226,8 +226,8 @@
     await waitFor(()=> {
       const tc = $("#tableContainer"); const phd = $(".phd-wrapper");
       return (tc && !tc.classList.contains("hidden")) || !!phd || !!$("#studentTable");
-    }, 2200, 100);
-    await sleep(140);
+    }, 3000, 120);
+    await sleep(180);
     return true;
   }
   function visibleYearsFor(course, sub){
@@ -238,7 +238,7 @@
 
   // ---------- NEW: exact dataset-driven path ----------
   // Try to find an exact entry in #studentData by data-enroll or exact data-name
-  function findDataNodeByEnrollOrExactName({name="", enroll=""}){ 
+  function findDataNodeByEnrollOrExactName({name="", enroll=""}){
     const nodes = $$("#studentData [data-name]");
     if (!nodes.length) return null;
     const wantName = norm(name||"");
@@ -280,7 +280,7 @@
     } else {
       // if no year attribute, try to open students for the course/sub via site-provided func
       if (typeof window.showStudents === "function") {
-        try { window.showStudents(course, sub || null); await sleep(140); } catch {}
+        try { window.showStudents(course, sub || null); await sleep(200); } catch {}
       }
     }
 
@@ -288,11 +288,15 @@
     const enroll = node.getAttribute("data-enroll") || "";
     const name = node.getAttribute("data-name") || "";
     const found = await (async () => {
-      const ok = await waitFor(()=> !!findRenderedStudentNode({name, enroll}), 3500, 120);
+      const ok = await waitFor(()=> !!findRenderedStudentNode({name, enroll}), 4500, 150);
       return ok ? findRenderedStudentNode({name, enroll}) : null;
     })();
 
     if (found) { smoothScrollIntoView(found); return true; }
+    // try a slightly longer passive wait & scan before giving up
+    await sleep(220);
+    const found2 = findRenderedStudentNode({name, enroll});
+    if (found2) { smoothScrollIntoView(found2); return true; }
     debugLog('driveFromExactDataNode: element not found after rendering', node);
     return false;
   }
@@ -305,17 +309,22 @@
 
     debugLog('openCohortAndFind start', {name, enroll});
 
-    // ----- FAST-PATH: if enroll present, try passive global rendered search first -----
+    // ----- FAST-PATH: if enroll present, try passive global rendered search first (with retries) -----
     if (enroll && enroll.toString().trim()) {
-      await sleep(90); // let late-rendering complete shortly
-      const foundGlobal = findRenderedStudentNode({name, enroll});
-      if (foundGlobal) {
+      const wantEnrollNorm = normalizeEnroll(enroll);
+      let foundGlobal = null;
+      const retries = [60, 140, 260]; // ms waits between passive scans
+      for (let i=0;i<retries.length;i++){
+        await sleep(retries[i]);
+        foundGlobal = findRenderedStudentNode({name, enroll});
+        if (foundGlobal) break;
+      }
+      if (foundGlobal){
         debugLog('openCohortAndFind: global enroll found (fast-path)', enroll, foundGlobal);
         smoothScrollIntoView(foundGlobal);
         return true;
       }
-      // as an extra fallback, do a text-scan over DOM tokens (canonicalized)
-      const wantEnrollNorm = normalizeEnroll(enroll);
+      // DOM-wide exact token search as last passive attempt
       if (wantEnrollNorm) {
         const candidate = Array.from(document.querySelectorAll('body *')).find(el => {
           try {
@@ -363,7 +372,18 @@
     }
 
     // fallback sweep: attempt hinted degree first then all degrees
-    const courseKeys = (window.courses && Object.keys(window.courses)) || ["btech","msc","mtech","phd"];
+    const explicitCourseKeys = (window.courses && Object.keys(window.courses)) || ["btech","msc","mtech","phd"];
+    // If enroll implies a degree, try that degree first
+    const inferred = inferFromEnroll(enroll);
+    let courseKeys = explicitCourseKeys.slice();
+    if (inferred && inferred.degree) {
+      const dk = degreeToKey(inferred.degree);
+      if (dk && courseKeys.includes(dk)) {
+        courseKeys = [dk, ...courseKeys.filter(c => c !== dk)];
+        debugLog('reordered courseKeys to prefer inferred degree', dk, courseKeys);
+      }
+    }
+
     if (hinted && hinted.degreeKey){
       const deg = hinted.degreeKey;
       await clickCourse(deg);
@@ -383,7 +403,7 @@
       }
     }
 
-    // full sweep
+    // full sweep (with reordered courseKeys when possible)
     for (const deg of courseKeys){
       await clickCourse(deg);
       const subs = (window.courses?.[deg]?.subcourses) ? Object.keys(window.courses[deg].subcourses) : [null];
@@ -402,6 +422,7 @@
         }
       }
     }
+
     debugLog('openCohortAndFind: nothing found for', {name, enroll});
     return false;
   }

@@ -138,26 +138,36 @@
     return null;
   }
 
-  // ---------- find rendered student node ----------
+  // ---------- helpers to canonicalize enroll tokens ----------
+  function normalizeEnroll(e){
+    return (e||"").toString().toUpperCase().replace(/\s+/g,"").replace(/[^A-Z0-9]/g,"");
+  }
+  function tokensFromText(txt){
+    return (txt||"").toUpperCase().split(/\s|[,\u00A0|\/\-]+/).map(t => t.replace(/[^A-Z0-9]/g,"")).filter(Boolean);
+  }
+
   // ---------- find rendered student node ----------
   function findRenderedStudentNode({name="", enroll=""}){
     const want = norm(name||"");
-    const wantEnroll = (enroll||"").toUpperCase();
+    const wantEnrollNorm = normalizeEnroll(enroll);
 
     // If the page uses a table view, prefer exact-enroll matches in rows
     const tbl = $("#studentTable");
     if (tbl && tbl.style.display !== "none") {
-      // 1) prefer explicit data-enroll attribute matches in rows
+      // 1) prefer exact data-enroll attribute matches in rows (canonicalized)
       for (const tr of tbl.querySelectorAll("tbody tr")) {
-        const rowEnrollAttr = (tr.getAttribute("data-enroll") || "").toUpperCase().trim();
+        const rowEnrollAttr = normalizeEnroll(tr.getAttribute("data-enroll") || "");
         const txt = tr.textContent || "";
-        if (wantEnroll && rowEnrollAttr && rowEnrollAttr === wantEnroll) return tr;
-        if (wantEnroll) {
-          // fallback: check for enroll text inside the row
-          if (txt.toUpperCase().includes(wantEnroll)) return tr;
+        if (wantEnrollNorm && rowEnrollAttr && rowEnrollAttr === wantEnrollNorm) return tr;
+
+        // 2) fallback: try to find the enroll token in row text but match canonicalized tokens
+        if (wantEnrollNorm) {
+          const textTokens = tokensFromText(txt);
+          if (textTokens.includes(wantEnrollNorm)) return tr;
         }
       }
-      // 2) no enroll match found in table: fallback to name substring match (first hit)
+
+      // 3) no enroll match found in table: fallback to name substring match (first hit)
       if (want) {
         for (const tr of tbl.querySelectorAll("tbody tr")) {
           const txt2 = tr.textContent || "";
@@ -169,13 +179,16 @@
     // If not in table or table didn't match, check card-like elements (phd-student-card, student-card or elements with data-name)
     for (const el of $$(".phd-student-card, .student-card, [data-name]")) {
       const txt = (el.getAttribute("data-name") || el.textContent || "").toString();
-      const dEnroll = (el.getAttribute("data-enroll") || "").toUpperCase();
-      // Prefer explicit enrollment match
-      if (wantEnroll && dEnroll && dEnroll === wantEnroll) return el;
-      if (wantEnroll && !dEnroll) {
-        // If element lacks data-enroll attribute, still check textual enrollment presence as fallback
-        if (txt.toUpperCase().includes(wantEnroll)) return el;
+      const dEnroll = normalizeEnroll(el.getAttribute("data-enroll") || "");
+      // Prefer explicit enrollment match (canonicalized)
+      if (wantEnrollNorm && dEnroll && dEnroll === wantEnrollNorm) return el;
+
+      // If element lacks data-enroll attribute, still check textual enrollment presence in canonical tokens
+      if (wantEnrollNorm && !dEnroll) {
+        const textTokens = tokensFromText(txt);
+        if (textTokens.includes(wantEnrollNorm)) return el;
       }
+
       // Fallback to name match
       if (want && norm(txt).includes(want)) return el;
     }
@@ -183,7 +196,6 @@
     return null;
   }
 
- 
   // ---------- click + wait helpers ----------
   async function clickCourse(courseKey){
     if (!courseKey) return false;
@@ -230,11 +242,11 @@
     const nodes = $$("#studentData [data-name]");
     if (!nodes.length) return null;
     const wantName = norm(name||"");
-    const wantEnroll = (enroll||"").toUpperCase();
+    const wantEnrollNorm = normalizeEnroll(enroll);
 
     // try exact enroll match first
-    if (wantEnroll) {
-      const n = nodes.find(nd => ((nd.getAttribute("data-enroll")||"").toUpperCase()) === wantEnroll);
+    if (wantEnrollNorm) {
+      const n = nodes.find(nd => normalizeEnroll(nd.getAttribute("data-enroll")||"") === wantEnrollNorm);
       if (n) return n;
     }
     // try exact name match (data-name)

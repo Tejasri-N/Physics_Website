@@ -1,192 +1,203 @@
-// js/search-ui.js
+// js/search-ui.js (verbose, with getUserMedia preflight)
 (function(){
+  const log = (...args) => { try { console.log('[search-ui]', ...args); } catch(_) {} };
   const input = document.getElementById('search-input');
   const suggest = document.getElementById('search-suggest');
   const container = document.querySelector('.fancy-search') || document.querySelector('.header-search');
   const searchBtn = container ? container.querySelector('.search-btn') : null;
   const voiceBtn = document.getElementById('voice-btn');
 
-  if (!input) return;
+  if (!input) { log('no #search-input found — aborting'); return; }
+  log('init');
 
-  // Ensure typing class is present so your placeholder animation behaves as expected
   try { input.classList.add('typing'); } catch(e){}
 
-  // Observe suggestion area and toggle visible UI class when content changes
+  // Observe suggestion changes to toggle show/hide
   if (suggest) {
-    const mo = new MutationObserver((mut) => {
+    const mo = new MutationObserver(() => {
       const html = suggest.innerHTML.trim();
-      if (html) {
-        suggest.classList.add('show');
-        input.setAttribute('aria-expanded','true');
-      } else {
-        suggest.classList.remove('show');
-        input.setAttribute('aria-expanded','false');
-      }
+      if (html) { suggest.classList.add('show'); input.setAttribute('aria-expanded','true'); }
+      else { suggest.classList.remove('show'); input.setAttribute('aria-expanded','false'); }
     });
     mo.observe(suggest, { childList: true, subtree: true, characterData: true });
   }
 
-  // Small micro-interactions
-  input.addEventListener('focus', () => {
-    if (searchBtn) searchBtn.style.transform = 'rotate(-10deg) translateY(-2px)';
-  });
-  input.addEventListener('blur', () => {
-    if (searchBtn) searchBtn.style.transform = '';
-  });
+  // micro interactions
+  input.addEventListener('focus', () => { if (searchBtn) searchBtn.style.transform = 'rotate(-10deg) translateY(-2px)'; });
+  input.addEventListener('blur',  () => { if (searchBtn) searchBtn.style.transform = ''; });
   input.addEventListener('input', () => {
     if (searchBtn) {
-      try {
-        searchBtn.animate(
-          [{ transform: 'translateY(0)' }, { transform: 'translateY(-3px)' }, { transform: 'translateY(0)' }],
-          { duration: 220, easing: 'ease-out' }
-        );
-      } catch (_) {}
+      try { searchBtn.animate([{transform:'translateY(0)'},{transform:'translateY(-3px)'},{transform:'translateY(0)'}], { duration:200 }); } catch(_) {}
     }
   });
-
-  // Keyboard UI: close on Escape
-  input.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') {
-      if (suggest) { suggest.classList.remove('show'); input.setAttribute('aria-expanded','false'); }
-    }
-  });
-
-  // Click on suggestion rows: close suggestions (search.js handles navigation)
-  document.addEventListener('click', (ev) => {
-    if (!container) return;
+  input.addEventListener('keydown', (e)=> { if (e.key === 'Escape' && suggest) { suggest.classList.remove('show'); input.setAttribute('aria-expanded','false'); }});
+  document.addEventListener('click', (ev)=> {
     const row = ev.target.closest && ev.target.closest('.srch-suggest-row');
-    if (row) {
-      if (suggest) { suggest.classList.remove('show'); input.setAttribute('aria-expanded','false'); }
-    }
+    if (row && suggest) { suggest.classList.remove('show'); input.setAttribute('aria-expanded','false'); }
   });
+  window.addEventListener('resize', ()=> { if (window.matchMedia('(max-width:900px)').matches && suggest) { suggest.classList.remove('show'); suggest.style.display='none'; } });
 
-  // Responsive: hide on small screens
-  window.addEventListener('resize', () => {
-    if (window.matchMedia('(max-width:900px)').matches) {
-      if (suggest) { suggest.classList.remove('show'); suggest.style.display = 'none'; }
-    }
-  });
-
-  // ---------------- Voice search integration ----------------
-  if (!voiceBtn) return;
+  // ---------- voice integration with preflight check ----------
+  if (!voiceBtn) { log('no #voice-btn — voice unavailable'); return; }
 
   const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition || null;
 
-  if (!SpeechRecognition) {
-    // Browser doesn't support Web Speech API
-    voiceBtn.addEventListener('click', () => {
-      try {
-        // visual feedback
-        voiceBtn.animate([{ transform: 'scale(1)' }, { transform: 'scale(1.08)' }, { transform: 'scale(1)' }], { duration: 350, easing: 'ease-out' });
-      } catch (_) {}
-      // friendly fallback UX
-      if (window.confirm && typeof window.confirm === 'function') {
-        // give user a hint without being intrusive
-        alert('Voice search is not supported in this browser. Try Chrome or Edge (desktop/mobile) or use the search box.');
+  async function preflightMicrophone() {
+    // Try enumerateDevices first to detect available devices (may require permission in some browsers)
+    try {
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        log('navigator.mediaDevices.getUserMedia not supported');
+        return { ok:false, reason: 'getUserMedia-not-supported' };
       }
-    });
-    return;
+      // Prompt permission with a short getUserMedia call — this surfaces permission & hardware issues early
+      let stream = null;
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        log('preflight: getUserMedia succeeded');
+        // enumerate devices
+        const devs = await navigator.mediaDevices.enumerateDevices();
+        const audioInputs = devs.filter(d => d.kind === 'audioinput');
+        log('preflight: audioinputs:', audioInputs);
+        // stop tracks immediately
+        try { stream.getTracks().forEach(t => t.stop()); } catch(_) {}
+        if (!audioInputs.length) return { ok:false, reason:'no-audio-input' , devices: audioInputs };
+        return { ok:true, devices: audioInputs };
+      } catch (err) {
+        log('preflight getUserMedia error', err);
+        return { ok:false, reason: err && err.name ? err.name : 'getUserMedia-error', err };
+      }
+    } catch (e) {
+      log('preflight exception', e);
+      return { ok:false, reason:'preflight-exception', e };
+    }
   }
 
-  // Create recognizer instance
-  const recognizer = new SpeechRecognition();
-  // sensible defaults — change language if you prefer "en-US" or multilingual
-  recognizer.lang = 'en-IN';
-  recognizer.interimResults = false;    // we use final result only, to keep UI simple
-  recognizer.maxAlternatives = 1;
-  recognizer.continuous = false;
-
-  // UI state helpers
+  // UI helpers
   let listening = false;
   function setListeningState(on) {
     listening = !!on;
     if (listening) {
       voiceBtn.classList.add('listening');
-      voiceBtn.setAttribute('aria-pressed', 'true');
+      voiceBtn.setAttribute('aria-pressed','true');
       voiceBtn.title = 'Listening… click to stop';
-      // gentle pulse
-      try { voiceBtn.animate([{ transform: 'scale(1)' }, { transform: 'scale(1.06)' }, { transform: 'scale(1)' }], { duration: 600, iterations: Infinity }).id; } catch (_) {}
     } else {
       voiceBtn.classList.remove('listening');
-      voiceBtn.setAttribute('aria-pressed', 'false');
-      voiceBtn.title = 'Voice search (demo)';
-      // browser will drop animations automatically
+      voiceBtn.setAttribute('aria-pressed','false');
+      voiceBtn.title = 'Voice search';
     }
   }
 
-  // Start recognition when user clicks
-  voiceBtn.addEventListener('click', (e) => {
+  // If SpeechRecognition not available, provide fallback hint
+  if (!SpeechRecognition) {
+    voiceBtn.addEventListener('click', async (e) => {
+      e.preventDefault();
+      log('SpeechRecognition not available — trying getUserMedia preflight to surface permission state');
+      const r = await preflightMicrophone();
+      if (!r.ok) {
+        if (r.reason === 'no-audio-input') alert('No microphone devices were found on this computer. Please connect a microphone and try again.');
+        else if (r.reason === 'getUserMedia-not-supported') alert('Microphone access not supported in this browser. Try Chrome/Edge or use HTTPS.');
+        else if (r.reason === 'NotAllowedError' || r.reason === 'PermissionDeniedError') alert('Microphone permission blocked — allow microphone in the browser address bar and try again.');
+        else alert('Voice search is not supported in this browser. Try Chrome/Edge.');
+      } else {
+        alert('Voice transcription not supported by your browser, but microphone is accessible. Try Chrome/Edge which supports Web Speech API.');
+      }
+      return;
+    });
+    log('SpeechRecognition not supported in this browser');
+    return;
+  }
+
+  // Create a recognizer instance (we will start it only after preflight)
+  const recognizer = new SpeechRecognition();
+  recognizer.lang = 'en-IN';
+  recognizer.interimResults = false;
+  recognizer.maxAlternatives = 1;
+  recognizer.continuous = false;
+
+  // Connect events with robust logging
+  recognizer.onstart = () => log('recognizer: onstart');
+  recognizer.onaudiostart = () => log('recognizer: onaudiostart');
+  recognizer.onsoundstart = () => log('recognizer: onsoundstart');
+  recognizer.onspeechstart = () => log('recognizer: onspeechstart');
+  recognizer.onspeechend = () => log('recognizer: onspeechend');
+  recognizer.onaudioend = () => log('recognizer: onaudioend');
+  recognizer.onend = () => {
+    log('recognizer: onend');
+    setListeningState(false);
+  };
+  recognizer.onnomatch = (e) => { log('recognizer: onnomatch', e); };
+  recognizer.onerror = (e) => {
+    log('recognizer: onerror', e);
+    // Provide friendly message
+    const reason = (e && e.error) ? e.error : (e && e.type) ? e.type : 'unknown';
+    if (reason === 'not-allowed' || reason === 'permission-denied') {
+      input.placeholder = 'Microphone permission denied — please allow microphone';
+      setTimeout(()=>input.placeholder = 'Search the Physics website…', 1800);
+    } else if (reason === 'no-speech' || reason === 'no-input' || reason === 'audio-capture') {
+      input.placeholder = 'No speech detected — try again';
+      setTimeout(()=>input.placeholder = 'Search the Physics website…', 1200);
+    } else {
+      input.placeholder = 'Voice error — try again';
+      setTimeout(()=>input.placeholder = 'Search the Physics website…', 1000);
+    }
+    setListeningState(false);
+  };
+  recognizer.onresult = (event) => {
+    log('recognizer: onresult', event);
+    const transcript = (event && event.results && event.results[0] && event.results[0][0] && event.results[0][0].transcript) ? event.results[0][0].transcript : '';
+    input.value = transcript.trim();
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+    input.focus();
+    setListeningState(false);
+  };
+
+  // click handler: run preflight then start recognizer
+  voiceBtn.addEventListener('click', async (e) => {
     e.preventDefault();
+    log('voiceBtn clicked — performing preflight check');
     // If already listening, stop
     if (listening) {
-      try { recognizer.stop(); } catch (_) {}
+      try { recognizer.stop(); } catch(_) {}
       setListeningState(false);
       return;
     }
 
-    // Focus input, update placeholder
-    input.focus();
+    // 1) preflight microphone access
+    const pf = await preflightMicrophone();
+    if (!pf.ok) {
+      log('preflight failed', pf);
+      if (pf.reason === 'NotAllowedError' || pf.reason === 'PermissionDeniedError' || pf.reason === 'getUserMedia-error') {
+        alert('Microphone permission blocked. Allow microphone access in the browser (click the padlock icon) and try again.');
+      } else if (pf.reason === 'no-audio-input') {
+        alert('No microphone devices found. Connect a microphone and try again.');
+      } else {
+        alert('Microphone unavailable: ' + (pf.reason || 'unknown'));
+      }
+      return;
+    }
+
+    // 2) start recognition
     const oldPlaceholder = input.placeholder || '';
     input.placeholder = 'Listening… Speak now';
     setListeningState(true);
 
     try {
       recognizer.start();
+      log('recognizer.start() called');
     } catch (err) {
-      // start can throw if called too quickly; handle gracefully
-      console && console.warn && console.warn('SpeechRecognition start failed', err);
-      input.placeholder = 'Could not start microphone';
-      setTimeout(() => { input.placeholder = oldPlaceholder; setListeningState(false); }, 1000);
-      return;
+      log('recognizer.start() threw', err);
+      input.placeholder = 'Could not start voice listening';
+      setTimeout(()=> input.placeholder = oldPlaceholder, 800);
+      setListeningState(false);
     }
 
-    // Safety fallback: if recognition doesn't fire onend within X ms, reset (e.g., permission denied)
-    const startTimeout = setTimeout(() => {
-      if (listening) {
-        try { recognizer.stop(); } catch(_) {}
-        setListeningState(false);
-        input.placeholder = oldPlaceholder;
-      }
-    }, 15000); // 15s max listening guard
-
-    // onresult: fill input and trigger live search
-    recognizer.onresult = (event) => {
-      clearTimeout(startTimeout);
-      const transcript = (event && event.results && event.results[0] && event.results[0][0] && event.results[0][0].transcript) ? event.results[0][0].transcript : '';
-      if (transcript) {
-        input.value = transcript.trim();
-        // trigger input event so your search.js picks it up
-        input.dispatchEvent(new Event('input', { bubbles: true }));
-        input.focus();
-      }
-      input.placeholder = oldPlaceholder;
-      setListeningState(false);
-    };
-
-    recognizer.onend = () => {
-      clearTimeout(startTimeout);
-      // ensure UI resets
-      setListeningState(false);
-      input.placeholder = oldPlaceholder;
-    };
-
-    recognizer.onerror = (err) => {
-      clearTimeout(startTimeout);
-      console && console.error && console.error('Speech recognition error', err);
-      let msg = 'Voice search error';
-      if (err && err.error) {
-        // map some common errors to friendly messages
-        if (err.error === 'not-allowed' || err.error === 'permission-denied') msg = 'Microphone permission denied';
-        else if (err.error === 'no-speech') msg = 'No speech detected';
-        else if (err.error === 'audio-capture') msg = 'No microphone found';
-      }
-      input.placeholder = msg + ' — try typing';
-      setTimeout(() => { input.placeholder = (input.value ? input.value : 'Search the Physics website…'); }, 1200);
-      setListeningState(false);
-    };
+    // safety guard: stop after 18s
+    const guard = setTimeout(() => { if (listening) { try{ recognizer.stop(); }catch(_){} setListeningState(false); input.placeholder = oldPlaceholder; } }, 18000);
+    // clear guard on end
+    recognizer.onend = () => { clearTimeout(guard); log('recognizer ended'); setListeningState(false); input.placeholder = oldPlaceholder; };
   });
 
-  // Optional: keyboard shortcut to start voice (Ctrl+Shift+Space)
+  // keyboard shortcut to trigger voice: Ctrl+Shift+Space
   window.addEventListener('keydown', (e) => {
     if (e.ctrlKey && e.shiftKey && e.code === 'Space') {
       e.preventDefault();
@@ -194,4 +205,5 @@
     }
   });
 
+  log('voice integration initialized (SpeechRecognition available)');
 })();

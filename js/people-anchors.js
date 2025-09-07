@@ -238,7 +238,7 @@
 
   // ---------- NEW: exact dataset-driven path ----------
   // Try to find an exact entry in #studentData by data-enroll or exact data-name
-  function findDataNodeByEnrollOrExactName({name="", enroll=""}){
+  function findDataNodeByEnrollOrExactName({name="", enroll=""}){ 
     const nodes = $$("#studentData [data-name]");
     if (!nodes.length) return null;
     const wantName = norm(name||"");
@@ -304,6 +304,33 @@
     const enroll = typeof input === "object" ? (input.enroll||"") : "";
 
     debugLog('openCohortAndFind start', {name, enroll});
+
+    // ----- FAST-PATH: if enroll present, try passive global rendered search first -----
+    if (enroll && enroll.toString().trim()) {
+      await sleep(90); // let late-rendering complete shortly
+      const foundGlobal = findRenderedStudentNode({name, enroll});
+      if (foundGlobal) {
+        debugLog('openCohortAndFind: global enroll found (fast-path)', enroll, foundGlobal);
+        smoothScrollIntoView(foundGlobal);
+        return true;
+      }
+      // as an extra fallback, do a text-scan over DOM tokens (canonicalized)
+      const wantEnrollNorm = normalizeEnroll(enroll);
+      if (wantEnrollNorm) {
+        const candidate = Array.from(document.querySelectorAll('body *')).find(el => {
+          try {
+            const t = (el.getAttribute && el.getAttribute('data-enroll')) || el.textContent || '';
+            const normalized = (t||'').toString().toUpperCase().replace(/\s+/g,'').replace(/[^A-Z0-9]/g,'');
+            return normalized === wantEnrollNorm;
+          } catch(e) { return false; }
+        });
+        if (candidate) {
+          debugLog('openCohortAndFind: global enroll found by text-scan', enroll, candidate);
+          smoothScrollIntoView(candidate);
+          return true;
+        }
+      }
+    }
 
     // try exact dataset node first
     const dataNode = findDataNodeByEnrollOrExactName({name, enroll});

@@ -1,29 +1,57 @@
 /* people-anchors.js
- * Deep-link helper for Faculty/Staff/Students.
- * - Adds predictable ids: section-<slug> to person blocks AND H2/H3/H4
- * - Supports text fragments (#:~:text=...)
- * - Students: auto-opens Course → Subcourse → Year and scrolls to the card
+ * Robust deep-link helper for Faculty/Staff/Students.
+ * - Predictable ids: section-<slug> for headings & people blocks
+ * - Supports text fragments (#:~:text=...) and #student-<name>-<ENROLL>
+ * - Students: auto-open Course -> Subcourse -> Year and scroll to the student
  * - Smooth scroll + offset below fixed header
  *
- * Fixes: robust degree-key resolution (RESCH -> phd, etc.) to avoid wrong cohort routing.
+ * Improvements:
+ * - Stronger waiting logic between UI steps (click course -> wait for subcourse/year controls)
+ * - Roll-prefix mapping to subcourse (extendable)
+ * - Debug logging via window.peopleAnchors.debug = true
  */
 (function () {
   // ---------- tiny utils ----------
-  const $  = (sel, root=document) => root.querySelector(sel);
-  const $$ = (sel, root=document) => Array.from(root.querySelectorAll(sel));
+  const $  = (sel, root=document) => { try { return root.querySelector(sel); } catch { return null; } };
+  const $$ = (sel, root=document) => { try { return Array.from((root||document).querySelectorAll(sel)); } catch { return []; } };
   const norm = s => (s||"").normalize("NFKD").replace(/[\u0300-\u036f]/g,"").toLowerCase().trim();
   const slug = s => norm(s).replace(/&/g," and ").replace(/[^a-z0-9\s-]/g,"").replace(/\s+/g,"-").replace(/-+/g,"-");
-  const sleep = (ms) => new Promise(r => setTimeout(r, ms));
+  const sleep = ms => new Promise(r => setTimeout(r,ms));
+  async function waitFor(condFn, timeout=2000, interval=80){
+    const start = Date.now();
+    while (Date.now() - start < timeout){
+      try { if (condFn()) return true; } catch {}
+      await sleep(interval);
+    }
+    return false;
+  }
+  function debugLog(...args){
+    if (window.peopleAnchors && window.peopleAnchors.debug) console.debug('[peopleAnchors]', ...args);
+  }
 
+  // ---------- UI helpers ----------
   function smoothScrollIntoView(el){
     if (!el) return;
-    try { el.scrollIntoView({behavior:"smooth", block:"center"}); }
-    catch { el.scrollIntoView(true); }
+    try { el.scrollIntoView({behavior:"smooth", block:"center"}); } catch { el.scrollIntoView(true); }
     el.classList.add("jump-highlight");
     setTimeout(()=> el && el.classList && el.classList.remove("jump-highlight"), 2500);
   }
 
-  // #:~:text=<Name>   or   #student-<slug>
+  // ---------- parse hash / text-fragment ----------
+  function parseStudentHash(){
+    const h = window.location.hash || "";
+    if (!h.startsWith("#student-")) return null;
+    const slugged = h.replace(/^#student-/,"");
+    const parts = slugged.split("-");
+    if (parts.length >= 2){
+      const enroll = parts[parts.length-1];
+      const name = parts.slice(0,-1).join(" ");
+      return { name: decodeURIComponent(name), enroll: (enroll||"").toUpperCase() };
+    } else {
+      return { name: decodeURIComponent(slugged.replace(/-/g, " ")), enroll: "" };
+    }
+  }
+
   function getTargetNameFromURL(){
     const href = String(window.location.href || "");
     if (href.includes("#:~:text=")) {
@@ -32,16 +60,16 @@
         try { return decodeURIComponent(after).split("&")[0]; } catch { return after; }
       }
     }
+    const ph = parseStudentHash();
+    if (ph) return ph.name || "";
     const h = window.location.hash || "";
-    if (h && h.startsWith("#student-")) return h.replace(/^#student-/, "").replace(/-/g, " ");
+    if (h && h.startsWith("#student-")) return h.replace(/^#student-/,"").replace(/-/g," ");
     return "";
   }
 
-  // ---------- anchor installers ----------
+  // ---------- install predictable IDs ----------
   function ensureSectionIdsOnHeadings() {
-    $$("h2,h3,h4").forEach(h => {
-      if (!h.id) h.id = "section-" + slug(h.textContent || "");
-    });
+    $$("h2,h3,h4").forEach(h => { if (!h.id) h.id = "section-" + slug(h.textContent || ""); });
   }
 
   function ensureSectionIdsOnPeople() {
@@ -51,14 +79,10 @@
       ".student-card",".student",".people-card",".people-item",".team-card",".team-member",".bio",".bio-card",
       "table tr",".list li",".grid > *"
     ].join(",");
-
     const used = new Set($$("[id]").map(n => n.id));
     const uniqId = (base) => { let id = base, i = 2; while (used.has(id)) id = base + "-" + i++; used.add(id); return id; };
-
     $$(selectors).forEach(el => {
-      const nameEl =
-        el.querySelector(".member-name,.faculty-name,.staff-name,.student-name,.faculty-profile,h1,h2,h3,h4,h5,b,strong,a")
-        || el;
+      const nameEl = el.querySelector(".member-name,.faculty-name,.staff-name,.student-name,.faculty-profile,h1,h2,h3,h4,h5,b,strong,a") || el;
       const nameText = (nameEl.textContent || "").trim();
       const candidate = nameText.split(/\n/)[0].trim();
       const s = slug(candidate);
@@ -68,15 +92,15 @@
   }
 
   function scrollToHashIfPossible() {
-    const hash = (location.hash || "").replace(/^#/, "");
-    if (!hash) return;
+    const hash = (location.hash || "").replace(/^#/,"");
+    if (!hash) return false;
     const el = document.getElementById(hash);
-    if (el) smoothScrollIntoView(el);
+    if (el) { smoothScrollIntoView(el); return true; }
+    return false;
   }
 
-  // ---------- students helpers ----------
+  // ---------- infer degree/year from enroll ----------
   function inferFromEnroll(enroll){
-    // Returns { degree: 'PhD'|'M.Tech'|'M.Sc'|'B.Tech'|'', year: '2025'|'' }
     const E = (enroll||"").toUpperCase();
     let degree = "";
     if (/RESCH/.test(E) || /\bPHD\b/.test(E) || /\bPH\.?D\b/.test(E)) degree = "PhD";
@@ -85,276 +109,303 @@
     else if (/BTECH|B-?TECH/.test(E)) degree = "B.Tech";
 
     let year = "";
-    const m = E.match(/(\d{2})(?=[A-Z])/); // first 2 digits before letter sequence
+    const m = E.match(/(\d{2})(?=[A-Z])/);
     if (m) {
       const yy = parseInt(m[1],10);
       year = (yy >= 50 ? 1900+yy : 2000+yy).toString();
     }
-    return {degree, year};
+    return { degree, year };
   }
 
-  // canonical degree key resolver: maps various strings to our course keys
+  // canonical degree -> page key
   function degreeToKey(degStr){
-    if(!degStr) return "";
+    if (!degStr) return "";
     const d = (degStr||"").toString().toLowerCase();
-    // Direct common forms
-    if (d.includes("resch") || d.includes("phd") || d.includes("ph.d") || d.includes("phd")) return "phd";
+    if (d.includes("resch") || d.includes("phd") || d.includes("ph.")) return "phd";
     if (d.includes("m.tech") || d.includes("mtech") || d.includes("m-tech")) return "mtech";
     if (d.includes("m.sc") || d.includes("msc") || d.includes("m-sc")) return "msc";
     if (d.includes("b.tech") || d.includes("btech") || d.includes("b-tech")) return "btech";
-    // fallback tries: check words
     if (d.includes("ph")) return "phd";
     if (d.includes("m") && d.includes("tech")) return "mtech";
-    if (d.includes("msc") || d.includes("m.sc")) return "msc";
+    if (d.includes("msc")) return "msc";
     if (d.includes("b") && d.includes("tech")) return "btech";
     return "";
   }
 
-  function getHintForStudent(name){
-    const want = norm(name);
-    const nodes = $$("#studentData [data-name]");
-    if (!nodes.length) return null;
+  // ---------- roll-prefix -> subcourse mapping (extendable) ----------
+  // e.g. EP -> engineering-physics, MP -> medical-physics, PH -> physics (for MSc)
+  const ROLL_PREFIX_MAP = {
+    ep: "engineering-physics",
+    mp: "medical-physics",
+    ph: "physics",           // use carefully; we also rely on degree to decide
+    qc: "quantum"            // example / placeholder
+  };
 
-    // 1. exact match first
-    let node = nodes.find(n => norm(n.getAttribute("data-name")) === want);
-
-    // 2. fallback: substring match
-    if (!node) node = nodes.find(n => norm(n.getAttribute("data-name")).includes(want));
-    if (!node) return null;
-
-    const enroll = node.getAttribute("data-enroll") || "";
-    const hintDeg = node.getAttribute("data-degree") || "";
-    const hintYear= node.getAttribute("data-year") || "";
-    const {degree, year} = inferFromEnroll(enroll);
-
-    // prefer explicit hintDeg if present, else use inferred
-    const resolvedDegree = (hintDeg || degree || "").toString();
-    return { degree: degreeToKey(resolvedDegree), year: (hintYear || year || "").toString(), enroll: enroll || "" };
-  }
-
-  function findRenderedStudentNodeByName(name){
-    const want = norm(name);
-
-    // Table rows
-    const table = $("#studentTable");
-    if (table && table.style.display !== "none") {
-      for (const tr of table.querySelectorAll("tbody tr")) {
-        if (norm(tr.textContent).includes(want)) return tr;
-      }
-    }
-    // PhD cards
-    for (const card of $$(".phd-student-card")) {
-      if (norm(card.textContent).includes(want)) return card;
-    }
-    // Generic fallbacks
-    for (const el of $$("[data-name], .student-card, .card, .member, .people-card, .profile-card, .student")) {
-      const txt = norm(el.getAttribute("data-name") || el.textContent);
-      if (txt && txt.includes(want)) return el;
-    }
+  function enrollPrefixToSubcourse(enroll){
+    if (!enroll) return null;
+    const E = enroll.toLowerCase();
+    // try first two letters
+    const p2 = E.slice(0,2);
+    if (ROLL_PREFIX_MAP[p2]) return ROLL_PREFIX_MAP[p2];
+    // try first three letters
+    const p3 = E.slice(0,3);
+    if (ROLL_PREFIX_MAP[p3]) return ROLL_PREFIX_MAP[p3];
     return null;
   }
 
-  // more robust search that also checks enroll string if present in hash
-  function findRenderedStudentNode({ name, enroll }){
-    const want = norm(name || "");
+  // ---------- find rendered student node ----------
+  function findRenderedStudentNode({name="", enroll=""}){
+    const want = norm(name||"");
     const wantEnroll = (enroll||"").toUpperCase();
 
-    // Table rows
-    const table = $("#studentTable");
-    if (table && table.style.display !== "none") {
-      for (const tr of table.querySelectorAll("tbody tr")) {
+    // If table visible, search rows
+    const tbl = $("#studentTable");
+    if (tbl && tbl.style.display !== "none") {
+      for (const tr of tbl.querySelectorAll("tbody tr")) {
         const txt = tr.textContent || "";
-        if ((want && norm(txt).includes(want)) || (wantEnroll && txt.toUpperCase().includes(wantEnroll))) return tr;
+        if ((want && norm(txt).includes(want)) || (wantEnroll && txt.toUpperCase().includes(wantEnroll))) {
+          debugLog('found in table row:', tr);
+          return tr;
+        }
       }
     }
 
-    // Cards and generic nodes
-    const candidates = $$(".phd-student-card, .student-card, [data-name], .profile-card, .people-card");
-    for (const el of candidates) {
+    // Check phd-wrapper cards / phd-student-card
+    for (const el of $$(".phd-student-card, .student-card, [data-name]")) {
       const txt = (el.getAttribute("data-name") || el.textContent || "").toString();
-      const dEnroll = (el.getAttribute("data-enroll") || "").toString().toUpperCase();
-      if ((want && norm(txt).includes(want)) || (wantEnroll && dEnroll.includes(wantEnroll))) return el;
+      const dEnroll = (el.getAttribute("data-enroll") || "").toUpperCase();
+      if ((want && norm(txt).includes(want)) || (wantEnroll && dEnroll.includes(wantEnroll))) {
+        debugLog('found in card:', el);
+        return el;
+      }
     }
     return null;
   }
 
-  // Drive your existing UI: course → subcourse → year, then locate student
-  async function openCohortAndFind(nameOrObj){
-    // nameOrObj can be a string (name) or object {name, enroll}
-    const name = typeof nameOrObj === "string" ? nameOrObj : (nameOrObj.name || "");
-    const explicitEnroll = typeof nameOrObj === "object" ? (nameOrObj.enroll || "") : "";
+  // ---------- UI drive functions (click + wait) ----------
+  async function clickCourse(courseKey){
+    if (!courseKey) return false;
+    const pill = $(`.course-pill[data-course="${courseKey}"]`);
+    if (!pill) {
+      debugLog('course pill not found for', courseKey);
+      return false;
+    }
+    if (!pill.classList.contains("active")) {
+      pill.click();
+      debugLog('clicked course', courseKey);
+    } else debugLog('course already active', courseKey);
 
-    // Prefer explicit courses map if present
-    const courseKeys = (window.courses && Object.keys(window.courses)) || [];
+    // wait for either subcourseNav OR yearContainer to appear
+    const ok = await waitFor(() => $("#subcourseNav") || $("#yearContainer"), 2000, 80);
+    await sleep(80);
+    return ok;
+  }
 
-    // If we can hint degree/year from hidden dataset OR from explicit enroll in hash, use that first
-    let hinted = getHintForStudent(name) || null;
+  async function clickSubcourse(subKey){
+    if (!subKey) return true; // nothing to do
+    // Wait for subcourse pills
+    const ok = await waitFor(() => $(`.subcourse-pill[data-subcourse="${subKey}"]`), 2000, 80);
+    if (!ok) { debugLog('subcourse pill never showed for', subKey); return false; }
+    const sp = $(`.subcourse-pill[data-subcourse="${subKey}"]`);
+    if (!sp) return false;
+    if (!sp.classList.contains("active")) { sp.click(); debugLog('clicked subcourse', subKey); }
+    await sleep(80);
+    return true;
+  }
+
+  async function clickYear(year){
+    // wait for year pills
+    const ok = await waitFor(()=> $$("#yearContainer .year-pill").length > 0, 2000, 80);
+    if (!ok) { debugLog('year pills never appeared'); return false; }
+    const btn = $$("#yearContainer .year-pill").find(b => (b.textContent||"").trim() === String(year));
+    if (!btn) { debugLog('year pill not found for', year); return false; }
+    if (!btn.classList.contains("active")) { btn.click(); debugLog('clicked year', year); }
+    // wait until student listing renders (table or phd wrapper)
+    const ok2 = await waitFor(()=> {
+      const tc = $("#tableContainer"); const phd = $(".phd-wrapper");
+      return (tc && !tc.classList.contains("hidden")) || !!phd || !!$("#studentTable");
+    }, 2000, 80);
+    await sleep(120);
+    return ok2;
+  }
+
+  // collect visible years for a (course,sub)
+  function visibleYearsFor(course, sub){
+    const sel = `#studentData > div[data-course="${course}"]${sub ? `[data-subcourse="${sub}"]` : `:not([data-subcourse])`}`;
+    const groups = Array.from(document.querySelectorAll(sel));
+    const years = [...new Set(groups.map(g => g.dataset.year).filter(Boolean))].sort((a,b)=>b-a);
+    return years;
+  }
+
+  // ---------- main driver for students ----------
+  async function openCohortAndFind(input){ 
+    // input can be string name or object {name, enroll}
+    const name = typeof input === "string" ? input : (input.name||"");
+    const explicitEnroll = typeof input === "object" ? (input.enroll||"") : "";
+
+    const courseKeys = (window.courses && Object.keys(window.courses)) || ["btech","msc","mtech","phd"];
+
+    // get hint from hidden dataset if present
+    const nodes = $$("#studentData [data-name]");
+    let hinted = null;
+    if (nodes.length){
+      const want = norm(name);
+      const node = nodes.find(n => norm(n.getAttribute("data-name")).includes(want));
+      if (node){
+        const enroll = node.getAttribute("data-enroll")||"";
+        const hintDeg = node.getAttribute("data-degree")||"";
+        const hintYear = node.getAttribute("data-year")||"";
+        const inferred = inferFromEnroll(enroll);
+        hinted = {
+          degreeKey: degreeToKey(hintDeg || inferred.degree),
+          year: hintYear || inferred.year,
+          enroll: enroll || ""
+        };
+      }
+    }
+
+    // if explicitEnroll present (from hash), make a hint from it too (override)
     if (explicitEnroll) {
-      // If an enroll code was supplied (via #student-... including enroll), infer from it and override
-      const { degree, year } = inferFromEnroll(explicitEnroll);
-      const degKey = degreeToKey(degree);
+      const inf = inferFromEnroll(explicitEnroll);
       hinted = hinted || {};
-      hinted.degree = degKey || hinted.degree;
-      hinted.year = hinted.year || year || hinted.year;
+      hinted.degreeKey = degreeToKey(inf.degree) || hinted.degreeKey;
+      hinted.year = hinted.year || inf.year;
       hinted.enroll = explicitEnroll;
     }
 
-    async function showCourse(course){
-      // click course pill if exists, otherwise call showSubcourses()
-      const pill = $(`.course-pill[data-course="${course}"]`);
-      if (pill) pill.click();
-      else if (typeof window.showSubcourses === "function") window.showSubcourses(course, pill || {});
-      await sleep(130);
-    }
-    async function showSubcourse(sub){
-      if (!sub) return;
-      // sub pills are rendered after course click
-      for (let i=0;i<12;i++){ // wait up to ~1.2s
-        const sp = $(`.subcourse-pill[data-subcourse="${sub}"]`);
-        if (sp) { sp.click(); break; }
-        await sleep(100);
-      }
-      await sleep(120);
-    }
-    async function showYear(course, sub, year){
-      if (typeof window.showStudents === "function") window.showStudents(course, sub || null, String(year));
-      await sleep(160);
-    }
+    debugLog('openCohortAndFind: name=', name, 'hinted=', hinted);
 
-    // Strategy 1: If hinted, try just the hinted cohort (fast path)
-    if (hinted && hinted.degree) {
-      const degreeKey = hinted.degree || "";
-      // if degreeKey exists among page course pills, try it
-      const availableDegreeKey = courseKeys.find(k => k === degreeKey) || degreeKey;
-      if (availableDegreeKey) {
-        await showCourse(availableDegreeKey);
-        // try every visible subcourse for that degree (or none)
-        const subs = (window.courses?.[availableDegreeKey]?.subcourses) ? Object.keys(window.courses[availableDegreeKey].subcourses) : [null];
-        for (const sub of subs) {
-          await showSubcourse(sub);
-          // if we have year hint, try it, else try all years under this sub
-          if (hinted.year) {
-            await showYear(availableDegreeKey, sub, hinted.year);
-            const node = findRenderedStudentNode({name, enroll: hinted.enroll || explicitEnroll});
-            if (node) { smoothScrollIntoView(node); return true; }
-          } else {
-            // iterate visible years
-            const groups = Array.from(document.querySelectorAll(
-              `#studentData > div[data-course="${availableDegreeKey}"]${sub ? `[data-subcourse="${sub}"]` : `:not([data-subcourse])`}`
-            ));
-            const years = [...new Set(groups.map(g => g.dataset.year))].sort((a,b)=>b-a);
-            for (const y of years) {
-              await showYear(availableDegreeKey, sub, y);
-              const node = findRenderedStudentNode({name, enroll: hinted.enroll || explicitEnroll});
-              if (node) { smoothScrollIntoView(node); return true; }
-            }
-          }
+    // derive possible subcourse from roll prefix
+    const prefixSub = (hinted && hinted.enroll) ? enrollPrefixToSubcourse(hinted.enroll) : null;
+    if (prefixSub) debugLog('prefix-derived subcourse:', prefixSub);
+
+    // fast path: try hinted degree/sub/year if available
+    if (hinted && hinted.degreeKey){
+      const deg = hinted.degreeKey;
+      await clickCourse(deg);
+      // try prefix subcourse first
+      const subsToTry = [];
+      if (prefixSub) subsToTry.push(prefixSub);
+      // then all declared subcourses for the degree
+      const declaredSubs = (window.courses?.[deg]?.subcourses) ? Object.keys(window.courses[deg].subcourses) : [null];
+      for (const s of declaredSubs) if (!subsToTry.includes(s)) subsToTry.push(s);
+      // try each sub & year
+      for (const sub of subsToTry){
+        if (sub) await clickSubcourse(sub);
+        const years = hinted.year ? [hinted.year] : visibleYearsFor(deg, sub);
+        for (const y of years){
+          if (!y) continue;
+          await clickYear(y);
+          const found = findRenderedStudentNode({name, enroll: hinted.enroll || explicitEnroll});
+          if (found) { smoothScrollIntoView(found); return true; }
         }
       }
     }
 
-    // Strategy 2: Explore all cohorts deterministically (fallback sweep)
-    const degrees = courseKeys.length ? courseKeys : ["btech","msc","mtech","phd"];
-    for (const degree of degrees) {
-      await showCourse(degree);
-
-      const subs = (window.courses?.[degree]?.subcourses) ? Object.keys(window.courses[degree].subcourses) : [null];
-      for (const sub of subs) {
-        await showSubcourse(sub);
-
-        // Collect years currently available for this selection
-        const groups = Array.from(document.querySelectorAll(
-          `#studentData > div[data-course="${degree}"]${sub ? `[data-subcourse="${sub}"]` : `:not([data-subcourse])`}`
-        ));
-        const years = [...new Set(groups.map(g => g.dataset.year))].sort((a,b)=>b-a);
-
-        for (const y of years) {
-          await showYear(degree, sub, y);
-          const node = findRenderedStudentNode({name, enroll: explicitEnroll});
-          if (node) { smoothScrollIntoView(node); return true; }
+    // fallback: sweep all degrees/subs/years deterministically
+    for (const deg of courseKeys){
+      await clickCourse(deg);
+      const subs = (window.courses?.[deg]?.subcourses) ? Object.keys(window.courses[deg].subcourses) : [null];
+      // ensure prefix sub tried early if matches this degree
+      let orderedSubs = subs.slice();
+      if (explicitEnroll){
+        const psub = enrollPrefixToSubcourse(explicitEnroll);
+        if (psub && orderedSubs.includes(psub)){
+          orderedSubs = [psub, ...orderedSubs.filter(s=>s!==psub)];
+        }
+      }
+      for (const sub of orderedSubs){
+        if (sub) await clickSubcourse(sub);
+        const years = visibleYearsFor(deg, sub);
+        for (const y of years){
+          if (!y) continue;
+          await clickYear(y);
+          const found = findRenderedStudentNode({name, enroll: explicitEnroll});
+          if (found) { smoothScrollIntoView(found); return true; }
         }
       }
     }
+
+    // nothing found
+    debugLog('openCohortAndFind: not found for', name);
     return false;
   }
 
-  // generic fallback (faculty/staff pages)
-  function jumpToExistingAnchorByText(name){
-    const want = norm(name);
+  // ---------- faculty/staff fallback ----------
+  function jumpToPersonByText(name){
+    const want = norm(name||"");
+    if (!want) return false;
     const candidates = $$("h1,h2,h3,h4,h5,.faculty-card,.staff-card,.profile-card,.member,.person,.card,.people-card");
     const el = candidates.find(n => norm(n.textContent).includes(want));
-    if (el) smoothScrollIntoView(el);
-  }
-
-  // helper: parse special student hash of form #student-<name>-<enroll>
-  function parseStudentHash(){
-    const h = window.location.hash || "";
-    if (!h.startsWith("#student-")) return null;
-    const slugged = h.replace(/^#student-/, "");
-    const parts = slugged.split("-");
-    if (parts.length < 2) return { name: decodeURIComponent(parts.join(" ")), enroll: "" };
-    const enroll = parts[parts.length-1];
-    const name = parts.slice(0,-1).join(" ");
-    return { name: decodeURIComponent(name), enroll: enroll.toUpperCase() };
+    if (el) { smoothScrollIntoView(el); return true; }
+    return false;
   }
 
   // ---------- main ----------
   document.addEventListener("DOMContentLoaded", async function(){
-    // highlight + fixed header offset
+    // small highlight + header offset
     const css = document.createElement("style");
     css.textContent = `
-      .jump-highlight { outline: 3px solid rgba(66,72,144,.45); outline-offset: 3px; border-radius: 10px; transition: outline-color .4s; }
+      .jump-highlight { outline: 3px solid rgba(66,72,144,.45); outline-offset: 3px; border-radius: 10px; }
       [id]{ scroll-margin-top:110px; }
     `;
     document.head.appendChild(css);
 
-    // install IDs
+    // install ids
     ensureSectionIdsOnHeadings();
     ensureSectionIdsOnPeople();
 
-    // honor current hash if it targets our generated IDs
-    scrollToHashIfPossible();
+    // if direct #id exists, scroll there first
+    if (scrollToHashIfPossible()) return;
 
-    // smarter jumps (search deep links)
+    // check parsed student hash (name+enroll)
     const parsed = parseStudentHash();
-    if (parsed && (parsed.name || parsed.enroll)) {
-      // student hash with optional enroll -> use enroll preference
-      if (/\/?students\.html(\?|#|$)/i.test(location.pathname)) {
+    if (parsed && (parsed.name || parsed.enroll)){
+      debugLog('parsed student hash', parsed);
+      if (/\/?students\.html(\?|#|$)/i.test(location.pathname)){
         await sleep(120);
         await openCohortAndFind(parsed);
+        return;
       } else {
-        jumpToExistingAnchorByText(parsed.name);
-      }
-    } else {
-      // text-fragment or #student-name-without-enroll
-      const targetName = getTargetNameFromURL();
-      if (targetName) {
-        const onStudentsPage = /\/?students\.html(\?|#|$)/i.test(location.pathname);
-        if (onStudentsPage) {
-          await sleep(120);
-          await openCohortAndFind(targetName);
-        } else {
-          jumpToExistingAnchorByText(targetName);
-        }
+        // if not on students page, still try staff/faculty fallback
+        jumpToPersonByText(parsed.name);
+        return;
       }
     }
 
-    // re-honor future hash changes
+    // else try text-fragment or #student-name
+    const targetName = getTargetNameFromURL();
+    if (targetName){
+      debugLog('targetName from URL', targetName);
+      const onStudents = /\/?students\.html(\?|#|$)/i.test(location.pathname);
+      if (onStudents){
+        await sleep(120);
+        await openCohortAndFind(targetName);
+      } else {
+        jumpToPersonByText(targetName);
+      }
+    }
+
+    // re-honor hash changes later
     window.addEventListener("hashchange", () => {
       ensureSectionIdsOnHeadings();
       ensureSectionIdsOnPeople();
       scrollToHashIfPossible();
     });
 
-    // Minor safety: if content populates late (images/cards), retry hash once
-    setTimeout(() => scrollToHashIfPossible(), 600);
+    // safety retry for late-rendering content
+    setTimeout(()=> scrollToHashIfPossible(), 600);
   });
 
-  // (Optional) expose a tiny API if you ever want to call from elsewhere
+  // small API + debug toggle
   window.peopleAnchors = {
-    jumpToName: async (name) => {
-      if (/\/?students\.html(\?|#|$)/i.test(location.pathname)) return openCohortAndFind(name);
-      return jumpToExistingAnchorByText(name);
-    }
+    debug: false,
+    jumpToName: async (v) => {
+      if (/\/?students\.html(\?|#|$)/i.test(location.pathname)) return openCohortAndFind(v);
+      return jumpToPersonByText(v);
+    },
+    // allow customizing prefix map at runtime
+    setPrefixMap: (m) => { Object.assign(ROLL_PREFIX_MAP, m || {}); }
   };
-})();
+
+})(); 

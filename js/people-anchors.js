@@ -2,7 +2,7 @@
  * Deep-link helper for Faculty/Staff/Students.
  * - Adds predictable ids: section-<slug> to person blocks AND H2/H3/H4
  * - Supports text fragments (#:~:text=...)
- * - Students: auto-opens Course → Subcourse → Year and scrolls to the card (using name + enrollment)
+ * - Students: auto-opens Course → Subcourse → Year and scrolls to the card
  * - Smooth scroll + offset below fixed header
  */
 (function () {
@@ -21,13 +21,26 @@
     setTimeout(()=> el && el.classList && el.classList.remove("jump-highlight"), 2500);
   }
 
-  // Parse student target from URL (#student-name-enroll)
+  // ---------- URL parsers ----------
+  // faculty/staff: #:~:text=<Name>
+  function getTargetNameFromURL(){
+    const href = String(window.location.href || "");
+    if (href.includes("#:~:text=")) {
+      const after = href.split("#:~:text=").pop();
+      if (after) {
+        try { return decodeURIComponent(after).split("&")[0]; } catch { return after; }
+      }
+    }
+    return "";
+  }
+
+  // students: #student-name-enroll
   function getTargetStudentFromURL(){
     const h = window.location.hash || "";
     if (h.startsWith("#student-")) {
       const slugged = h.replace(/^#student-/, "");
       const parts = slugged.split("-");
-      const enroll = parts[parts.length-1]; // last part is enrollment
+      const enroll = parts[parts.length-1]; // last part enrollment
       const name = parts.slice(0,-1).join(" ");
       return { name: decodeURIComponent(name), enroll: enroll.toUpperCase() };
     }
@@ -71,7 +84,7 @@
     if (el) smoothScrollIntoView(el);
   }
 
-  // ---------- student helpers ----------
+  // ---------- students helpers ----------
   function inferFromEnroll(enroll){
     const E = (enroll||"").toUpperCase();
     let degree = "";
@@ -110,6 +123,7 @@
     const want = norm(name);
     const wantEnroll = (enroll||"").toUpperCase();
 
+    // table rows
     const table = $("#studentTable");
     if (table && table.style.display !== "none") {
       for (const tr of table.querySelectorAll("tbody tr")) {
@@ -119,6 +133,7 @@
         }
       }
     }
+    // cards
     for (const el of $$(".phd-student-card,.student-card,[data-name]")) {
       const txt = norm(el.textContent);
       const dataEnroll = (el.getAttribute("data-enroll")||"").toUpperCase();
@@ -129,10 +144,10 @@
     return null;
   }
 
-  // Drive your existing UI: course → subcourse → year, then locate student
-  async function openCohortAndFind({name, enroll}){
-    const courseKeys = (window.courses && Object.keys(window.courses)) || [];
+  async function openCohortAndFind(student){
+    const {name, enroll} = student;
     const hinted = getHintForStudent(name);
+    const courseKeys = (window.courses && Object.keys(window.courses)) || [];
 
     async function showCourse(course){
       const pill = $(`.course-pill[data-course="${course}"]`);
@@ -154,7 +169,6 @@
       await sleep(160);
     }
 
-    // Strategy 1: hinted fast path
     if (hinted && hinted.degree && hinted.year) {
       const degreeKey = (courseKeys.find(k => norm($(`.course-pill[data-course="${k}"]`)?.textContent) === norm(hinted.degree)) || hinted.degree || "").toLowerCase();
       if (degreeKey) {
@@ -169,7 +183,7 @@
       }
     }
 
-    // Strategy 2: fallback exhaustive search
+    // fallback: brute force
     const degrees = courseKeys.length ? courseKeys : ["btech","msc","mtech","phd"];
     for (const degree of degrees) {
       await showCourse(degree);
@@ -190,7 +204,7 @@
     return false;
   }
 
-  // generic fallback (faculty/staff pages)
+  // faculty/staff fallback
   function jumpToExistingAnchorByText(name){
     const want = norm(name);
     const candidates = $$("h1,h2,h3,h4,h5,.faculty-card,.staff-card,.profile-card,.member,.person,.card");
@@ -211,7 +225,10 @@
     ensureSectionIdsOnPeople();
     scrollToHashIfPossible();
 
+    // --- deep-link check ---
     const targetStudent = getTargetStudentFromURL();
+    const targetName    = getTargetNameFromURL();
+
     if (targetStudent) {
       if (/\/?students\.html(\?|#|$)/i.test(location.pathname)) {
         await sleep(120);
@@ -219,6 +236,8 @@
       } else {
         jumpToExistingAnchorByText(targetStudent.name);
       }
+    } else if (targetName) {
+      jumpToExistingAnchorByText(targetName);
     }
 
     window.addEventListener("hashchange", () => {
@@ -231,8 +250,8 @@
   });
 
   window.peopleAnchors = {
-    jumpToName: async (name, enroll="") => {
-      if (/\/?students\.html(\?|#|$)/i.test(location.pathname)) return openCohortAndFind({name, enroll});
+    jumpToName: async (name) => {
+      if (/\/?students\.html(\?|#|$)/i.test(location.pathname)) return openCohortAndFind({name});
       return jumpToExistingAnchorByText(name);
     }
   };

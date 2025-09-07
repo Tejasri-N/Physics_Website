@@ -140,19 +140,8 @@ function getHintForStudent(name){
     const courseKeys = (window.courses && Object.keys(window.courses)) || [];
 
     // If we can hint degree/year from hidden dataset, use that first
-    let hinted = null;
-    const nodes = $$("#studentData [data-name]");
-    if (nodes.length){
-      const want = norm(name);
-      const node = nodes.find(n => norm(n.getAttribute("data-name")).includes(want));
-      if (node) {
-        const enroll = node.getAttribute("data-enroll") || "";
-        const hintDeg = node.getAttribute("data-degree") || "";
-        const hintYear= node.getAttribute("data-year") || "";
-        const {degree, year} = inferFromEnroll(enroll);
-        hinted = { degree: hintDeg || degree || "", year: hintYear || year || "" };
-      }
-    }
+const hinted = getHintForStudent(name);
+
 
     async function showCourse(course){
       // click course pill if exists, otherwise call showSubcourses()

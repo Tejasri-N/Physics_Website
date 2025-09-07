@@ -2,7 +2,7 @@
  * Deep-link helper for Faculty/Staff/Students.
  * - Adds predictable ids: section-<slug> to person blocks AND H2/H3/H4
  * - Supports text fragments (#:~:text=...)
- * - Students: auto-opens Course → Subcourse → Year and scrolls to the card
+ * - Students: auto-opens Course → Year and scrolls to the card
  * - Smooth scroll + offset below fixed header
  */
 (function () {
@@ -21,8 +21,19 @@
     setTimeout(()=> el && el.classList && el.classList.remove("jump-highlight"), 2500);
   }
 
-  // ---------- URL parsers ----------
-  // faculty/staff: #:~:text=<Name>
+  // ---------- URL helpers ----------
+  function getTargetStudentFromURL(){
+    const h = window.location.hash || "";
+    if (h.startsWith("#student-")) {
+      const slugged = h.replace(/^#student-/, "");
+      const parts = slugged.split("-");
+      const enroll = parts[parts.length-1]; // last part is enrollment
+      const name = parts.slice(0,-1).join(" ");
+      return { name: decodeURIComponent(name), enroll: enroll.toUpperCase() };
+    }
+    return null;
+  }
+
   function getTargetNameFromURL(){
     const href = String(window.location.href || "");
     if (href.includes("#:~:text=")) {
@@ -31,20 +42,9 @@
         try { return decodeURIComponent(after).split("&")[0]; } catch { return after; }
       }
     }
-    return "";
-  }
-
-  // students: #student-name-enroll
-  function getTargetStudentFromURL(){
     const h = window.location.hash || "";
-    if (h.startsWith("#student-")) {
-      const slugged = h.replace(/^#student-/, "");
-      const parts = slugged.split("-");
-      const enroll = parts[parts.length-1]; // last part enrollment
-      const name = parts.slice(0,-1).join(" ");
-      return { name: decodeURIComponent(name), enroll: enroll.toUpperCase() };
-    }
-    return null;
+    if (h && h.startsWith("#student-")) return h.replace(/^#student-/, "").replace(/-/g, " ");
+    return "";
   }
 
   // ---------- anchor installers ----------
@@ -88,10 +88,10 @@
   function inferFromEnroll(enroll){
     const E = (enroll||"").toUpperCase();
     let degree = "";
-    if (/RESCH/.test(E)) degree = "PhD";
-    else if (/MTECH|M-?TECH/.test(E)) degree = "M.Tech";
-    else if (/MSC|M\.?SC/.test(E)) degree = "M.Sc";
-    else if (/BTECH|B-?TECH/.test(E)) degree = "B.Tech";
+    if (/RESCH|PHD/.test(E)) degree = "phd";
+    else if (/MTECH|M-?TECH/.test(E)) degree = "mtech";
+    else if (/MSC|M\.?SC/.test(E)) degree = "msc";
+    else if (/BTECH|B-?TECH/.test(E)) degree = "btech";
 
     let year = "";
     const m = E.match(/(\d{2})(?=[A-Z])/);
@@ -102,38 +102,21 @@
     return {degree, year};
   }
 
-  function getHintForStudent(name){
-    const want = norm(name);
-    const nodes = $$("#studentData [data-name]");
-    if (!nodes.length) return null;
-
-    let node = nodes.find(n => norm(n.getAttribute("data-name")) === want);
-    if (!node) node = nodes.find(n => norm(n.getAttribute("data-name")).includes(want));
-    if (!node) return null;
-
-    const enroll = node.getAttribute("data-enroll") || "";
-    const hintDeg = node.getAttribute("data-degree") || "";
-    const hintYear= node.getAttribute("data-year") || "";
-    const {degree, year} = inferFromEnroll(enroll);
-
-    return { degree: (hintDeg || degree || "").toLowerCase(), year: (hintYear || year || "").toString() };
-  }
-
   function findRenderedStudentNode({name, enroll}){
     const want = norm(name);
     const wantEnroll = (enroll||"").toUpperCase();
 
-    // table rows
+    // Table rows
     const table = $("#studentTable");
     if (table && table.style.display !== "none") {
       for (const tr of table.querySelectorAll("tbody tr")) {
-        if ((want && norm(tr.textContent).includes(want)) || 
+        if ((want && norm(tr.textContent).includes(want)) ||
             (wantEnroll && tr.textContent.toUpperCase().includes(wantEnroll))) {
           return tr;
         }
       }
     }
-    // cards
+    // Cards (PhD / grid)
     for (const el of $$(".phd-student-card,.student-card,[data-name]")) {
       const txt = norm(el.textContent);
       const dataEnroll = (el.getAttribute("data-enroll")||"").toUpperCase();
@@ -144,67 +127,50 @@
     return null;
   }
 
-  async function openCohortAndFind(student){
-    const {name, enroll} = student;
-    const hinted = getHintForStudent(name);
-    const courseKeys = (window.courses && Object.keys(window.courses)) || [];
+  async function openCohortAndFind(target){
+    if (!target) return false;
+
+    const {degree, year} = inferFromEnroll(target.enroll);
+    const courseKeys = (window.courses && Object.keys(window.courses)) || ["btech","msc","mtech","phd"];
 
     async function showCourse(course){
       const pill = $(`.course-pill[data-course="${course}"]`);
-      if (pill) pill.click();
-      else if (typeof window.showSubcourses === "function") window.showSubcourses(course, pill || {});
-      await sleep(130);
+      if (pill && !pill.classList.contains("active")) pill.click();
+      await sleep(200);
     }
-    async function showSubcourse(sub){
-      if (!sub) return;
-      for (let i=0;i<12;i++){
-        const sp = $(`.subcourse-pill[data-subcourse="${sub}"]`);
-        if (sp) { sp.click(); break; }
-        await sleep(100);
-      }
-      await sleep(120);
-    }
+
     async function showYear(course, sub, year){
-      if (typeof window.showStudents === "function") window.showStudents(course, sub || null, String(year));
-      await sleep(160);
-    }
-
-    if (hinted && hinted.degree && hinted.year) {
-      const degreeKey = (courseKeys.find(k => norm($(`.course-pill[data-course="${k}"]`)?.textContent) === norm(hinted.degree)) || hinted.degree || "").toLowerCase();
-      if (degreeKey) {
-        await showCourse(degreeKey);
-        const subs = (window.courses?.[degreeKey]?.subcourses) ? Object.keys(window.courses[degreeKey].subcourses) : [null];
-        for (const sub of subs) {
-          await showSubcourse(sub);
-          await showYear(degreeKey, sub, hinted.year);
-          const node = findRenderedStudentNode({name, enroll});
-          if (node) { smoothScrollIntoView(node); return true; }
-        }
+      if (typeof window.showStudents === "function") {
+        window.showStudents(course, sub || null, String(year));
       }
+      await sleep(300);
     }
 
-    // fallback: brute force
-    const degrees = courseKeys.length ? courseKeys : ["btech","msc","mtech","phd"];
-    for (const degree of degrees) {
+    // Fast path if degree+year known
+    if (degree && year) {
       await showCourse(degree);
-      const subs = (window.courses?.[degree]?.subcourses) ? Object.keys(window.courses[degree].subcourses) : [null];
-      for (const sub of subs) {
-        await showSubcourse(sub);
-        const groups = Array.from(document.querySelectorAll(
-          `#studentData > div[data-course="${degree}"]${sub ? `[data-subcourse="${sub}"]` : `:not([data-subcourse])`}`
-        ));
-        const years = [...new Set(groups.map(g => g.dataset.year))].sort((a,b)=>b-a);
-        for (const y of years) {
-          await showYear(degree, sub, y);
-          const node = findRenderedStudentNode({name, enroll});
-          if (node) { smoothScrollIntoView(node); return true; }
-        }
+      await showYear(degree, null, year);
+      const node = findRenderedStudentNode(target);
+      if (node) { smoothScrollIntoView(node); return true; }
+    }
+
+    // Fallback: search all
+    for (const deg of courseKeys) {
+      await showCourse(deg);
+      const groups = Array.from(document.querySelectorAll(
+        `#studentData > div[data-course="${deg}"]`
+      ));
+      const years = [...new Set(groups.map(g => g.dataset.year))].sort((a,b)=>b-a);
+      for (const y of years) {
+        await showYear(deg, null, y);
+        const node = findRenderedStudentNode(target);
+        if (node) { smoothScrollIntoView(node); return true; }
       }
     }
     return false;
   }
 
-  // faculty/staff fallback
+  // ---------- generic fallback (faculty/staff) ----------
   function jumpToExistingAnchorByText(name){
     const want = norm(name);
     const candidates = $$("h1,h2,h3,h4,h5,.faculty-card,.staff-card,.profile-card,.member,.person,.card");
@@ -214,6 +180,7 @@
 
   // ---------- main ----------
   document.addEventListener("DOMContentLoaded", async function(){
+    // highlight + fixed header offset
     const css = document.createElement("style");
     css.textContent = `
       .jump-highlight { outline: 3px solid rgba(66,72,144,.45); outline-offset: 3px; border-radius: 10px; transition: outline-color .4s; }
@@ -225,13 +192,12 @@
     ensureSectionIdsOnPeople();
     scrollToHashIfPossible();
 
-    // --- deep-link check ---
     const targetStudent = getTargetStudentFromURL();
     const targetName    = getTargetNameFromURL();
 
     if (targetStudent) {
       if (/\/?students\.html(\?|#|$)/i.test(location.pathname)) {
-        await sleep(120);
+        await sleep(400); // wait for pills
         await openCohortAndFind(targetStudent);
       } else {
         jumpToExistingAnchorByText(targetStudent.name);
@@ -249,9 +215,11 @@
     setTimeout(() => scrollToHashIfPossible(), 600);
   });
 
+  // API
   window.peopleAnchors = {
     jumpToName: async (name) => {
-      if (/\/?students\.html(\?|#|$)/i.test(location.pathname)) return openCohortAndFind({name});
+      if (/\/?students\.html(\?|#|$)/i.test(location.pathname)) 
+        return openCohortAndFind({name,enroll:""});
       return jumpToExistingAnchorByText(name);
     }
   };

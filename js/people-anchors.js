@@ -120,6 +120,66 @@
     return false;
   }
 
+  async function openCohortAndFind(name){
+  const want = norm(name);
+  const nodes = $$("#studentData [data-name]");
+  let hinted = null;
+
+  if (nodes.length){
+    const node = nodes.find(n => norm(n.getAttribute("data-name")).includes(want));
+    if (node) {
+      const enroll = node.getAttribute("data-enroll") || "";
+      const hintDeg = node.getAttribute("data-degree") || "";
+      const hintYear= node.getAttribute("data-year") || "";
+      const {degree, year} = inferFromEnroll(enroll);
+      hinted = { degree: hintDeg || degree || "", year: hintYear || year || "" };
+    }
+  }
+
+  async function showAndWait(degree, sub, year){
+    if (typeof window.showStudents === "function") {
+      window.showStudents(degree, sub || null, String(year));
+    }
+    // wait until something renders
+    for (let i=0; i<20; i++){ // up to 2s
+      const node = findRenderedStudentNodeByName(name);
+      if (node) return node;
+      await sleep(100);
+    }
+    return null;
+  }
+
+  // Try hinted first
+  if (hinted && hinted.degree && hinted.year) {
+    const degreeKey = norm(hinted.degree).includes("phd") ? "phd" :
+                      norm(hinted.degree).includes("m.tech") ? "mtech" :
+                      norm(hinted.degree).includes("m.sc") ? "msc" : "btech";
+    const subs = (window.courses?.[degreeKey]?.subcourses) ? Object.keys(window.courses[degreeKey].subcourses) : [null];
+    for (const sub of subs){
+      const node = await showAndWait(degreeKey, sub, hinted.year);
+      if (node){ smoothScrollIntoView(node); return true; }
+    }
+  }
+
+  // Fallback: try all cohorts
+  for (const degree of ["btech","msc","mtech","phd"]) {
+    const subs = (window.courses?.[degree]?.subcourses) ? Object.keys(window.courses[degree].subcourses) : [null];
+    for (const sub of subs){
+      const groups = Array.from(document.querySelectorAll(
+        `#studentData > div[data-course="${degree}"]${sub ? `[data-subcourse="${sub}"]` : `:not([data-subcourse])`}`
+      ));
+      const years = [...new Set(groups.map(g => g.dataset.year))].sort((a,b)=>b-a);
+
+      for (const y of years){
+        const node = await showAndWait(degree, sub, y);
+        if (node){ smoothScrollIntoView(node); return true; }
+      }
+    }
+  }
+  return false;
+}
+
+
   // ===== init safely =====
   async function init(){
     try{

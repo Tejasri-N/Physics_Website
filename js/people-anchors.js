@@ -90,6 +90,28 @@
     return {degree, year};
   }
 
+  // ---------- students helpers ----------
+function getHintForStudent(name){
+  const want = norm(name);
+  const nodes = $$("#studentData [data-name]");
+  if (!nodes.length) return null;
+
+  // 1. exact match first
+  let node = nodes.find(n => norm(n.getAttribute("data-name")) === want);
+
+  // 2. fallback: substring match
+  if (!node) node = nodes.find(n => norm(n.getAttribute("data-name")).includes(want));
+  if (!node) return null;
+
+  const enroll = node.getAttribute("data-enroll") || "";
+  const hintDeg = node.getAttribute("data-degree") || "";
+  const hintYear= node.getAttribute("data-year") || "";
+  const {degree, year} = inferFromEnroll(enroll);
+
+  return { degree: (hintDeg || degree || "").toLowerCase(), year: (hintYear || year || "").toString() };
+}
+
+
   function findRenderedStudentNodeByName(name){
     const want = norm(name);
 

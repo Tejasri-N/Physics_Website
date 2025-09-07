@@ -48,18 +48,48 @@
   });
 
   // Voice button demo (non-functional fallback)
-  if (voiceBtn) {
+// Voice button with Web Speech API
+if (voiceBtn) {
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (SpeechRecognition) {
+    const recognizer = new SpeechRecognition();
+    recognizer.lang = 'en-IN'; // Indian English; change if you want
+    recognizer.interimResults = false;
+    recognizer.maxAlternatives = 1;
+
     voiceBtn.addEventListener('click', (e) => {
       e.preventDefault();
-      // Demo behavior: focus + brief pulse
       input.focus();
-      voiceBtn.animate([{ transform: 'scale(1)' }, { transform: 'scale(1.12)' }, { transform: 'scale(1)' }], { duration: 400, easing: 'ease-out' });
-      // temporary playful placeholder
-      const old = input.placeholder;
-      input.placeholder = 'Listening... (demo)';
-      setTimeout(() => { input.placeholder = old; }, 900);
+      input.placeholder = 'Listening...';
+
+      recognizer.start();
+
+      recognizer.onresult = (event) => {
+        const transcript = event.results[0][0].transcript;
+        input.value = transcript;
+        // Trigger search.js live suggest
+        input.dispatchEvent(new Event('input', { bubbles: true }));
+        input.placeholder = 'Search the Physics website…';
+      };
+
+      recognizer.onerror = (err) => {
+        console.error('Speech recognition error:', err);
+        input.placeholder = 'Could not hear, try again';
+        setTimeout(() => { input.placeholder = 'Search the Physics website…'; }, 1200);
+      };
+
+      recognizer.onend = () => {
+        input.placeholder = 'Search the Physics website…';
+      };
+    });
+  } else {
+    // Fallback if not supported
+    voiceBtn.addEventListener('click', () => {
+      alert("Sorry, voice search is not supported in this browser.");
     });
   }
+}
+
 
   // Click on suggestion rows: ensure aria-expanded updates (in case search.js simply uses anchors)
   document.addEventListener('click', (ev) => {

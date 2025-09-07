@@ -22,7 +22,6 @@
   }
 
   // ---------- parse URL targets ----------
-  // Support text fragment #:~:text=<Name> and #student-<slug-or-roll-or-name>
   function getTargetNameFromURL(){
     const href = String(window.location.href || "");
     if (href.includes("#:~:text=")) {
@@ -36,20 +35,19 @@
     return "";
   }
 
-  // If URL hash encodes both name and enrollment like: #student-tejasri-EP20BTECH0001
+  // If URL hash encodes both name and enrollment like: #student-tejasri-EP25BTECH11001
   function getTargetStudentFromURL(){
     const h = window.location.hash || "";
     if (!h.startsWith("#student-")) return null;
     const slugged = h.replace(/^#student-/, "");
     const parts = slugged.split("-");
-    // heuristic: last part that looks like enroll (digits + letters) -> treat as enroll
     const last = parts[parts.length-1] || "";
-    if (/[A-Za-z0-9]{6,}/.test(last)) {
-      const enroll = last;
+    // if last token looks like an enrollment (contains digits and letters)
+    if (/[A-Za-z0-9]{6,}/.test(last) && /\d/.test(last)) {
+      const enroll = last.toUpperCase();
       const name = parts.slice(0, -1).join(" ");
-      return { name: decodeURIComponent(name), enroll: enroll.toUpperCase() };
+      return { name: decodeURIComponent(name), enroll };
     }
-    // fallback: treat whole fragment as name
     return { name: decodeURIComponent(slugged), enroll: "" };
   }
 
@@ -94,7 +92,7 @@
   function inferFromEnroll(enroll){
     const E = (enroll||"").toUpperCase();
     let degree = "";
-    if (/RESCH/.test(E) || /^PHD|^PHD|^PH/.test(E)) degree = "PhD";
+    if (/RESCH/.test(E) || /^PHD|^PH/.test(E)) degree = "PhD";
     else if (/MTECH|M-?TECH/.test(E)) degree = "M.Tech";
     else if (/MSC|M\.?SC/.test(E)) degree = "M.Sc";
     else if (/BTECH|B-?TECH/.test(E)) degree = "B.Tech";
@@ -108,72 +106,96 @@
     return {degree, year};
   }
 
-  // Small roll-to-subcourse map — extend as needed
-  const ROLL_MAP = {
-    // Example: prefix -> { courseKey (btech|msc|mtech|phd), subcourseKey }
-    EP: { course: 'btech', sub: 'engineering-physics' },    // EP => Engineering Physics (BTech)
-    ME: { course: 'mtech', sub: 'mechanical' },              // example
-    QS: { course: 'msc',  sub: 'quantum-science' },         // example
-    RESCH: { course: 'phd' },                               // research/PhD marker
-    PH: { course: 'phd' }                                   // other possible markers
-    // Add more prefixes here as your roll formats grow
-  };
-
+  // Map enroll -> course + optional subcourse (use examples you supplied)
   function mapEnrollToCourseSub(enroll){
     const E = (enroll||"").toUpperCase();
     if (!E) return {};
+
+    // degree-detection via explicit markers
+    const degreeDetected = inferFromEnroll(E).degree || "";
+    // leading alpha prefix (like EP, PH, MP, ...)
+    const prefixMatch = E.match(/^([A-Z]{1,4})/);
+    const prefix = prefixMatch ? prefixMatch[1] : "";
+
+    // Rule-based mapping (use degree marker first, then prefix)
+    // Your examples:
+    // EP25BTECH11001 -> BTech -> engineering-physics
+    // PH25MSCST11001 -> M.Sc -> physics
+    // MP25MSCST14001 -> M.Sc -> medical-physics
+    // PH25MTECH11001 -> M.Tech -> quantum
     if (/RESCH/.test(E)) return { course: 'phd', sub: null };
-    // find a textual prefix like EP, ME, QS at start
-    const m = E.match(/^([A-Z]{1,4})/);
-    if (m) {
-      const prefix = m[1];
-      if (ROLL_MAP[prefix]) return ROLL_MAP[prefix];
+
+    // If degree marker present use it
+    if (/BTECH|B-?TECH/.test(E)) {
+      // BTech: EP => engineering-physics
+      if (/^EP/.test(E) || prefix === 'EP') return { course: 'btech', sub: 'engineering-physics' };
+      return { course: 'btech', sub: null };
     }
-    // fallback: if BTECH found, map to btech; MTECH->mtech, MSC->msc
-    if (/BTECH|B-?TECH/.test(E)) return { course: 'btech', sub: null };
-    if (/MTECH|M-?TECH/.test(E)) return { course: 'mtech', sub: null };
-    if (/MSC|M\.?SC/.test(E)) return { course: 'msc', sub: null };
-    // unknown
+    if (/MTECH|M-?TECH/.test(E)) {
+      // M.Tech: PH -> quantum (example mapping you gave)
+      if (/^PH/.test(E) || prefix === 'PH') return { course: 'mtech', sub: 'quantum' };
+      return { course: 'mtech', sub: null };
+    }
+    if (/MSC|M\.?SC/.test(E)) {
+      // M.Sc: PH -> physics, MP -> medical-physics
+      if (/^PH/.test(E) || prefix === 'PH') return { course: 'msc', sub: 'physics' };
+      if (/^MP/.test(E) || prefix === 'MP') return { course: 'msc', sub: 'medical-physics' };
+      return { course: 'msc', sub: null };
+    }
+
+    // fallback to inferred degree (if inferFromEnroll gave something)
+    if (degreeDetected) {
+      const degKey = degreeDetected.toLowerCase();
+      // some reasonable sub-mapping by prefix
+      if (degKey === 'b.tech' || degKey === 'b.tech' || degKey === 'b.tech') {
+        if (prefix === 'EP') return { course: 'btech', sub: 'engineering-physics' };
+        return { course: 'btech', sub: null };
+      }
+      if (degKey.includes('m.tech')) {
+        if (prefix === 'PH') return { course: 'mtech', sub: 'quantum' };
+        return { course: 'mtech', sub: null };
+      }
+      if (degKey.includes('m.sc')) {
+        if (prefix === 'MP') return { course: 'msc', sub: 'medical-physics' };
+        if (prefix === 'PH') return { course: 'msc', sub: 'physics' };
+        return { course: 'msc', sub: null };
+      }
+      if (degKey.includes('phd')) return { course: 'phd', sub: null };
+    }
+
+    // nothing matched — return empty object
     return {};
   }
 
-  function getHintForStudent(nameOrEnroll) {
-    // Accept either a name string or an object {name, enroll}
+  // Find dataset hint and explicit attributes
+  function getHintForStudent(nameOrObj) {
     let name = "", enroll = "";
-    if (!nameOrEnroll) return null;
-    if (typeof nameOrEnroll === 'string') {
-      name = nameOrEnroll;
-    } else if (typeof nameOrEnroll === 'object') {
-      name = nameOrEnroll.name || "";
-      enroll = nameOrEnroll.enroll || "";
-    }
+    if (!nameOrObj) return null;
+    if (typeof nameOrObj === 'string') name = nameOrObj;
+    else if (typeof nameOrObj === 'object') { name = nameOrObj.name || ""; enroll = nameOrObj.enroll || ""; }
+
     const want = norm(name);
     const nodes = $$("#studentData [data-name]");
-    if (!nodes.length) {
-      // if nodes not present, but enroll exists, still try to map from enroll
-      if (enroll) {
-        const mapped = mapEnrollToCourseSub(enroll);
-        const inferred = inferFromEnroll(enroll);
-        return { degree: (mapped.course || inferred.degree || "").toLowerCase(), sub: mapped.sub || null, year: inferred.year || "" };
-      }
-      return null;
+    if (!nodes.length && enroll) {
+      // fallback to enroll mapping even if dataset not present
+      const mapped = mapEnrollToCourseSub(enroll);
+      const inferred = inferFromEnroll(enroll);
+      return { degree: (mapped.course || (inferred.degree || "")).toLowerCase(), sub: mapped.sub || null, year: inferred.year || "" };
     }
+    if (!nodes.length) return null;
 
-    // 1. try exact match on name
+    // exact name first
     let node = nodes.find(n => norm(n.getAttribute("data-name")) === want);
-
-    // 2. substring match
+    // substring next
     if (!node && want) node = nodes.find(n => norm(n.getAttribute("data-name")).includes(want));
-
-    // 3. if enroll provided, try match by enroll
+    // match by enroll attribute if provided
     if (!node && enroll) node = nodes.find(n => (n.getAttribute("data-enroll")||"").toUpperCase() === enroll.toUpperCase());
 
     if (!node) {
-      // fallback: map from explicit enroll if given (even if no dataset)
       if (enroll) {
         const mapped = mapEnrollToCourseSub(enroll);
         const inferred = inferFromEnroll(enroll);
-        return { degree: (mapped.course || inferred.degree || "").toLowerCase(), sub: mapped.sub || null, year: inferred.year || "" };
+        return { degree: (mapped.course || (inferred.degree || "")).toLowerCase(), sub: mapped.sub || null, year: inferred.year || "" };
       }
       return null;
     }
@@ -185,14 +207,13 @@
     const inferred = inferFromEnroll(enrollAttr);
 
     return {
-      degree: (hintDeg || mapped.course || inferred.degree || "").toLowerCase(),
+      degree: (hintDeg || mapped.course || (inferred.degree || "")).toLowerCase(),
       sub: (mapped.sub || node.getAttribute("data-subcourse") || null),
       year: (hintYear || inferred.year || "")
     };
   }
 
   function findRenderedStudentNodeByName(nameOrObj){
-    // Accept either a string name or {name, enroll}
     let name = "", enroll = "";
     if (!nameOrObj) return null;
     if (typeof nameOrObj === 'string') name = nameOrObj;
@@ -200,7 +221,7 @@
     const want = norm(name);
     const wantEnroll = (enroll||"").toUpperCase();
 
-    // Table rows (if table visible)
+    // Table rows
     const table = $("#studentTable");
     if (table && table.style.display !== "none") {
       for (const tr of table.querySelectorAll("tbody tr")) {
@@ -208,33 +229,32 @@
         if ((want && norm(txt).includes(want)) || (wantEnroll && txt.toUpperCase().includes(wantEnroll))) return tr;
       }
     }
-    // PhD cards / grid cards / data-name attributes
+
+    // Cards (PhD / grid)
     for (const el of $$(".phd-student-card,.student-card,[data-name]")) {
       const txt = (el.textContent || "").toLowerCase();
       const dataEnroll = (el.getAttribute && (el.getAttribute("data-enroll")||"")).toUpperCase();
       if ((want && txt.includes(want)) || (wantEnroll && dataEnroll.includes(wantEnroll))) return el;
     }
+
     return null;
   }
 
   // Drive your existing UI: course → subcourse → year, then locate student
   async function openCohortAndFind(target){
-    // target can be string name OR object {name, enroll}
+    // target may be string or {name,enroll}
     const name = (typeof target === 'string') ? target : (target && target.name ? target.name : "");
     const enroll = (typeof target === 'object' ? (target.enroll||"") : "");
     const courseKeys = (window.courses && Object.keys(window.courses)) || [];
 
-    // Hint from dataset or enroll mapping
+    // get hint from dataset or enroll mapping
     let hinted = getHintForStudent(typeof target === 'object' ? target : name);
-
-    // If enroll explicitly provided in param and hinted misses, map it
     if (!hinted && enroll) {
       const mapped = mapEnrollToCourseSub(enroll);
       const inferred = inferFromEnroll(enroll);
       hinted = { degree: (mapped.course || inferred.degree || "").toLowerCase(), sub: mapped.sub || null, year: inferred.year || "" };
     }
 
-    // Helper UI drivers (use your existing page functions if present)
     async function showCourse(course){
       if (!course) return;
       const pill = $(`.course-pill[data-course="${course}"]`);
@@ -244,7 +264,6 @@
     }
     async function showSubcourse(sub){
       if (!sub) return;
-      // sub pills might appear after course click — wait a little
       for (let i=0;i<12;i++){
         const sp = $(`.subcourse-pill[data-subcourse="${sub}"]`);
         if (sp) { if(!sp.classList.contains("active")) sp.click(); break; }
@@ -258,38 +277,35 @@
       await sleep(160);
     }
 
-    // Try fast path if hinted degree & year available
+    // Fast path: hinted degree -> try that degree first
     if (hinted && hinted.degree) {
       const degreeKey = (courseKeys.find(k => norm($(`.course-pill[data-course="${k}"]`)?.textContent) === norm(hinted.degree)) || hinted.degree || "").toLowerCase();
       if (degreeKey) {
         await showCourse(degreeKey);
-        // attempt subcourse if hinted.sub exists
         if (hinted.sub) await showSubcourse(hinted.sub);
-        // try hinted year first
         if (hinted.year) {
           await showYear(degreeKey, hinted.sub || null, hinted.year);
-          let node = findRenderedStudentNodeByName(typeof target === 'object' ? target : name);
+          const node = findRenderedStudentNodeByName(target);
           if (node) { smoothScrollIntoView(node); return true; }
         }
-        // fallback: scan all subcourses/years for that degree
+        // fallback to scanning subcourses+years within this degree
         const subs = (window.courses?.[degreeKey]?.subcourses) ? Object.keys(window.courses[degreeKey].subcourses) : [null];
         for (const sub of subs) {
           await showSubcourse(sub);
-          // compute years for this selection
           const groups = Array.from(document.querySelectorAll(
             `#studentData > div[data-course="${degreeKey}"]${sub ? `[data-subcourse="${sub}"]` : `:not([data-subcourse])`}`
           ));
           const years = [...new Set(groups.map(g => g.dataset.year))].sort((a,b)=>b-a);
           for (const y of years) {
             await showYear(degreeKey, sub, y);
-            let node = findRenderedStudentNodeByName(typeof target === 'object' ? target : name);
+            const node = findRenderedStudentNodeByName(target);
             if (node) { smoothScrollIntoView(node); return true; }
           }
         }
       }
     }
 
-    // Exhaustive search across degrees if nothing found yet
+    // Exhaustive search
     const degrees = courseKeys.length ? courseKeys : ["btech","msc","mtech","phd"];
     for (const degree of degrees) {
       await showCourse(degree);
@@ -302,11 +318,12 @@
         const years = [...new Set(groups.map(g => g.dataset.year))].sort((a,b)=>b-a);
         for (const y of years) {
           await showYear(degree, sub, y);
-          let node = findRenderedStudentNodeByName(typeof target === 'object' ? target : name);
+          const node = findRenderedStudentNodeByName(target);
           if (node) { smoothScrollIntoView(node); return true; }
         }
       }
     }
+
     return false;
   }
 
@@ -336,18 +353,17 @@
     scrollToHashIfPossible();
 
     // smarter jumps (search deep links)
-    const targetName = getTargetNameFromURL();
     const targetStudent = getTargetStudentFromURL();
+    const targetName = getTargetNameFromURL();
+
     if (targetStudent) {
-      // open UI and search by name+enroll
       if (/\/?students\.html(\?|#|$)/i.test(location.pathname)) {
-        await sleep(120); // allow page JS to set up
+        await sleep(120);
         await openCohortAndFind(targetStudent);
       } else {
         jumpToExistingAnchorByText(targetStudent.name);
       }
     } else if (targetName) {
-      // support plain text fragment (name)
       if (/\/?students\.html(\?|#|$)/i.test(location.pathname)) {
         await sleep(120);
         await openCohortAndFind(targetName);
@@ -367,13 +383,13 @@
     setTimeout(() => scrollToHashIfPossible(), 600);
   });
 
-  // (Optional) expose a tiny API if you ever want to call from elsewhere
+  // Small public API
   window.peopleAnchors = {
     jumpToName: async (name) => {
       if (/\/?students\.html(\?|#|$)/i.test(location.pathname)) return openCohortAndFind(name);
       return jumpToExistingAnchorByText(name);
     },
-    jumpToStudent: async (obj) => { // obj: {name, enroll}
+    jumpToStudent: async (obj) => {
       if (/\/?students\.html(\?|#|$)/i.test(location.pathname)) return openCohortAndFind(obj);
       return jumpToExistingAnchorByText(obj.name || obj);
     }

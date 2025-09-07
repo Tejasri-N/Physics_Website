@@ -268,17 +268,16 @@ const hinted = getHintForStudent(name);
     scrollToHashIfPossible();
 
     // smarter jumps (search deep links)
-    const targetName = getTargetNameFromURL();
-    if (targetName) {
-      const onStudentsPage = /\/?students\.html(\?|#|$)/i.test(location.pathname);
-      if (onStudentsPage) {
-        // let Students page wire up first (year pills, etc.)
-        await sleep(120);
-        await openCohortAndFind(targetName);
-      } else {
-        jumpToExistingAnchorByText(targetName);
-      }
-    }
+   const targetStudent = getTargetStudentFromURL();
+if (targetStudent) {
+  if (/\/?students\.html(\?|#|$)/i.test(location.pathname)) {
+    await sleep(120);
+    await openCohortAndFind(targetStudent);
+  } else {
+    jumpToExistingAnchorByText(targetStudent.name);
+  }
+}
+
 
     // re-honor future hash changes
     window.addEventListener("hashchange", () => {

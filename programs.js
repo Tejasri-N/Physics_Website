@@ -100,7 +100,12 @@ document.addEventListener("DOMContentLoaded", () => {
          cross-departmental electives that align with your interests. Refer to Sections 4–5 of the
          <a href="assets/Docs/Academic_Handbook_62nd_Senate.pdf" target="_blank" rel="noopener">Academic Handbook</a>
          for policies on eligibility, credit load, and evaluation.
-       </p>`,
+       </p>
+        <p><strong>Official documents</strong></p>
+       <ul>
+         <li><a href="assets/Docs/EP_2024_onwards_06_2025.pdf" target="_blank" rel="noopener">Minor Programme, Double Major and Honors Curriculum.</a></li>
+         <li><a href="assets/Docs/EP22_onwards_senate_verified_web_version.pdf" target="_blank" rel="noopener">Minor in Quantum Technology.</a></li>
+       </ul>`,
 
     internshipbtech:
       `<h4>Internship</h4>

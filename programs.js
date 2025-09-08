@@ -86,8 +86,8 @@ document.addEventListener("DOMContentLoaded", () => {
        </p>
        <p><strong>Official documents and detailed syllabi:</strong></p>
        <ul>
-         <li><a href="assets/Docs/Annex.8_BTech Eng Physics Curriculum & course approvals.pdf" target="_blank" rel="noopener">Batch 2024 Onward</a></li>
-         <li><a href="assets/Docs/Annex.8_BTech Eng Physics Curriculum & course approvals (1).pdf" target="_blank" rel="noopener">Batch 2022 Onward</a></li>
+         <li><a href="assets/Docs/EP_2024_onwards_06_2025.pdf" target="_blank" rel="noopener">Batch 2024 Onward</a></li>
+         <li><a href="assets/Docs/EP22_onwards_senate_verified_web_version.pdf" target="_blank" rel="noopener">Batch 2022 Onward</a></li>
          <li><a href="assets/Docs/EP course content 2025.pdf" target="_blank" rel="noopener">EP Course Content 2025 (at a glance)</a></li>
        </ul>`,
 

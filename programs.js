@@ -103,8 +103,8 @@ document.addEventListener("DOMContentLoaded", () => {
        </p>
         <p><strong>Official documents</strong></p>
        <ul>
-         <li><a href="assets/Docs/EP_2024_onwards_06_2025.pdf" target="_blank" rel="noopener">Minor Programme, Double Major and Honors Curriculum.</a></li>
-         <li><a href="assets/Docs/EP22_onwards_senate_verified_web_version.pdf" target="_blank" rel="noopener">Minor in Quantum Technology.</a></li>
+         <li><a href="assets/Docs/EP_honors_minor_major.pdf" target="_blank" rel="noopener">Minor Programme, Double Major and Honors Curriculum.</a></li>
+         <li><a href="assets/Docs/annexure_c.pdf" target="_blank" rel="noopener">Minor in Quantum Technology.</a></li>
        </ul>`,
 
     internshipbtech:

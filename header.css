@@ -503,6 +503,8 @@
 }
 /* ---------- Search UI / glassy animated styles (append to your CSS) ---------- */
 
+/* ---------- Search UI / glassy animated styles (mic removed) ---------- */
+
 /* Container */
 .fancy-search {
   position: relative;
@@ -530,9 +532,8 @@
   border-color: rgba(108,99,255,0.14);
 }
 
-/* Search & voice buttons */
-.fancy-search .search-btn,
-.fancy-search .voice-btn {
+/* Search button */
+.fancy-search .search-btn {
   display:flex;
   align-items:center;
   justify-content:center;
@@ -542,12 +543,11 @@
   background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
   border: none;
   color: #fff;
-  cursor: pointer;
+  cursor: default;
   transition: transform .22s ease, background .22s ease, box-shadow .22s;
   box-shadow: 0 4px 12px rgba(0,0,0,0.08);
 }
 .fancy-search .search-btn:hover { transform: rotate(-12deg) scale(1.05); background: rgba(255,255,255,0.06); }
-.fancy-search .voice-btn:hover  { transform: scale(1.08); background: rgba(255,255,255,0.06); }
 
 /* Input */
 .fancy-search input#search-input {
@@ -569,7 +569,7 @@
 /* Placeholder */
 .fancy-search input#search-input::placeholder { color: rgba(255,255,255,0.78); font-weight:500; }
 
-/* typing caret pulse (applies when .typing class exists) */
+/* typing class: keep caret visible */
 .fancy-search input.typing { caret-color: #fff; }
 
 /* Suggestion dropdown */
@@ -633,7 +633,7 @@
 /* footer link */
 .srch-footer { border-top:1px solid #eee; padding:8px 12px; text-align:right; font-size:12px; background:#fafafa; border-radius:0 0 12px 12px; }
 
-/* small-screen: hide fancy search (your existing rule keeps it hidden under 900px) */
+/* Small-screen: hide fancy search (keep your existing rule) */
 @media (max-width:900px) {
   .header-search { display:none; }
 }

@@ -10,46 +10,115 @@
   <link rel="stylesheet" href="header.css" />
   <link rel="stylesheet" href="footer.css" />
 
-  <!-- Fuse + search logic -->
+  <!-- Fuse.js & Search logic -->
   <script src="https://cdn.jsdelivr.net/npm/fuse.js@7.0.0"></script>
   <script defer src="js/search.js"></script>
 
-  <!-- Small page-specific styles -->
   <style>
-    .search-wrap { max-width:1200px; margin:24px auto; padding:0 20px }
-    .search-title { margin:10px 0 6px }
-    .search-query { color:#666; margin:0 0 16px }
-    .search-result {
-      padding:16px;
-      border:1px solid #e9e9e9;
-      border-radius:10px;
-      margin:12px 0;
-      background:#fff;
+    .search-wrap {
+      max-width: 1200px;
+      margin: 24px auto;
+      padding: 0 20px;
     }
-    .search-result h3 { margin:0 0 6px }
-    .search-result a { color:#1f4e79; text-decoration:none }
-    .search-result a:hover { text-decoration:underline }
-    .search-url { font-size:12px; color:#888; margin-top:6px }
+
+    .search-query {
+      color: #666;
+      margin: 0 0 16px;
+    }
+
+    .search-input-area {
+      margin-bottom: 10px;
+    }
+
+    .search-wrapper {
+      position: relative;
+      display: flex;
+      max-width: 600px;
+      width: 100%;
+    }
+
+    .search-wrapper input {
+      width: 100%;
+      padding: 8px 12px;
+      font-size: 1rem;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+
+    #search-progress {
+      height: 4px;
+      background: transparent;
+      width: 100%;
+      position: absolute;
+      bottom: -5px;
+      left: 0;
+    }
+
+    #search-progress-bar {
+      height: 4px;
+      width: 0%;
+      background-color: #007bff;
+      transition: width 0.3s ease;
+    }
+
+    .search-result {
+      padding: 16px;
+      border: 1px solid #e9e9e9;
+      border-radius: 10px;
+      margin: 12px 0;
+      background: #fff;
+    }
+
+    .search-result h3 {
+      margin: 0 0 6px;
+    }
+
+    .search-result a {
+      color: #1f4e79;
+      text-decoration: none;
+    }
+
+    .search-result a:hover {
+      text-decoration: underline;
+    }
+
+    .search-url {
+      font-size: 12px;
+      color: #888;
+      margin-top: 6px;
+    }
   </style>
 </head>
 <body>
-
-  <!-- These get populated by main.js (same as other pages) -->
   <header class="header"></header>
 
   <main class="search-wrap">
-    <h1 class="search-title">Search Results <small id="srch-q"></small></h1>
+    <!-- Removed duplicate heading -->
+    <!-- Only search box and results remain -->
 
-    <!-- Status message (shows “Searching…” etc.) -->
-    <div id="search-status" style="margin:.25rem 0 .75rem;color:#666;font-size:.95rem;"></div>
+    <!-- Search box and progress bar -->
+    <div class="search-input-area">
+      <div class="search-wrapper">
+        <input
+          type="search"
+          id="search-input"
+          name="q"
+          placeholder="Search the Physics website…"
+          autocomplete="off"
+        />
+        <div id="search-progress"><div id="search-progress-bar"></div></div>
+      </div>
+    </div>
+
+    <!-- Status message -->
+    <div id="search-status"></div>
 
     <!-- Actual results will appear here -->
     <div id="srch-out"></div>
   </main>
 
   <footer class="footer"></footer>
-
-  <!-- Load your header/footer + common JS so the header renders -->
   <script src="main.js"></script>
 </body>
 </html>
+

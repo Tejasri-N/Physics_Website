@@ -31,212 +31,108 @@
     </nav>
 
     <!-- Main Content -->
-    <div class="main-content">
+    <main class="main-content">
       <header>
-        <h2 class="main-title">Students Directory</h2>
+        <h2 class="main-title">Alumni Directory</h2>
       </header>
 
-      <!-- Main Courses -->
+      <!-- Course Pills -->
       <nav class="course-nav" id="courseNav">
-        <div class="course-pill" data-course="btech">B.Tech</div>
-        <div class="course-pill" data-course="msc">M.Sc</div>
-        <div class="course-pill" data-course="mtech">M.Tech</div>
-        <div class="course-pill" data-course="phd">PhD</div>
-      </nav>
+  <div class="course-pill" data-alumni-course="btech">B.Tech</div>
+  <div class="course-pill" data-alumni-course="msc">M.Sc</div>
+  <!-- <div class="course-pill" data-alumni-course="mtech">M.Tech</div> -->
+  <div class="course-pill" data-alumni-course="phd">PhD</div>
+</nav>
 
-      <!-- Sub-courses -->
-      <div class="subcourse-nav hidden" id="subcourseNav"></div>
-
-      <!-- Years Scroll Section -->
-      <div
-        class="year-scroll-wrapper"
-        id="yearScrollWrapper"
-        style="display: none"
-      >
-        <button
-          class="scroll-arrow left"
-          id="yearLeftArrow"
-          onclick="scrollYears(-1)"
-        >
-          ‹
-        </button>
-        <div class="year-container" id="yearContainer"></div>
-        <button
-          class="scroll-arrow right"
-          id="yearRightArrow"
-          onclick="scrollYears(1)"
-        >
-          ›
-        </button>
-      </div>
-
-      <!-- Table -->
+      <!-- This is where tables will appear -->
       <div class="table-container hidden" id="tableContainer">
-        <table id="studentTable">
-          <caption id="tableCaption"></caption>
-          <thead>
-            <tr>
-              <th>Serial No.</th>
-              <th>Student Name</th>
-              <th>Enrollment Number</th>
-            </tr>
-          </thead>
-          <tbody id="tableBody"></tbody>
-        </table>
+  <table id="alumniTable">
+    <caption id="tableCaption"></caption>
+    <thead>
+      <tr>
+        <th>Serial No.</th>
+        <th>Student Name</th>
+        <th>Enrollment Number</th>
+        <th>Current Status</th>
+      </tr>
+    </thead>
+    <tbody id="tableBody"></tbody>
+  </table>
+</div>
+
+    
+
+    <!-- Hidden Alumni Data -->
+    <div id="alumniData" style="display:none">
+      <!-- B.Tech Alumni -->
+      <div data-alumni-course="btech">
+        <div data-name="Yogesh Swami" data-enroll="EP17BTECH11019" data-status="Frontend Developer at Innominds"></div>
+        <div data-name="Seeram Sri Ragha Sai Sowmya	" data-enroll="EP17BTECH11018	" data-status="Working at Oppo R&D"></div>
+        <div data-name="GURU SAI HAVEESH SINGIRIKONDA	" data-enroll="EP17BTECH11010" data-status="Masters student at University of Bonn"></div>
+        <div data-name="Gautham Gururajan	" data-enroll="EP17BTECH11008" data-status="Incoming MS student at Georgia Tech."></div>
+        <div data-name="Gaurav Milind Gijare	" data-enroll="EP17BTECH11007" data-status="SDE1 at Amazon"></div>
+        <div data-name="Stavan Christian	" data-enroll="Ep17btech11005" data-status="Employee at NTT-AT"></div>
+        <div data-name="Aditya Patel	" data-enroll="EP17BTECH11002	" data-status="Software Engineer"></div>
+        <div data-name="TEJAS.P	" data-enroll="EP15BTECH11010" data-status="Graduate Research Assistant, The Ohio State University"></div>
+        <div data-name="DHAYGUDE AKANKSHA BALKRISHNA" data-enroll="EP15BTECH11005" data-status="Masters student at NYU"></div>
+        <div data-name="SURYARAO BETHAPUDI	" data-enroll="EP14BTECH11008	" data-status="PhD student at Max Planck Institute for Radio astronomy, Bonn"></div>
+        <div data-name="JAKKAPU MAHESH	" data-enroll="EP14BTECH11004" data-status="Ph.D student at Sokkendai University"></div>
+        <div data-name="AISHA DANTULURI	" data-enroll="EP14BTECH11001" data-status="Lawrence Livermore National Lab"></div>
+        <div data-name="PRAFULLA KUMAR GUPTA	" data-enroll="EP13B1006	" data-status="Research Assistant (RA) at Center for Advanced 2D materials and Graphene Research Center, Singapore"></div>
+        <div data-name="KULKARNI SOHAM AJIT	" data-enroll="EP13B1003" data-status="Graduate Student(Astro), Department of Physics in University of Florida"></div>
       </div>
 
-      <!-- Data -->
-      <div id="studentData" style="display: none">
-        <!-- B.Tech -->
-        <div data-course="btech" data-year="2026">
-          <div data-name="Niladri" data-enroll="ph23mscst14001"></div>
-          <div data-name="karmakar" data-enroll="Ph23mscst14005"></div>
-          <div data-name="Niladri" data-enroll="ph23mscst14001"></div>
-          <div data-name="karmakar" data-enroll="Ph23mscst14005"></div>
-        </div>
-        <div
-          data-course="btech"
-          data-subcourse="engineering-physics"
-          data-year="2025"
-        >
-          <div data-name="niladri" data-enroll="ph23mscst14006"></div>
-          <div data-name="Niladri" data-enroll="ph23mscst14001"></div>
-          <div data-name="karmakar" data-enroll="Ph23mscst14005"></div>
-        </div>
-        <div
-          data-course="btech"
-          data-subcourse="engineering-physics"
-          data-year="2024"
-        >
-          <div data-name="niladri" data-enroll="ph23mscst14006"></div>
-          <div data-name="Niladri" data-enroll="ph23mscst14001"></div>
-          <div data-name="karmakar" data-enroll="Ph23mscst14005"></div>
-        </div>
-        <div
-          data-course="btech"
-          data-subcourse="engineering-physics"
-          data-year="2023"
-        >
-          <div data-name="niladri" data-enroll="ph23mscst14006"></div>
-          <div data-name="Niladri" data-enroll="ph23mscst14001"></div>
-          <div data-name="karmakar" data-enroll="Ph23mscst14005"></div>
-        </div>
-        <div
-          data-course="btech"
-          data-subcourse="engineering-physics"
-          data-year="2022"
-        >
-          <div data-name="niladri" data-enroll="ph23mscst14006"></div>
-          <div data-name="Niladri" data-enroll="ph23mscst14001"></div>
-          <div data-name="karmakar" data-enroll="Ph23mscst14005"></div>
-        </div>
-        <div
-          data-course="btech"
-          data-subcourse="engineering-physics"
-          data-year="2021"
-        >
-          <div data-name="niladri" data-enroll="ph23mscst14006"></div>
-          <div data-name="Niladri" data-enroll="ph23mscst14001"></div>
-          <div data-name="karmakar" data-enroll="Ph23mscst14005"></div>
-        </div>
-        <div
-          data-course="btech"
-          data-subcourse="engineering-physics"
-          data-year="2020"
-        >
-          <div data-name="niladri" data-enroll="ph23mscst14006"></div>
-        </div>
-        <div
-          data-course="btech"
-          data-subcourse="engineering-physics"
-          data-year="2019"
-        >
-          <div data-name="niladri" data-enroll="ph23mscst14006"></div>
-        </div>
-        <div
-          data-course="btech"
-          data-subcourse="engineering-physics"
-          data-year="2018"
-        >
-          <div data-name="niladri" data-enroll="ph23mscst14006"></div>
-          <div data-name="Niladri" data-enroll="ph23mscst14001"></div>
-          <div data-name="karmakar" data-enroll="Ph23mscst14005"></div>
-        </div>
-        <div
-          data-course="btech"
-          data-subcourse="engineering-physics"
-          data-year="2017"
-        >
-          <div data-name="niladri" data-enroll="ph23mscst14006"></div>
-        </div>
-        <div
-          data-course="btech"
-          data-subcourse="engineering-physics"
-          data-year="2016"
-        >
-          <div data-name="niladri" data-enroll="ph23mscst14006"></div>
-        </div>
-        <div
-          data-course="btech"
-          data-subcourse="engineering-physics"
-          data-year="2015"
-        >
-          <div data-name="niladri" data-enroll="ph23mscst14006"></div>
-        </div>
-        <div
-          data-course="btech"
-          data-subcourse="engineering-physics"
-          data-year="2014"
-        >
-          <div data-name="niladri" data-enroll="ph23mscst14006"></div>
-        </div>
+      <!-- M.Sc Alumni -->
+      <div data-alumni-course="msc">
+        <div data-name="SAHIL SHARMA	" data-enroll="PH19MSCST11018" data-status="IFAS online + Turito"></div>
+        <div data-name="PRASHANT TIWARI	" data-enroll="PH19MSCST11013" data-status="Assistant Professor, Jaikranti college"></div>
+        <div data-name="VYSAKH PV	" data-enroll="PH18MSCST11018" data-status="FITJEE"></div>
+        <div data-name="SHEKHAR SINGH	" data-enroll="PH18MSCST11017" data-status="FITJEE"></div>
+        <div data-name="ROHIT" data-enroll="PH18MSCST11015" data-status="FITJEE"></div>
+        <div data-name="Argha Jyoti Roy	" data-enroll="PH18MSCST11003" data-status="Institute of Physics, University of Rostock, Germany"></div>
+        <div data-name="URVASI YADAV	" data-enroll="PH17MSCST11016" data-status="lecturer of physics, Pune, Maharashtra"></div>
+        <div data-name="R.VAISAKH	" data-enroll="PH17MSCST11010" data-status="Ph.D student at Southern Methodist University"></div>
+        <div data-name="LABONI MANNA	" data-enroll="PH17MSCST11007" data-status="McNet scholar, Université catholique de Louvain, Belgium"></div>
+        <div data-name="ALEENA JOSEPH	" data-enroll="PH17MSCST11002" data-status="PhD, University of Strasbourg, France"></div>
+        <div data-name="KEVIN ROY	" data-enroll="PH16MSCST11007" data-status="Research scholar at University of Agder, Norway."></div>
+        <div data-name="SHALINI GANGULY	" data-enroll="PH15MSCST11017" data-status="Postdoctoral research associate, University of North Texas"></div>
+        <div data-name="Ashish Chandra	" data-enroll="PH15MSCST11006" data-status="M.Tech, IIT Delhi"></div>
+        <div data-name="Anuprava Mandol	" data-enroll="PH15MSCST11005" data-status="M.Tech and Ph.D IIT Kharagpur"></div>
+        <div data-name="Anish Ninad Agashe	" data-enroll="PH15MSCST11004" data-status="Ph.D ,The University of Texas at Dallas"></div>
+        <div data-name="Anbu Selvam.V	" data-enroll="PH15MSCST11003" data-status="Ph.D. Physics Department, Kansas State University, Manhattan, KS, US"></div>
+        <div data-name="Akash Bagga	" data-enroll="PH15MSCST11001" data-status="Assistant Lecturer , Akash Educational Services Limited"></div>
+        <div data-name="Anoop K Chandran	" data-enroll="ph14mscst11003	" data-status="PhD, International Centre for Theoretical Physics (ICTP), Italy"></div>
+      </div>
 
-        <!-- MSc Physics -->
-        <div data-course="msc" data-subcourse="physics" data-year="2025">
-          <div data-name="Niladri" data-enroll="PH23MSCST14005"></div>
-        </div>
+      <!-- M.Tech Alumni -->
+      <!-- <div data-alumni-course="mtech">
+        <div data-name="Suman" data-enroll="PH23MTECH001" data-status="Graduated"></div>
+      </div> -->
 
-        <!-- MSc Medical Physics -->
-        <div
-          data-course="msc"
-          data-subcourse="medical-physics"
-          data-year="2025"
-        >
-          <div data-name="Niladri" data-enroll="PH23MSCST140051"></div>
-        </div>
-
-        <!-- M.Tech Quantum -->
-        <div data-course="mtech" data-subcourse="quantum" data-year="2025">
-          <div data-name="Niladri" data-enroll="PH23MSCST14005"></div>
-        </div>
-
-        <!-- M.Tech Semiconductor -->
-        <div
-          data-course="mtech"
-          data-subcourse="semiconductor"
-          data-year="2025"
-        >
-          <div data-name="Niladri" data-enroll="PH23MSCST14005"></div>
-        </div>
-
-        <!-- PhD Research -->
-        <div data-course="phd" data-subcourse="research" data-year="2025">
-          <div data-name="Niladri" data-enroll="PH23MSCST14005"></div>
-        </div>
-
-        <!-- PhD JRF -->
-        <div data-course="phd" data-subcourse="jrf" data-year="2025">
-          <div data-name="Niladri" data-enroll="PH23MSCST14005"></div>
-        </div>
-
-        <!-- PhD SRF -->
-        <div data-course="phd" data-subcourse="srf" data-year="2025">
-          <div data-name="Niladri" data-enroll="PH23mscst14005"></div>
-        </div>
+      <!-- PhD Alumni -->
+      <div data-alumni-course="phd">
+        <div data-name="Kannan U M	" data-enroll="PH14RESCH11001" data-status="Postdoctoral Fellow, Gachon University, South Korea"></div>
+        <div data-name="Sreeparvathi PC	" data-enroll="PH13P1007" data-status="Postdoctoral Fellow, IIT-Bombay"></div>
+        <div data-name="Kumara Raja Kandula	" data-enroll="PH13P1004" data-status="Post Doctoral Research Fellow- Huazhong University of Science and Technology, China"></div>
+        <div data-name="Ganesh Kotnana	" data-enroll="PH13P1003" data-status="Postdoctoral Fellow, Uppsala University, Sweden"></div>
+        <div data-name="Biswaranjan Behera	" data-enroll="PH13P1002" data-status="POSTDOC, Colorado State U., Fort Collins"></div>
+        <div data-name="Abhishek Talapatra	" data-enroll="PH13P1001" data-status="Post Doctoral Researcher, Aalto University, Finland"></div>
+        <div data-name="Venkatanarayana" data-enroll="PH13P0003" data-status="Assistant Professor, IIIT AP"></div>
+        <div data-name="Vijay Kumar Gudelli	" data-enroll="PH11P1006" data-status="Postdoctoral Research Fellow, NCTS, Taiwan"></div>
+        <div data-name="Vemulavada Sampath Kumar	" data-enroll="PH11P1004" data-status=""></div>
+        <div data-name="Akarapu Ashok	" data-enroll="PH11P1001" data-status="Post-Doc, IIT Hyderabad"></div>
+        <div data-name="Vadnala Sudarshan	" data-enroll="PH10P005" data-status="Post Doctoral Fellow, UMBC, Maryland, USA"></div>
+        <div data-name="Swetarekha Ram	" data-enroll="PH10P003" data-status="Post Doc.,Indo-Korea Science and Technology Centre, Bengaluru"></div>
+        <div data-name="Durga Rao Tadisetti	" data-enroll="PH09P001" data-status="Assistant professor, GITAM University, Vizag"></div>
       </div>
     </div>
+
+    </main>
+
     <footer class="footer"></footer>
+
+
     <script src="main.js"></script>
-    <script src="al_students.js"></script>
+    <script src="alumni.js"></script>
   </body>
 </html>

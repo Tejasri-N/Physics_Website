@@ -518,3 +518,57 @@ td {
 @media (max-width: 768px) {
   .nav-menu a { border-width: 2px; } /* keep same as desktop */
 }
+
+
+/* ===== Sidebar: force consistent look across all links/states ===== */
+.side-nav .nav-menu li a,
+.side-nav .nav-menu li a:link,
+.side-nav .nav-menu li a:visited,
+.side-nav .nav-menu li a:active,
+.side-nav .nav-menu li a:hover,
+.side-nav .nav-menu li a:focus {
+  display: block;
+  box-sizing: border-box;       /* include border in size (prevents reflow) */
+  padding: 12px;
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: #0a1a44;               /* consistent base text color */
+  background: #ffffff;
+  border: 2px solid #b9d1ec;    /* keep border width constant to avoid flicker */
+  border-radius: 8px;
+  text-align: center;
+  text-decoration: none;
+  transition: background-color 0.22s ease, color 0.22s ease, box-shadow 0.22s ease;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Hover: blue background, white text */
+.side-nav .nav-menu li a:hover {
+  background: #1f4e79;
+  color: #ffffff;
+  border-color: #1f4e79;
+  font-weight: 700;
+  box-shadow: 0 3px 8px rgba(31,78,121,0.22);
+}
+
+/* Active/selected: orange */
+.side-nav .nav-menu li a.active,
+.side-nav .nav-menu li a[aria-current="page"] {
+  background: #ff7b00;
+  color: #ffffff;
+  border-color: #ff7b00;
+  font-weight: 700;
+  box-shadow: 0 4px 12px rgba(255,123,0,0.22);
+}
+
+/* Accessible focus ring without layout shift */
+.side-nav .nav-menu li a:focus {
+  outline: none;
+  box-shadow: 0 0 0 4px rgba(41,128,185,0.10);
+}
+
+/* keep same border width on mobile so no layout jump */
+@media (max-width: 768px) {
+  .side-nav .nav-menu li a { border-width: 2px; }
+}

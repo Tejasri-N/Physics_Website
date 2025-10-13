@@ -13,12 +13,12 @@
   --sidebar-btn-active: #d1e8ff;
 }
 
+/* Base typography */
 body {
   margin: 0;
   font-family: "Segoe UI", Arial, sans-serif;
 }
 
-/* Use formal font everywhere */
 body,
 .side-nav,
 .main-content,
@@ -36,34 +36,31 @@ td {
   font-family: "Segoe UI", Arial, sans-serif !important;
 }
 
-/* Side Navigation */
+/* ==============================
+   Sidebar – Unified (All Sections)
+   ============================== */
 .side-nav {
   position: absolute;
-  /* left: 0;
-  top: 0; */
   width: 250px;
-  height: auto;
-  background: linear-gradient(135deg, #f8f9fa 75%, #eaf5ff 100%);
+  background: linear-gradient(135deg, #f0f4fb 70%, #eaf5ff 100%);
   padding: 2rem 1.5rem;
-  border-right: 1px solid var(--border-color);
-  box-shadow: 2px 0 15px rgba(0, 0, 0, 0.03);
+  border-right: 2px solid var(--sidebar-btn-border);
+  box-shadow: 2px 0 12px rgba(0, 0, 0, 0.03);
   z-index: 100;
 }
 
-.department-title {
+.side-nav .department-title {
   font-size: 1.5rem;
-  color: var(--primary-blue);
+  color: #1f4e79;
   margin-bottom: 2.2rem;
   font-weight: 700;
   text-align: center;
-  letter-spacing: 0.5px;
-  border-bottom: 3px solid var(--accent-blue);
+  border-bottom: 3px solid #1f4e79;
   padding-bottom: 0.4rem;
-  margin-left: 0.3rem;
-  margin-right: 0.3rem;
+  letter-spacing: 0.5px;
 }
 
-.nav-menu {
+.side-nav .nav-menu {
   list-style: none;
   display: flex;
   flex-direction: column;
@@ -73,51 +70,63 @@ td {
   margin: 0;
 }
 
-.nav-menu a {
+.side-nav .nav-menu li {
+  list-style: none;
+}
+
+.side-nav .nav-menu li a {
   display: block;
+  width: 90%;
+  margin: 8px auto;
   padding: 12px;
-  text-decoration: none;
-  color: var(--primary-blue);
-  border-radius: 8px;
-  font-weight: 400;
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: #0a1a44;
   text-align: center;
-  border: 2px solid var(--sidebar-btn-border);
-  background: var(--sidebar-btn-bg);
-  box-shadow: 0 1px 2px rgba(41, 128, 185, 0.04);
-  transition: background 0.18s, color 0.18s, border 0.18s, box-shadow 0.18s;
-  font-size: 1.01rem;
+  background: #ffffff;
+  border: 2px solid #b9d1ec;
+  border-radius: 8px;
+  text-decoration: none;
   letter-spacing: 0.02em;
+  box-sizing: border-box;
+  transition: all 0.25s ease;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
 }
 
-.nav-menu a.active,
-.nav-menu a:focus {
-  background: var(--sidebar-btn-active);
-  color: var(--accent-blue);
-  border-color: var(--accent-blue);
-  box-shadow: 0 2px 6px rgba(41, 128, 185, 0.09);
+/* Hover – IIT-H blue */
+.side-nav .nav-menu li a:hover {
+  background: #1f4e79;
+  color: #ffffff;
+  border-color: #1f4e79;
+  font-weight: 700;
+  box-shadow: 0 3px 8px rgba(31, 78, 121, 0.25);
 }
 
-.nav-menu a:hover {
-  background: var(--sidebar-btn-hover);
-  color: var(--accent-blue);
-  border-color: var(--accent-blue);
+/* Active – IIT-H orange */
+.side-nav .nav-menu li a.active,
+.side-nav .nav-menu li a[aria-current="page"] {
+  background: #ff7b00;
+  color: #ffffff;
+  border-color: #ff7b00;
+  font-weight: 700;
+  box-shadow: 0 4px 10px rgba(255, 123, 0, 0.25);
 }
 
+/* Focus ring */
+.side-nav .nav-menu li a:focus {
+  box-shadow: 0 0 0 4px rgba(41, 128, 185, 0.1);
+}
+
+/* Responsive Sidebar */
 @media (max-width: 768px) {
-  .fsh-content {
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
   .side-nav {
     width: 100%;
     height: auto;
     position: fixed;
     left: 0;
     top: 0;
-    /* margin-left: 20px; */
-    padding: 1rem 0.5rem 0.5rem 0.5rem;
+    padding: 1rem 0.5rem;
     border-right: none;
     border-bottom: 1px solid var(--border-color);
     box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
@@ -126,55 +135,56 @@ td {
     align-items: center;
     z-index: 100;
   }
-  .department-title {
+
+  .side-nav .department-title {
     margin-bottom: 1rem;
     font-size: 1.2rem;
-    padding-bottom: 0.2rem;
   }
-  .nav-menu {
+
+  .side-nav .nav-menu {
     flex-direction: row;
     gap: 0.5rem;
-    width: 100%;
     justify-content: center;
   }
-  .nav-menu a {
+
+  .side-nav .nav-menu li a {
     font-size: 0.98rem;
     padding: 0.7rem 0.8rem;
-    border-radius: 6px;
-    border-width: 1.5px;
+    border-width: 2px;
     min-width: 80px;
   }
-  .main-content {
-    margin-left: 10px;
-    padding: 5.5rem 0.5rem 2rem 0.5rem;
-  }
 }
 
-@media (max-width: 640px) {
-  .nav-menu {
-    flex-direction: column;
-    gap: 0.4rem;
-    align-items: stretch;
-  }
-  .main-content {
-    padding-top: 7.5rem;
-  }
-}
-
-/* Main Content */
+/* ==============================
+   Main Content Area
+   ============================== */
 .main-content {
   margin-left: 300px;
   padding: 3rem 2rem;
 }
 
-/* Member Card */
+@media (max-width: 1200px) {
+  .main-content {
+    padding: 2rem 0.7rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .main-content {
+    margin-left: 0;
+    padding: 2rem 0.5rem;
+  }
+}
+
+/* ==============================
+   Member / Faculty Card
+   ============================== */
 .member-card {
   background: var(--card-bg);
   border-radius: 12px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
   margin-bottom: 2.5rem;
   border: 1px solid var(--border-color);
-  position: relative;
   padding: 2rem 2rem 2.5rem 2rem;
 }
 
@@ -183,11 +193,8 @@ td {
   grid-template-columns: 140px 1fr 1px 220px;
   gap: 2.5rem;
   align-items: flex-start;
-  justify-items: start;
-  position: relative;
 }
 
-/* Image Column */
 .image-column {
   display: flex;
   justify-content: center;
@@ -212,29 +219,22 @@ td {
   object-fit: cover;
 }
 
-/* Info Column */
 .info-column {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  text-align: left;
   gap: 0.7rem;
-  min-width: 0;
 }
 
 .member-name {
   font-size: 1.4rem;
   color: var(--primary-blue);
   font-weight: 700;
-  word-break: break-word;
-  margin: 0;
 }
 
 .designation {
   color: var(--accent-blue);
   font-weight: 600;
   font-size: 1.1rem;
-  margin: 0;
 }
 
 .research-areas {
@@ -245,39 +245,21 @@ td {
 .member-description {
   color: var(--text-secondary);
   font-size: 0.97rem;
-  margin-top: 0.2rem;
-  margin-bottom: 0.2rem;
-  /* No max-width: let it fill the column */
   width: 100%;
   word-break: break-word;
 }
 
-/* Vertical Divider */
+/* Divider */
 .vertical-divider {
   width: 1px;
   background: linear-gradient(to bottom, #e0e8f0 0%, #c4d4e8 100%);
-  height: 100%;
-  align-self: stretch;
-  border-radius: 1px;
-  margin: 0 0.5rem;
 }
 
 /* Contact Column */
 .contact-column {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
   gap: 1.1rem;
-  justify-content: flex-start;
-  text-align: left;
-  width: 100%;
-  position: relative;
-}
-
-.contact-details {
-  display: flex;
-  flex-direction: column;
-  gap: 0.7rem;
 }
 
 .contact-item {
@@ -285,16 +267,9 @@ td {
   color: var(--text-primary);
 }
 
-.contact-label {
-  font-weight: 500;
-  color: var(--text-secondary);
-  margin-right: 0.3em;
-}
-
 .contact-item a {
   color: var(--link-color);
   text-decoration: none;
-  transition: color 0.2s;
 }
 
 .contact-item a:hover {
@@ -305,16 +280,14 @@ td {
 .website-link {
   display: inline-block;
   margin-top: 1.4rem;
-  margin-bottom: 2.2rem;
   background: #eaf5ff;
   color: var(--accent-blue);
   padding: 0.45rem 1.2rem;
   border-radius: 22px;
   text-decoration: none;
-  font-size: 1rem;
   font-weight: 500;
   border: 2px solid var(--accent-blue);
-  transition: background 0.2s, color 0.2s, border 0.2s;
+  transition: 0.2s;
 }
 
 .website-link:hover {
@@ -323,13 +296,9 @@ td {
   border-color: var(--primary-blue);
 }
 
-.dropdown-toggle-container {
-  width: 100%;
-  display: flex;
-  justify-content: flex-end;
-  align-items: flex-end;
-}
-
+/* ==============================
+   Dropdowns & Buttons
+   ============================== */
 .dropdown-toggle {
   background: none;
   border: none;
@@ -339,13 +308,7 @@ td {
   transition: color 0.2s, background 0.2s;
   border-radius: 50%;
   font-size: 1.2rem;
-  margin-top: 0.5rem;
   outline: none;
-  position: relative;
-}
-
-.dropdown-toggle:focus {
-  box-shadow: 0 0 0 2px var(--accent-blue, #2980b9);
 }
 
 .dropdown-toggle:hover {
@@ -353,26 +316,14 @@ td {
   background: #eaf5ff;
 }
 
-.arrow {
-  font-size: 1.1rem;
-  display: inline-block;
-  transition: transform 0.32s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.dropdown-toggle[aria-expanded="true"] .arrow {
-  transform: rotate(180deg);
-}
-
 /* Dropdown Content */
 .dropdown-content {
   max-height: 0;
   overflow: hidden;
-  transition: max-height 0.32s cubic-bezier(0.4, 0, 0.2, 1), padding 0.2s;
+  transition: max-height 0.32s ease, padding 0.2s;
   border-top: 1px solid var(--border-color);
   background: #f6fafd;
-  margin-top: 1.5rem;
-  border-bottom-left-radius: 12px;
-  border-bottom-right-radius: 12px;
+  border-radius: 12px;
   padding: 0 1.5rem;
 }
 
@@ -382,267 +333,31 @@ td {
   padding-bottom: 1.2rem;
 }
 
-.dropdown-section {
-  margin-bottom: 1.5rem;
-}
-
-.dropdown-section h3 {
-  color: var(--primary-blue);
-  font-size: 1.1rem;
-  margin-bottom: 0.7rem;
-  border-bottom: 2px solid var(--accent-blue);
-  display: inline-block;
-  padding-bottom: 0.2rem;
-}
-
-.dropdown-section ul {
-  list-style: disc inside;
-  color: var(--text-secondary);
-  padding-left: 1.2rem;
-  font-size: 0.97rem;
-  margin-top: 0.3rem;
-}
-
-.dropdown-section li {
-  margin-bottom: 0.5rem;
-}
-
-/* Dropdown button */
+/* ==============================
+   Back to Top Button
+   ============================== */
 #backToTopBtn {
-  display: none; /* Hidden by default */
+  display: none;
   position: fixed;
   bottom: 36px;
   right: 36px;
   z-index: 999;
   font-size: 1.15rem;
-  background: var(--primary-blue, #2c3e50);
+  background: var(--primary-blue);
   color: #fff;
   border: none;
-  outline: none;
   border-radius: 28px;
   padding: 0.85em 2em;
   box-shadow: 0 4px 18px rgba(44, 62, 80, 0.08);
   cursor: pointer;
   transition: background 0.2s, box-shadow 0.2s;
-  font-family: "Segoe UI", Arial, sans-serif;
   font-weight: 600;
   letter-spacing: 0.03em;
 }
+
 #backToTopBtn:hover,
 #backToTopBtn:focus {
-  background: var(--accent-blue, #2980b9);
+  background: var(--accent-blue);
   box-shadow: 0 6px 24px rgba(41, 128, 185, 0.14);
 }
 
-@media (max-width: 1200px) {
-  .main-content {
-    padding: 2rem 0.7rem;
-  }
-  .card-grid {
-    grid-template-columns: 1fr;
-    gap: 1.2rem;
-  }
-  .vertical-divider {
-    display: none;
-  }
-  .dropdown-toggle-container {
-    justify-content: flex-end;
-  }
-}
-
-@media (max-width: 768px) {
-  .side-nav {
-    width: 90%;
-    height: auto;
-    position: static;
-    border-right: none;
-    border-bottom: 1px solid var(--border-color);
-    box-shadow: none;
-  }
-  .main-content {
-    margin-left: 0;
-    padding: 2rem 0.5rem;
-  }
-  .member-card {
-    padding: 1.2rem 0.5rem 2.5rem 0.5rem;
-  }
-}
-/* ===== Sidebar flicker & color-fix ===== */
-
-/* Keep border-width constant so clicking doesn't reflow */
-.nav-menu a {
-  border: 2px solid var(--sidebar-btn-border); /* keep width stable */
-  box-sizing: border-box;                      /* include border in size */
-  outline: none;
-  -webkit-tap-highlight-color: transparent;    /* remove mobile tap flash */
-  transition: background-color 0.25s ease, color 0.25s ease, box-shadow 0.25s ease; /* avoid transitioning border (no reflow) */
-}
-
-/* Remove default focus outline and provide stable focus visual with box-shadow */
-.nav-menu a:focus {
-  outline: none;
-  box-shadow: 0 0 0 4px rgba(41,128,185,0.12);
-}
-
-/* Make all link states consistent (fix color mismatch) */
-.nav-menu a,
-.nav-menu a:link,
-.nav-menu a:visited,
-.nav-menu a:active {
-  color: #0a1a44 !important;   /* consistent base color */
-  background: #ffffff !important;
-  font-weight: 600;
-  text-decoration: none;
-}
-
-/* Hover stays blue with white text (visual cue) */
-.nav-menu a:hover {
-  background: #1f4e79;
-  color: #ffffff;
-  border-color: #1f4e79;
-  box-shadow: 0 3px 8px rgba(31,78,121,0.22);
-}
-
-/* Active / selected item */
-.nav-menu a.active,
-.nav-menu a[aria-current="page"],      /* useful for server-rendered active state */
-.nav-menu a:focus.active {
-  background: #ff7b00;
-  color: #fff;
-  border-color: #ff7b00;
-  font-weight: 700;
-  box-shadow: 0 4px 12px rgba(255,123,0,0.22);
-}
-
-/* Prevent slight layout differences on small screens where border-width was changed */
-@media (max-width: 768px) {
-  .nav-menu a { border-width: 2px; } /* keep same as desktop */
-}
-
-
-/* ===== Sidebar: force consistent look across all links/states ===== */
-.side-nav .nav-menu li a,
-.side-nav .nav-menu li a:link,
-.side-nav .nav-menu li a:visited,
-.side-nav .nav-menu li a:active,
-.side-nav .nav-menu li a:hover,
-.side-nav .nav-menu li a:focus {
-  display: block;
-  box-sizing: border-box;       /* include border in size (prevents reflow) */
-  padding: 12px;
-  font-size: 1.05rem;
-  font-weight: 600;
-  color: #0a1a44;               /* consistent base text color */
-  background: #ffffff;
-  border: 2px solid #b9d1ec;    /* keep border width constant to avoid flicker */
-  border-radius: 8px;
-  text-align: center;
-  text-decoration: none;
-  transition: background-color 0.22s ease, color 0.22s ease, box-shadow 0.22s ease;
-  outline: none;
-  -webkit-tap-highlight-color: transparent;
-}
-
-/* Hover: blue background, white text */
-.side-nav .nav-menu li a:hover {
-  background: #1f4e79;
-  color: #ffffff;
-  border-color: #1f4e79;
-  font-weight: 700;
-  box-shadow: 0 3px 8px rgba(31,78,121,0.22);
-}
-
-/* Active/selected: orange */
-.side-nav .nav-menu li a.active,
-.side-nav .nav-menu li a[aria-current="page"] {
-  background: #ff7b00;
-  color: #ffffff;
-  border-color: #ff7b00;
-  font-weight: 700;
-  box-shadow: 0 4px 12px rgba(255,123,0,0.22);
-}
-
-/* Accessible focus ring without layout shift */
-.side-nav .nav-menu li a:focus {
-  outline: none;
-  box-shadow: 0 0 0 4px rgba(41,128,185,0.10);
-}
-
-/* keep same border width on mobile so no layout jump */
-@media (max-width: 768px) {
-  .side-nav .nav-menu li a { border-width: 2px; }
-}
-
-
-/* =========================================
-   Unified Sidebar Styling — Faculty / Students / Alumni
-   Department of Physics, IIT Hyderabad
-   ========================================= */
-
-.side-nav {
-  background: linear-gradient(135deg, #f0f4fb 70%, #eaf5ff 100%);
-  border-right: 2px solid #b9d1ec;
-  box-shadow: 2px 0 12px rgba(0, 0, 0, 0.03);
-}
-
-.side-nav .department-title {
-  color: #1f4e79;
-  border-bottom: 3px solid #1f4e79;
-  letter-spacing: 0.5px;
-}
-
-.side-nav .nav-menu li {
-  list-style: none;
-}
-
-/* Base button style for all sidebar items */
-.side-nav .nav-menu li a {
-  display: block;
-  box-sizing: border-box;
-  width: 90%;
-  margin: 8px auto;
-  padding: 12px;
-  font-size: 1.05rem;
-  font-weight: 600;
-  text-align: center;
-  color: #0a1a44;
-  background: #ffffff;
-  border: 2px solid #b9d1ec;
-  border-radius: 8px;
-  text-decoration: none;
-  letter-spacing: 0.02em;
-  transition: all 0.25s ease;
-  outline: none;
-  -webkit-tap-highlight-color: transparent;
-}
-
-/* Hover — blue theme */
-.side-nav .nav-menu li a:hover {
-  background: #1f4e79;
-  color: #ffffff;
-  border-color: #1f4e79;
-  font-weight: 700;
-  box-shadow: 0 3px 8px rgba(31, 78, 121, 0.25);
-}
-
-/* Active / selected page — orange highlight */
-.side-nav .nav-menu li a.active,
-.side-nav .nav-menu li a[aria-current="page"] {
-  background: #ff7b00;
-  color: #ffffff;
-  border-color: #ff7b00;
-  font-weight: 700;
-  box-shadow: 0 4px 10px rgba(255, 123, 0, 0.25);
-}
-
-/* Focus outline (keyboard users) */
-.side-nav .nav-menu li a:focus {
-  box-shadow: 0 0 0 4px rgba(41, 128, 185, 0.1);
-}
-
-/* Responsive fix — no flicker */
-@media (max-width: 768px) {
-  .side-nav .nav-menu li a {
-    border-width: 2px;
-  }
-}

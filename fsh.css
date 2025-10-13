@@ -450,6 +450,52 @@ td {
   }
 }
 
+/* ================================
+   IIT Hyderabad – Sidebar Visibility Enhancement
+   ================================ */
+
+.side-nav {
+  background: linear-gradient(135deg, #f0f4fb 70%, #eaf5ff 100%);
+}
+
+/* Sidebar menu text styling */
+.nav-menu a {
+  display: block;
+  padding: 12px;
+  font-size: 1.05rem;                /* slightly larger text */
+  font-weight: 600;                  /* bolder text */
+  color: #0a1a44;                    /* deep navy for high contrast */
+  background: #ffffff;               /* crisp white background */
+  border: 2px solid #b9d1ec;
+  border-radius: 8px;
+  text-align: center;
+  text-decoration: none;
+  letter-spacing: 0.02em;
+  box-shadow: 0 1px 4px rgba(41, 128, 185, 0.08);
+  text-shadow: 0 0 1px rgba(0, 0, 0, 0.15);
+  transition: all 0.25s ease-in-out;
+}
+
+/* Hover effect */
+.nav-menu a:hover {
+  background: #1f4e79;               /* IIT Hyderabad blue */
+  color: #ffffff;
+  border-color: #1f4e79;
+  font-weight: 700;
+  box-shadow: 0 3px 8px rgba(31, 78, 121, 0.25);
+}
+
+/* Active or focused menu item */
+.nav-menu a.active,
+.nav-menu a:focus {
+  background: #ff7b00;               /* IIT Hyderabad orange accent */
+  color: #ffffff;
+  border-color: #ff7b00;
+  font-weight: 700;
+  box-shadow: 0 3px 10px rgba(255, 123, 0, 0.3);
+}
+
+
 @media (max-width: 768px) {
   .side-nav {
     width: 90%;

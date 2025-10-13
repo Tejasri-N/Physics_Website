@@ -1,22 +1,89 @@
+// ---- REPLACE the existing loadHTML + DOMContentLoaded block with this ----
+
 function loadHTML(selector, url) {
-  fetch(url)
+  // return the promise so caller can chain and run code after insertion
+  return fetch(url)
     .then((response) => {
       if (!response.ok) throw new Error("Network response was not ok");
       return response.text();
     })
     .then((data) => {
-      document.querySelector(selector).innerHTML = data;
+      const container = document.querySelector(selector);
+      if (!container) throw new Error('Selector not found: ' + selector);
+      container.innerHTML = data;
+      return data;
     })
     .catch((error) => {
       console.error("Error loading HTML:", error);
+      throw error;
     });
 }
 
-// Load header and footer after DOM is loaded
+// Load header and footer after DOM is loaded, and inject sidebar override AFTER header is inserted
 document.addEventListener("DOMContentLoaded", function () {
-  loadHTML(".header", "header.html");
-  loadHTML(".footer", "footer.html");
+  // Load header first, then inject the override so it sits after any header-injected styles
+  loadHTML(".header", "header.html")
+    .then(() => {
+      // CSS that enforces consistent sidebar link appearance (keeps border-width stable to avoid flicker)
+      const css = `
+/* Sidebar override injected after header to prevent header-inserted styles from overriding */
+.side-nav .nav-menu li a,
+.side-nav .nav-menu li a:link,
+.side-nav .nav-menu li a:visited,
+.side-nav .nav-menu li a:active,
+.side-nav .nav-menu li a:hover,
+.side-nav .nav-menu li a:focus {
+  display: block;
+  box-sizing: border-box;
+  padding: 12px;
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: #0a1a44;
+  background: #ffffff;
+  border: 2px solid #b9d1ec;
+  border-radius: 8px;
+  text-align: center;
+  text-decoration: none;
+  transition: background-color .22s ease, color .22s ease, box-shadow .22s ease;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.side-nav .nav-menu li a:hover {
+  background: #1f4e79;
+  color: #ffffff;
+  border-color: #1f4e79;
+  font-weight: 700;
+  box-shadow: 0 3px 8px rgba(31,78,121,0.22);
+}
+.side-nav .nav-menu li a.active,
+.side-nav .nav-menu li a[aria-current="page"] {
+  background: #ff7b00;
+  color: #ffffff;
+  border-color: #ff7b00;
+  font-weight: 700;
+  box-shadow: 0 4px 12px rgba(255,123,0,0.22);
+}
+@media (max-width: 768px) {
+  .side-nav .nav-menu li a { border-width: 2px; }
+}
+      `;
+      const style = document.createElement("style");
+      style.setAttribute("data-injected", "sidebar-override");
+      style.appendChild(document.createTextNode(css));
+      document.head.appendChild(style);
+    })
+    .catch((err) => {
+      // header load failed — still attempt to load footer
+      console.error("Header load failed:", err);
+    })
+    .finally(() => {
+      // Always attempt to load footer afterwards
+      loadHTML(".footer", "footer.html").catch((err) => {
+        console.error("Footer load failed:", err);
+      });
+    });
 });
+
 
 // Dropdown toggle for desktop and mobile
 function toggleDropdown(event, dropdownId) {

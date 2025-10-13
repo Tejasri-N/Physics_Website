@@ -513,3 +513,54 @@ td {
     padding: 1.2rem 0.5rem 2.5rem 0.5rem;
   }
 }
+/* ===== Sidebar flicker & color-fix ===== */
+
+/* Keep border-width constant so clicking doesn't reflow */
+.nav-menu a {
+  border: 2px solid var(--sidebar-btn-border); /* keep width stable */
+  box-sizing: border-box;                      /* include border in size */
+  outline: none;
+  -webkit-tap-highlight-color: transparent;    /* remove mobile tap flash */
+  transition: background-color 0.25s ease, color 0.25s ease, box-shadow 0.25s ease; /* avoid transitioning border (no reflow) */
+}
+
+/* Remove default focus outline and provide stable focus visual with box-shadow */
+.nav-menu a:focus {
+  outline: none;
+  box-shadow: 0 0 0 4px rgba(41,128,185,0.12);
+}
+
+/* Make all link states consistent (fix color mismatch) */
+.nav-menu a,
+.nav-menu a:link,
+.nav-menu a:visited,
+.nav-menu a:active {
+  color: #0a1a44 !important;   /* consistent base color */
+  background: #ffffff !important;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+/* Hover stays blue with white text (visual cue) */
+.nav-menu a:hover {
+  background: #1f4e79;
+  color: #ffffff;
+  border-color: #1f4e79;
+  box-shadow: 0 3px 8px rgba(31,78,121,0.22);
+}
+
+/* Active / selected item */
+.nav-menu a.active,
+.nav-menu a[aria-current="page"],      /* useful for server-rendered active state */
+.nav-menu a:focus.active {
+  background: #ff7b00;
+  color: #fff;
+  border-color: #ff7b00;
+  font-weight: 700;
+  box-shadow: 0 4px 12px rgba(255,123,0,0.22);
+}
+
+/* Prevent slight layout differences on small screens where border-width was changed */
+@media (max-width: 768px) {
+  .nav-menu a { border-width: 2px; } /* keep same as desktop */
+}

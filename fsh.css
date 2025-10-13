@@ -572,3 +572,77 @@ td {
 @media (max-width: 768px) {
   .side-nav .nav-menu li a { border-width: 2px; }
 }
+
+
+/* =========================================
+   Unified Sidebar Styling — Faculty / Students / Alumni
+   Department of Physics, IIT Hyderabad
+   ========================================= */
+
+.side-nav {
+  background: linear-gradient(135deg, #f0f4fb 70%, #eaf5ff 100%);
+  border-right: 2px solid #b9d1ec;
+  box-shadow: 2px 0 12px rgba(0, 0, 0, 0.03);
+}
+
+.side-nav .department-title {
+  color: #1f4e79;
+  border-bottom: 3px solid #1f4e79;
+  letter-spacing: 0.5px;
+}
+
+.side-nav .nav-menu li {
+  list-style: none;
+}
+
+/* Base button style for all sidebar items */
+.side-nav .nav-menu li a {
+  display: block;
+  box-sizing: border-box;
+  width: 90%;
+  margin: 8px auto;
+  padding: 12px;
+  font-size: 1.05rem;
+  font-weight: 600;
+  text-align: center;
+  color: #0a1a44;
+  background: #ffffff;
+  border: 2px solid #b9d1ec;
+  border-radius: 8px;
+  text-decoration: none;
+  letter-spacing: 0.02em;
+  transition: all 0.25s ease;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Hover — blue theme */
+.side-nav .nav-menu li a:hover {
+  background: #1f4e79;
+  color: #ffffff;
+  border-color: #1f4e79;
+  font-weight: 700;
+  box-shadow: 0 3px 8px rgba(31, 78, 121, 0.25);
+}
+
+/* Active / selected page — orange highlight */
+.side-nav .nav-menu li a.active,
+.side-nav .nav-menu li a[aria-current="page"] {
+  background: #ff7b00;
+  color: #ffffff;
+  border-color: #ff7b00;
+  font-weight: 700;
+  box-shadow: 0 4px 10px rgba(255, 123, 0, 0.25);
+}
+
+/* Focus outline (keyboard users) */
+.side-nav .nav-menu li a:focus {
+  box-shadow: 0 0 0 4px rgba(41, 128, 185, 0.1);
+}
+
+/* Responsive fix — no flicker */
+@media (max-width: 768px) {
+  .side-nav .nav-menu li a {
+    border-width: 2px;
+  }
+}

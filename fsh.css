@@ -501,3 +501,57 @@ td {
   border-radius: 6px;
 }
 
+/* ===============================
+   Faculty Page: Space Optimization
+   =============================== */
+
+/* Reduce top & bottom space around alphabet bar */
+.alpha-bar {
+  margin-top: 0.5rem !important;
+  margin-bottom: 0.5rem !important;
+}
+
+/* Compact spacing between faculty cards */
+.member-card {
+  margin: 0.8rem 0 !important; /* was ~2rem previously */
+  padding: 1rem 1.2rem !important; /* slightly tighter padding */
+}
+
+/* Inside each card: tighten image + info spacing */
+.member-card .image-column {
+  margin-right: 1.2rem !important;
+}
+
+.member-card .card-grid {
+  align-items: flex-start;
+  gap: 0.8rem !important; /* reduce internal gaps */
+}
+
+/* Faculty name and text spacing */
+.member-name {
+  margin-bottom: 0.3rem !important;
+}
+
+.member-card p,
+.member-card span,
+.member-card h4,
+.member-card h5 {
+  margin: 0.2rem 0 !important;
+  line-height: 1.45 !important; /* tighter text line height for readability */
+}
+
+/* Reduce space after Research Areas block */
+.member-card .research-areas {
+  margin-top: 0.4rem !important;
+}
+
+/* Reduce overall main-content padding (to remove top white gap) */
+.main-content {
+  padding-top: 0.5rem !important;
+}
+
+/* Optional: compact address & button alignment */
+.member-card .dropdown-content,
+.member-card .personal-website {
+  margin-top: 0.3rem !important;
+}

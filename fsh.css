@@ -408,7 +408,7 @@ td {
 /* Keep designation visible but compact (Professor and Head) */
 .designation {
   color: #0d4e8c;
-  font-weight: 700;
+  font-weight: 900;
   font-size: 1.02rem;
   margin: 0 0 0.25rem 0;
   display: inline-block;

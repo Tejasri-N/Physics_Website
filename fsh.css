@@ -555,3 +555,52 @@ td {
 .member-card .personal-website {
   margin-top: 0.3rem !important;
 }
+/* ===============================
+   Final Freeze – Visual Polish
+   =============================== */
+
+/* 1️⃣ Tighten space between name and Ph.D. line */
+.member-name {
+  margin-bottom: 0.15rem !important;
+  line-height: 1.1 !important;
+}
+
+/* 2️⃣ Emphasize the designation line (Professor, Head, etc.) */
+.designation,
+.member-card .designation {
+  color: #0b4fa3 !important; /* deep institute blue */
+  font-weight: 800 !important;
+  background: rgba(230, 244, 255, 0.6); /* subtle bluish highlight */
+  padding: 2px 6px !important;
+  border-left: 4px solid #ff7b00 !important;
+  border-radius: 3px;
+  display: inline-block;
+  margin-top: 0.1rem !important;
+  margin-bottom: 0.25rem !important;
+}
+
+/* 3️⃣ Improve dropdown arrow visibility and spacing */
+.dropdown-toggle i,
+.dropdown-arrow,
+.member-card .dropdown-arrow {
+  color: #0d4e8c !important;
+  font-size: 1.1rem !important;
+  font-weight: bold !important;
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+
+/* Rotate and brighten on hover/focus for visibility */
+.dropdown-toggle:hover i,
+.dropdown-arrow:hover {
+  color: #ff7b00 !important;
+  transform: scale(1.15);
+}
+
+/* Keep arrow aligned to card center */
+.member-card .dropdown-toggle {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0.25rem;
+}
+

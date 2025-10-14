@@ -659,3 +659,38 @@ td {
   display: inline-block;
 }
 
+/* ---------- Faculty Dropdown Arrow Enhancement ---------- */
+/* Targets only the small triangle dropdown arrow below the Personal Website button */
+
+.member-card .dropdown-toggle {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 32px;
+  height: 32px;
+  margin: 0.6rem auto 0.2rem auto;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+/* The small triangle icon inside */
+.member-card .dropdown-toggle::before {
+  content: "▼";
+  display: inline-block;
+  font-size: 1rem;
+  color: #000; /* solid black for visibility */
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+
+/* Rotate when expanded */
+.member-card .dropdown-toggle[aria-expanded="true"]::before {
+  transform: rotate(180deg);
+}
+
+/* Hover effect for visibility */
+.member-card .dropdown-toggle:hover::before {
+  transform: scale(1.2);
+  color: #111;
+}

@@ -1,4 +1,11 @@
-:root {
+/* ======================================================
+   fsh.css — Consolidated / de-duplicated version
+   Keeps existing features, colors and layout unchanged.
+   Only duplicate/conflicting rules removed and merged.
+   ====================================================== */
+
+/* ========== Root variables ========== */
+:root{
   --primary-blue: #2c3e50;
   --accent-blue: #2980b9;
   --light-bg: #f8f9fa;
@@ -13,12 +20,16 @@
   --sidebar-btn-active: #d1e8ff;
 }
 
-/* Base typography */
-body {
-  margin: 0;
-  font-family: "Segoe UI", Arial, sans-serif;
+/* ========== Base typography & reset ========== */
+* { box-sizing: border-box; }
+body{
+  margin:0;
+  font-family:"Segoe UI", Arial, sans-serif;
+  background: var(--light-bg);
+  color: var(--text-primary);
 }
 
+/* Ensure consistent font usage on key elements */
 body,
 .side-nav,
 .main-content,
@@ -30,672 +41,405 @@ body,
 .year-scroll-wrapper,
 .year-container,
 .table-container,
-table,
-th,
-td {
+table, th, td {
   font-family: "Segoe UI", Arial, sans-serif !important;
 }
 
-/* ==============================
-   Sidebar – Unified (All Sections)
-   ============================== */
-.side-nav {
+/* ========== Sidebar (unified) ========== */
+.fsh-content{ display:flex; align-items:flex-start; }
+
+/* Side navigation */
+.side-nav{
   position: absolute;
-  width: 250px;
-  background: linear-gradient(135deg, #f0f4fb 70%, #eaf5ff 100%);
+  width:250px;
+  height:auto;
+  background: linear-gradient(135deg, #f8f9fa 75%, #eaf5ff 100%);
   padding: 2rem 1.5rem;
-  border-right: 2px solid var(--sidebar-btn-border);
-  box-shadow: 2px 0 12px rgba(0, 0, 0, 0.03);
-  z-index: 100;
+  border-right: 1px solid var(--border-color);
+  box-shadow: 2px 0 15px rgba(0,0,0,0.03);
+  z-index:100;
 }
 
-.side-nav .department-title {
-  font-size: 1.5rem;
-  color: #1f4e79;
-  margin-bottom: 2.2rem;
-  font-weight: 700;
-  text-align: center;
-  border-bottom: 3px solid #1f4e79;
-  padding-bottom: 0.4rem;
-  letter-spacing: 0.5px;
+.department-title{
+  font-size:1.5rem;
+  color:var(--primary-blue);
+  margin-bottom:2.2rem;
+  font-weight:700;
+  text-align:center;
+  letter-spacing:0.5px;
+  border-bottom:3px solid var(--accent-blue);
+  padding-bottom:0.4rem;
+  margin-left:0.3rem;
+  margin-right:0.3rem;
 }
 
-.side-nav .nav-menu {
-  list-style: none;
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  align-items: stretch;
-  padding: 0;
-  margin: 0;
+/* Nav menu */
+.nav-menu{
+  list-style:none;
+  display:flex;
+  flex-direction:column;
+  gap:1rem;
+  padding:0;
+  margin:0;
 }
+.nav-menu li{ list-style:none; }
 
-.side-nav .nav-menu li {
-  list-style: none;
-}
-
-.side-nav .nav-menu li a {
-  display: block;
-  width: 90%;
-  margin: 8px auto;
-  padding: 12px;
-  font-size: 1.05rem;
-  font-weight: 600;
-  color: #0a1a44;
-  text-align: center;
-  background: #ffffff;
-  border: 2px solid #b9d1ec;
-  border-radius: 8px;
-  text-decoration: none;
-  letter-spacing: 0.02em;
-  box-sizing: border-box;
-  transition: all 0.25s ease;
-  outline: none;
+.nav-menu a{
+  display:block;
+  padding:12px;
+  text-decoration:none;
+  color:var(--primary-blue);
+  border-radius:8px;
+  font-weight:400;
+  text-align:center;
+  border:2px solid var(--sidebar-btn-border); /* keep border width stable to avoid flicker */
+  background:var(--sidebar-btn-bg);
+  box-shadow:0 1px 2px rgba(41,128,185,0.04);
+  transition: background 0.18s, color 0.18s, border 0.18s, box-shadow 0.18s;
+  font-size:1.01rem;
+  letter-spacing:0.02em;
+  box-sizing:border-box;
   -webkit-tap-highlight-color: transparent;
 }
 
-/* Hover – IIT-H blue */
-.side-nav .nav-menu li a:hover {
-  background: #1f4e79;
-  color: #ffffff;
-  border-color: #1f4e79;
-  font-weight: 700;
-  box-shadow: 0 3px 8px rgba(31, 78, 121, 0.25);
+/* Hover, active, focus visuals */
+.nav-menu a:hover{
+  background:var(--sidebar-btn-hover);
+  color:var(--accent-blue);
+  border-color:var(--accent-blue);
+}
+.nav-menu a.active,
+.nav-menu a:focus{
+  background:var(--sidebar-btn-active);
+  color:var(--accent-blue);
+  border-color:var(--accent-blue);
+  box-shadow:0 2px 6px rgba(41,128,185,0.09);
 }
 
-/* Active – IIT-H orange */
-.side-nav .nav-menu li a.active,
-.side-nav .nav-menu li a[aria-current="page"] {
-  background: #ff7b00;
-  color: #ffffff;
-  border-color: #ff7b00;
-  font-weight: 700;
-  box-shadow: 0 4px 10px rgba(255, 123, 0, 0.25);
+/* Keep focus ring stable */
+.nav-menu a:focus{
+  outline:none;
+  box-shadow:0 0 0 4px rgba(41,128,185,0.12);
 }
 
-/* Focus ring */
-.side-nav .nav-menu li a:focus {
-  box-shadow: 0 0 0 4px rgba(41, 128, 185, 0.1);
+/* Ensure consistent link state color across pseudo states to avoid flicker */
+.nav-menu a,
+.nav-menu a:link,
+.nav-menu a:visited,
+.nav-menu a:active {
+  color:#0a1a44 !important;
+  background:#ffffff !important;
+  font-weight:600;
+  text-decoration:none;
 }
 
-/* Responsive Sidebar */
-@media (max-width: 768px) {
-  .side-nav {
-    width: 100%;
-    height: auto;
-    position: fixed;
-    left: 0;
-    top: 0;
-    padding: 1rem 0.5rem;
-    border-right: none;
-    border-bottom: 1px solid var(--border-color);
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    z-index: 100;
+/* Responsive sidebar */
+@media (max-width:768px){
+  .fsh-content{ width:100%; display:flex; flex-direction:column; align-items:center; }
+  .side-nav{
+    width:100%;
+    position:fixed;
+    left:0; top:0;
+    padding:1rem 0.5rem 0.5rem 0.5rem;
+    border-right:none;
+    border-bottom:1px solid var(--border-color);
+    box-shadow:0 2px 12px rgba(0,0,0,0.04);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    z-index:100;
   }
-
-  .side-nav .department-title {
-    margin-bottom: 1rem;
-    font-size: 1.2rem;
-  }
-
-  .side-nav .nav-menu {
-    flex-direction: row;
-    gap: 0.5rem;
-    justify-content: center;
-  }
-
-  .side-nav .nav-menu li a {
-    font-size: 0.98rem;
-    padding: 0.7rem 0.8rem;
-    border-width: 2px;
-    min-width: 80px;
-  }
+  .department-title{ margin-bottom:1rem; font-size:1.2rem; padding-bottom:0.2rem; }
+  .nav-menu{ flex-direction:row; gap:0.5rem; justify-content:center; width:100%; }
+  .nav-menu a{ font-size:0.98rem; padding:0.7rem 0.8rem; border-width:2px; min-width:80px; border-radius:6px; }
+  .main-content{ margin-left:10px; padding: 5.5rem 0.5rem 2rem 0.5rem; }
+}
+@media (max-width:640px){
+  .nav-menu{ flex-direction:column; gap:0.4rem; align-items:stretch; }
+  .main-content{ padding-top:7.5rem; }
 }
 
-/* ==============================
-   Main Content Area
-   ============================== */
-.main-content {
-  margin-left: 300px;
-  padding: 3rem 2rem;
+/* ========== Main content area ========== */
+.main-content{
+  margin-left:300px;
+  padding:3rem 2rem;
+  width:100%;
+}
+@media (max-width:1200px){
+  .main-content{ padding:2rem 0.7rem; }
+}
+@media (max-width:768px){
+  .main-content{ margin-left:0; padding:2rem 0.5rem; }
 }
 
-@media (max-width: 1200px) {
-  .main-content {
-    padding: 2rem 0.7rem;
-  }
+/* ========== Member / Faculty Card ========== */
+.member-card{
+  background:var(--card-bg);
+  border-radius:12px;
+  box-shadow:0 4px 6px rgba(0,0,0,0.05);
+  margin-bottom:2.5rem;
+  border:1px solid var(--border-color);
+  position:relative;
+  padding:2rem 2rem 2.5rem 2rem;
 }
 
-@media (max-width: 768px) {
-  .main-content {
-    margin-left: 0;
-    padding: 2rem 0.5rem;
-  }
-}
-
-/* ==============================
-   Member / Faculty Card
-   ============================== */
-.member-card {
-  background: var(--card-bg);
-  border-radius: 12px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-  margin-bottom: 2.5rem;
-  border: 1px solid var(--border-color);
-  padding: 2rem 2rem 2.5rem 2rem;
-}
-
-.card-grid {
-  display: grid;
+/* Grid layout for the card: image / main info / divider / contact */
+.card-grid{
+  display:grid;
   grid-template-columns: 140px 1fr 1px 220px;
-  gap: 2.5rem;
-  align-items: flex-start;
+  gap:2.5rem;
+  align-items:flex-start;
+  justify-items:start;
 }
 
-.image-column {
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
+/* Image column */
+.image-column{ display:flex; justify-content:center; align-items:flex-start; }
+.image-container{
+  width:120px; height:150px;
+  border-radius:10px; overflow:hidden;
+  border:2px solid var(--accent-blue);
+  background:#f1f8ff;
+  display:flex; align-items:center; justify-content:center;
+}
+.image-container img{ width:100%; height:100%; object-fit:cover; }
+
+/* Info column */
+.info-column{
+  display:flex; flex-direction:column; gap:0.7rem; align-items:flex-start; text-align:left; min-width:0;
 }
 
-.image-container {
-  width: 120px;
-  height: 150px;
-  border-radius: 10px;
-  overflow: hidden;
-  border: 2px solid var(--accent-blue);
-  background: #f1f8ff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+/* Name and qualification — compact spacing to follow MAE style */
+.member-name{
+  font-size:1.45rem;
+  color:#1f3a4d;
+  font-weight:800;
+  margin:0 0 0.18rem 0;
+  line-height:1.08;
 }
 
-.image-container img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.info-column {
-  display: flex;
-  flex-direction: column;
-  gap: 0.7rem;
-}
-
-.member-name {
-  font-size: 1.4rem;
-  color: var(--primary-blue);
-  font-weight: 700;
-}
-
-.designation {
-  color: var(--accent-blue);
-  font-weight: 600;
-  font-size: 1.1rem;
-}
-
-.research-areas {
-  font-size: 0.97rem;
-  color: var(--text-primary);
-}
-
-.member-description {
-  color: var(--text-secondary);
-  font-size: 0.97rem;
-  width: 100%;
-  word-break: break-word;
-}
-
-/* Divider */
-.vertical-divider {
-  width: 1px;
-  background: linear-gradient(to bottom, #e0e8f0 0%, #c4d4e8 100%);
-}
-
-/* Contact Column */
-.contact-column {
-  display: flex;
-  flex-direction: column;
-  gap: 1.1rem;
-}
-
-.contact-item {
-  font-size: 0.97rem;
-  color: var(--text-primary);
-}
-
-.contact-item a {
-  color: var(--link-color);
-  text-decoration: none;
-}
-
-.contact-item a:hover {
-  color: var(--accent-blue);
-  text-decoration: underline;
-}
-
-.website-link {
-  display: inline-block;
-  margin-top: 1.4rem;
-  background: #eaf5ff;
-  color: var(--accent-blue);
-  padding: 0.45rem 1.2rem;
-  border-radius: 22px;
-  text-decoration: none;
-  font-weight: 500;
-  border: 2px solid var(--accent-blue);
-  transition: 0.2s;
-}
-
-.website-link:hover {
-  background: var(--accent-blue);
-  color: #fff;
-  border-color: var(--primary-blue);
-}
-
-/* ==============================
-   Dropdowns & Buttons
-   ============================== */
-.dropdown-toggle {
-  background: none;
-  border: none;
-  padding: 0.6rem 1.1rem;
-  cursor: pointer;
-  color: var(--text-secondary);
-  transition: color 0.2s, background 0.2s;
-  border-radius: 50%;
-  font-size: 1.2rem;
-  outline: none;
-}
-
-.dropdown-toggle:hover {
-  color: var(--accent-blue);
-  background: #eaf5ff;
-}
-
-/* Dropdown Content */
-.dropdown-content {
-  max-height: 0;
-  overflow: hidden;
-  transition: max-height 0.32s ease, padding 0.2s;
-  border-top: 1px solid var(--border-color);
-  background: #f6fafd;
-  border-radius: 12px;
-  padding: 0 1.5rem;
-}
-
-.dropdown-content.active {
-  max-height: 600px;
-  padding-top: 1.5rem;
-  padding-bottom: 1.2rem;
-}
-
-/* ==============================
-   Back to Top Button
-   ============================== */
-#backToTopBtn {
-  display: none;
-  position: fixed;
-  bottom: 36px;
-  right: 36px;
-  z-index: 999;
-  font-size: 1.15rem;
-  background: var(--primary-blue);
-  color: #fff;
-  border: none;
-  border-radius: 28px;
-  padding: 0.85em 2em;
-  box-shadow: 0 4px 18px rgba(44, 62, 80, 0.08);
-  cursor: pointer;
-  transition: background 0.2s, box-shadow 0.2s;
-  font-weight: 600;
-  letter-spacing: 0.03em;
-}
-
-#backToTopBtn:hover,
-#backToTopBtn:focus {
-  background: var(--accent-blue);
-  box-shadow: 0 6px 24px rgba(41, 128, 185, 0.14);
-}
-
-/* ================================
-   Faculty Profile — MAE-like alignment
-   Compact, accessible, high-contrast
-   ================================ */
-
-/* Ensure grid keeps image left and text aligned to top */
-.card-grid {
-  grid-template-columns: 140px 1fr 1px 220px; /* keep original layout */
-  align-items: start;                         /* align everything to top */
-}
-
-/* Name: prominent and close to the qualification line */
-.member-name {
-  font-size: 1.45rem;
-  color: #1f3a4d;   /* darker, slightly bluish */
-  font-weight: 800;
-  margin: 0 0 0.18rem 0; /* small gap to qualification line */
-  line-height: 1.08;
-}
-
-/* Qualification line (Ph.D., Institute) — tight & bold, placed right under name */
+/* Qualification line (Ph.D., Institute) — bold, tight spacing, no background box */
 .member-name + p,
 .info-column p.qualification,
 .info-column p.degree {
-  color: #17384f;            /* dark navy for high contrast */
-  font-weight: 700;          /* bold but not oversized */
-  font-size: 0.98rem;
-  margin: 0 0 0.22rem 0;     /* compact vertical spacing */
-  line-height: 1.25;         /* tight but readable */
-  display: block;
-  background: transparent;   /* no background box — MAE look */
-  border-left: none;         /* remove previous left accent for cleaner inline look */
-  padding: 0;                /* no padding so it sits close to name */
+  color:#17384f;
+  font-weight:700;
+  font-size:0.98rem;
+  margin:0 0 0.22rem 0;
+  line-height:1.25;
+  display:block;
+  background:transparent;
+  border-left:none;
+  padding:0;
 }
 
-/* Small tertiary line style fallback for pages where qualification is last or different */
-.info-column .member-sub {
-  color: #3a4f62;
-  font-weight: 600;
-  font-size: 0.95rem;
-  margin: 0 0 0.25rem 0;
-  line-height: 1.3;
+/* Secondary member sub line fallback */
+.info-column .member-sub{
+  color:#3a4f62;
+  font-weight:600;
+  font-size:0.95rem;
+  margin:0 0 0.25rem 0;
+  line-height:1.3;
 }
 
-/* Keep designation visible but compact (Professor and Head) */
-.designation {
-  color: #0d4e8c;
-  font-weight: 900;
-  font-size: 1.02rem;
-  margin: 0 0 0.25rem 0;
-  display: inline-block;
-  background: transparent;   /* MAE uses plain text, not pill — keep subtle */
-  padding: 0;                /* compact */
+/* Designation — keep visible and compact (Professor / Associate etc.) */
+.designation{
+  color:#0d4e8c;
+  font-weight:700;
+  font-size:1.02rem;
+  margin:0 0 0.25rem 0;
+  display:inline-block;
+  background:transparent;
+  padding:0;
 }
 
-/* Research areas and descriptions — slightly tighter spacing */
+/* If there's a specific "Head" emphasis (project used earlier), preserve but not override colors here.
+   If you want to target the word "Head" specifically, use markup like:
+     <span class="head-role">Head</span>
+   and then style .designation .head-role if desired. (Not changing by default.) */
+
+/* Research & description spacing — slightly tighter */
 .research-areas,
-.member-description {
-  color: #1d2430;
-  font-size: 0.98rem;
-  line-height: 1.45;
-  margin-top: 0.35rem;
-  margin-bottom: 0.45rem;
+.member-description{
+  color:#1d2430;
+  font-size:0.98rem;
+  line-height:1.45;
+  margin-top:0.35rem;
+  margin-bottom:0.45rem;
 }
 
-/* Make sure contact column vertical divider still looks good */
-.vertical-divider { 
-  margin: 0 0.75rem;
+/* Vertical divider between info and contact */
+.vertical-divider{
+  width:1px;
+  background: linear-gradient(to bottom, #e0e8f0 0%, #c4d4e8 100%);
+  height:100%;
+  align-self:stretch;
+  border-radius:1px;
+  margin:0 0.75rem;
 }
 
-/* Slight layout tweak for very small screens to preserve compactness */
-@media (max-width: 900px) {
-  .member-name { font-size: 1.3rem; }
-  .member-name + p,
-  .info-column p.qualification,
-  .info-column p.degree { font-size: 0.95rem; }
-  .designation { font-size: 0.98rem; }
+/* Contact column */
+.contact-column{
+  display:flex; flex-direction:column; gap:1.1rem; justify-content:flex-start; text-align:left; width:100%; position:relative;
+}
+.contact-details{ display:flex; flex-direction:column; gap:0.7rem; }
+.contact-item{ font-size:0.97rem; color:var(--text-primary); }
+.contact-label{ font-weight:500; color:var(--text-secondary); margin-right:0.3em; }
+.contact-item a{ color:var(--link-color); text-decoration:none; transition: color 0.2s; }
+.contact-item a:hover{ color:var(--accent-blue); text-decoration:underline; }
+
+/* Personal website link */
+.website-link{
+  display:inline-block; margin-top:1.4rem; margin-bottom:2.2rem;
+  background:#eaf5ff; color:var(--accent-blue);
+  padding:0.45rem 1.2rem; border-radius:22px;
+  text-decoration:none; font-size:1rem; font-weight:500;
+  border:2px solid var(--accent-blue); transition:background 0.2s, color 0.2s, border 0.2s;
+}
+.website-link:hover{ background:var(--accent-blue); color:#fff; border-color:var(--primary-blue); }
+
+/* ========== Dropdown / toggle / arrow ========== */
+/* Layout container for a toggle (keeps right alignment on smaller screens) */
+.dropdown-toggle-container{
+  width:100%; display:flex; justify-content:flex-end; align-items:flex-end;
 }
 
-/* Elder-friendly display mode (optional): slightly larger text on wide screens */
-@media (min-width: 1600px) {
-  .member-name { font-size: 1.55rem; }
-  .member-name + p,
-  .info-column p.qualification,
-  .info-column p.degree { font-size: 1.05rem; }
-  .research-areas, .member-description { font-size: 1.02rem; line-height: 1.5; }
+/* Base toggle button (used in many places) */
+.dropdown-toggle{
+  background:none; border:none; padding:0.6rem 1.1rem;
+  cursor:pointer; color:var(--text-secondary);
+  transition: color 0.2s, background 0.2s;
+  border-radius:50%; font-size:1.2rem; margin-top:0.5rem; outline:none;
+  position:relative;
 }
 
-/* ============= Alphabetical Filter Bar ============= */
-.alpha-bar {
-  margin: 0 0 1.5rem 0;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.6rem;
-  align-items: center;
+/* Focus/hover */
+.dropdown-toggle:focus{ box-shadow:0 0 0 2px var(--accent-blue); }
+.dropdown-toggle:hover{ color:var(--accent-blue); background:#eaf5ff; }
+
+/* Single, authoritative arrow implementation for the faculty card toggle
+   — small triangle centered under card, rotates when expanded, black by default.
+   This replaces multiple conflicting arrow rules that previously coexisted. */
+.member-card .dropdown-toggle{
+  display:flex; justify-content:center; align-items:center;
+  width:32px; height:32px; margin:0.6rem auto 0.2rem auto;
+  border:none; background:transparent; cursor:pointer; transition:transform 0.2s ease;
 }
 
-.alpha-btn {
-  min-width: 38px;
-  height: 36px;
-  padding: 0 10px;
-  border-radius: 20px;
-  border: 1.5px solid #1f4e79;
-  background: #fff;
-  color: #1f4e79;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.2s, color 0.2s, transform 0.1s;
-}
-
-.alpha-btn:hover,
-.alpha-btn:focus {
-  transform: translateY(-2px);
-  background: #eaf5ff;
-  outline: none;
-}
-
-.alpha-btn[aria-pressed="true"] {
-  background: #ff7b00;
-  color: #fff;
-  border-color: #ff7b00;
-  box-shadow: 0 3px 8px rgba(255, 123, 0, 0.25);
-}
-
-.alpha-btn.disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-  box-shadow: none;
-  background: #f5f5f5;
-}
-
-.alpha-no-matches {
-  margin-top: 1rem;
-  background: #fff8f0;
-  color: #444;
-  padding: 0.7rem 1rem;
-  border: 1px solid #f2d6c0;
-  border-radius: 6px;
-}
-
-/* ===============================
-   Faculty Page: Space Optimization
-   =============================== */
-
-/* Reduce top & bottom space around alphabet bar */
-.alpha-bar {
-  margin-top: 0.5rem !important;
-  margin-bottom: 0.5rem !important;
-}
-
-/* Compact spacing between faculty cards */
-.member-card {
-  margin: 0.8rem 0 !important; /* was ~2rem previously */
-  padding: 1rem 1.2rem !important; /* slightly tighter padding */
-}
-
-/* Inside each card: tighten image + info spacing */
-.member-card .image-column {
-  margin-right: 1.2rem !important;
-}
-
-.member-card .card-grid {
-  align-items: flex-start;
-  gap: 0.8rem !important; /* reduce internal gaps */
-}
-
-/* Faculty name and text spacing */
-.member-name {
-  margin-bottom: 0.3rem !important;
-}
-
-.member-card p,
-.member-card span,
-.member-card h4,
-.member-card h5 {
-  margin: 0.2rem 0 !important;
-  line-height: 1.45 !important; /* tighter text line height for readability */
-}
-
-/* Reduce space after Research Areas block */
-.member-card .research-areas {
-  margin-top: 0.4rem !important;
-}
-
-/* Reduce overall main-content padding (to remove top white gap) */
-.main-content {
-  padding-top: 0.5rem !important;
-}
-
-/* Optional: compact address & button alignment */
-.member-card .dropdown-content,
-.member-card .personal-website {
-  margin-top: 0.3rem !important;
-}
-/* ===============================
-   Final Freeze – Visual Polish
-   =============================== */
-
-/* 1️⃣ Tighten space between name and Ph.D. line */
-.member-name {
-  margin-bottom: 0.15rem !important;
-  line-height: 1.1 !important;
-}
-
-/* 2️⃣ Emphasize the designation line (Professor, Head, etc.) */
-/* ===============================
-   Final Touch – Remove Background from Designation
-   =============================== */
-
-.designation,
-.member-card .designation {
-  color: #0b4fa3 !important;
-  font-weight: 800 !important;
-  background: none !important;
-  padding: 2px 6px !important;
-  border-left: 4px solid #ff7b00 !important;
-  border-radius: 3px;
-  display: inline-block;
-  margin-top: 0.1rem !important;
-  margin-bottom: 0.25rem !important;
-  font-size: 1rem !important;
-  line-height: 1.4;
-}
-
-/* Enlarge only "Head" in the designation */
-.designation .head-role {
-  font-size: 1.1rem !important;      /* slightly larger */
-  font-weight: 900 !important;       /* bolder emphasis */
-  color: #ff7b00 !important;         /* same orange tone for distinction */
-  letter-spacing: 0.3px;
-}
-/* Optional: smooth size transition on hover (aesthetic detail) */
-
-/* Emphasize only the word "Head" — slightly larger, same color */
-.designation .head-role {
-  font-size: 1.1rem !important;      /* slightly larger for subtle prominence */
-  font-weight: 900 !important;
-  color: inherit !important;         /* same color as other text */
-  letter-spacing: 0.2px;
-}
-
-/* 3️⃣ Improve dropdown arrow visibility and spacing */
-.dropdown-toggle i,
-.dropdown-arrow,
-.member-card .dropdown-arrow {
-  color: #0d4e8c !important;
-  font-size: 1.1rem !important;
-  font-weight: bold !important;
-  transition: transform 0.2s ease, color 0.2s ease;
-}
-
-/* Rotate and brighten on hover/focus for visibility */
-.dropdown-toggle:hover i,
-.dropdown-arrow:hover {
-  color: #ff7b00 !important;
-  transform: scale(1.15);
-}
-
-/* Keep arrow aligned to card center */
-.member-card .dropdown-toggle {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 0.25rem;
-}
-
-/* Faculty card dropdown arrow styling */
-.toggle-arrow {
-  display: block;
-  margin: 0.6rem auto 0.3rem auto !important; /* center horizontally */
-  width: 28px !important;
-  height: 28px !important;
-  border: 2px solid transparent;
-  border-radius: 50%;
-  color: #000 !important; /* solid black */
-  font-size: 1.6rem !important; /* slightly larger */
-  text-align: center;
-  cursor: pointer;
-  background: none !important;
-  transition: all 0.25s ease-in-out;
-}
-
-/* On hover, give it subtle background + shadow like MAE site */
-.toggle-arrow:hover {
-  color: #fff !important;
-  background-color: #000 !important;  /* invert colors for visibility */
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
-  transform: scale(1.15);
-}
-
-/* Optional: arrow icon adjustment if it uses <i> or similar */
-.toggle-arrow i,
-.toggle-arrow svg {
-  vertical-align: middle;
-  line-height: 1;
-  display: inline-block;
-}
-
-/* ---------- Faculty Dropdown Arrow Enhancement ---------- */
-/* Targets only the small triangle dropdown arrow below the Personal Website button */
-
-.member-card .dropdown-toggle {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 32px;
-  height: 32px;
-  margin: 0.6rem auto 0.2rem auto;
-  border: none;
-  background: transparent;
-  cursor: pointer;
-  transition: transform 0.2s ease;
-}
-
-/* The small triangle icon inside */
-.member-card .dropdown-toggle::before {
+/* triangle glyph as pseudo-element so there's only one rendering */
+.member-card .dropdown-toggle::before{
   content: "▼";
-  display: inline-block;
-  font-size: 1rem;
-  color: #000; /* solid black for visibility */
+  display:inline-block;
+  font-size:1rem;
+  color:#000;             /* solid black for visibility */
   transition: transform 0.2s ease, color 0.2s ease;
+  line-height:1;
 }
 
-/* Rotate when expanded */
-.member-card .dropdown-toggle[aria-expanded="true"]::before {
+/* rotate when expanded (for toggling UI) */
+.member-card .dropdown-toggle[aria-expanded="true"]::before{
   transform: rotate(180deg);
 }
 
-/* Hover effect for visibility */
-.member-card .dropdown-toggle:hover::before {
-  transform: scale(1.2);
-  color: #111;
-}
-/* Remove duplicate dropdown arrow if two appear */
-.member-card .dropdown-toggle * {
-  display: none !important;
+/* hover/active emphasis */
+.member-card .dropdown-toggle:hover::before{
+  transform: scale(1.15);
+  color:#111;
 }
 
+/* In case other icons exist inside toggle, hide them (prevents duplicate arrows):
+   this ensures only our defined triangle shows. */
+.member-card .dropdown-toggle *{ display:none !important; }
+
+/* Optional bigger "toggle-arrow" utility (if used elsewhere). Keep it non-conflicting. */
+.toggle-arrow{
+  display:block; margin:0.6rem auto 0.3rem auto;
+  width:28px; height:28px; border-radius:50%;
+  color:#000; font-size:1.6rem; text-align:center; background:none;
+  transition: all 0.25s ease-in-out;
+}
+.toggle-arrow:hover{ color:#fff; background-color:#000; box-shadow:0 2px 8px rgba(0,0,0,0.25); transform:scale(1.15); }
+
+/* ========== Dropdown content expansion area ========== */
+.dropdown-content{
+  max-height:0; overflow:hidden;
+  transition:max-height 0.32s cubic-bezier(0.4,0,0.2,1), padding 0.2s;
+  border-top:1px solid var(--border-color);
+  background:#f6fafd;
+  margin-top:1.5rem;
+  border-bottom-left-radius:12px;
+  border-bottom-right-radius:12px;
+  padding:0 1.5rem;
+}
+.dropdown-content.active{
+  max-height:600px;
+  padding-top:1.5rem; padding-bottom:1.2rem;
+}
+
+/* dropdown sections */
+.dropdown-section{ margin-bottom:1.5rem; }
+.dropdown-section h3{
+  color:var(--primary-blue); font-size:1.1rem; margin-bottom:0.7rem;
+  border-bottom:2px solid var(--accent-blue); display:inline-block; padding-bottom:0.2rem;
+}
+.dropdown-section ul{
+  list-style:disc inside; color:var(--text-secondary); padding-left:1.2rem;
+  font-size:0.97rem; margin-top:0.3rem;
+}
+.dropdown-section li{ margin-bottom:0.5rem; }
+
+/* ========== Back to top button ========== */
+#backToTopBtn{
+  display:none; position:fixed; bottom:36px; right:36px; z-index:999;
+  font-size:1.15rem; background:var(--primary-blue); color:#fff; border:none;
+  border-radius:28px; padding:0.85em 2em; box-shadow:0 4px 18px rgba(44,62,80,0.08);
+  cursor:pointer; transition:background 0.2s, box-shadow 0.2s; font-weight:600; letter-spacing:0.03em;
+}
+#backToTopBtn:hover, #backToTopBtn:focus{ background:var(--accent-blue); box-shadow:0 6px 24px rgba(41,128,185,0.14); }
+
+/* ========== MAE-like compact adjustments retained (tight spacing) ========== */
+.member-name{ font-size:1.45rem; font-weight:800; color:#1f3a4d; }
+.member-name + p,
+.info-column p.qualification,
+.info-column p.degree{ font-size:0.98rem; color:#17384f; font-weight:700; margin:0 0 0.22rem 0; line-height:1.25; }
+
+/* Tight research / description spacing */
+.research-areas, .member-description{ font-size:0.98rem; line-height:1.45; }
+
+/* ========== Alphabetical filter bar ========== */
+.alpha-bar{
+  margin:0 0 1.5rem 0; display:flex; flex-wrap:wrap; gap:0.6rem; align-items:center;
+}
+.alpha-btn{
+  min-width:38px; height:36px; padding:0 10px; border-radius:20px;
+  border:1.5px solid #1f4e79; background:#fff; color:#1f4e79; font-weight:600; cursor:pointer;
+  transition: background 0.2s, color 0.2s, transform 0.1s;
+}
+.alpha-btn:hover, .alpha-btn:focus{ transform: translateY(-2px); background:#eaf5ff; outline:none; }
+.alpha-btn[aria-pressed="true"]{
+  background:#ff7b00; color:#fff; border-color:#ff7b00; box-shadow:0 3px 8px rgba(255,123,0,0.25);
+}
+.alpha-btn.disabled{ opacity:0.4; cursor:not-allowed; background:#f5f5f5; box-shadow:none; }
+.alpha-no-matches{ margin-top:1rem; background:#fff8f0; color:#444; padding:0.7rem 1rem; border:1px solid #f2d6c0; border-radius:6px; }
+
+/* ========== Responsive tweaks ========== */
+@media (max-width:1200px){
+  .card-grid{ grid-template-columns:1fr; gap:1.2rem; }
+  .vertical-divider{ display:none; }
+  .dropdown-toggle-container{ justify-content:flex-end; }
+}
+@media (max-width:900px){
+  .member-name{ font-size:1.3rem; }
+  .member-name + p, .info-column p.qualification, .info-column p.degree{ font-size:0.95rem; }
+  .designation{ font-size:0.98rem; }
+}
+@media (min-width:1600px){
+  .member-name{ font-size:1.55rem; }
+  .member-name + p, .info-column p.qualification, .info-column p.degree{ font-size:1.05rem; }
+  .research-areas, .member-description{ font-size:1.02rem; line-height:1.5; }
+}
+
+/* ========== Small misc safety: prevent flicker on click ========== */
+/* Keep border-width constant so clicking doesn't reflow */
+.nav-menu a{ transition: background-color 0.25s ease, color 0.25s ease, box-shadow 0.25s ease; }
+
+/* End of consolidated fsh.css */

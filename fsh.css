@@ -506,3 +506,70 @@ table, th, td {
   border-top: 1px solid #e0e8f0;
 }
 
+/* -------------------------
+   Sidebar: robust top-3 vs bottom-2 styles
+   (Paste at the END of fsh.css)
+   ------------------------- */
+
+/* Ensure we target the list item's link specifically (stable even with extra nodes) */
+.side-nav .nav-menu li:nth-child(-n+3) > a {
+  background-color: #ff7b00 !important; /* orange for top 3 (Faculty / HOD / Staff) */
+  color: #ffffff !important;
+  border-color: #ff7b00 !important;
+  font-weight: 700 !important;
+  box-shadow: 0 2px 6px rgba(255,123,0,0.12) !important;
+}
+
+/* Slightly darker hover for top3 */
+.side-nav .nav-menu li:nth-child(-n+3) > a:hover,
+.side-nav .nav-menu li:nth-child(-n+3) > a:focus {
+  background-color: #e86f00 !important;
+  border-color: #e86f00 !important;
+  color: #fff !important;
+}
+
+/* Students and Alumni (everything from 4th child onward) keep blue/white style */
+.side-nav .nav-menu li:nth-child(n+4) > a {
+  background-color: #f4f9ff !important;
+  color: #0a1a44 !important;
+  border-color: #b9d1ec !important;
+  font-weight: 600 !important;
+  box-shadow: none !important;
+}
+
+/* Hover for bottom items */
+.side-nav .nav-menu li:nth-child(n+4) > a:hover,
+.side-nav .nav-menu li:nth-child(n+4) > a:focus {
+  background-color: #eaf5ff !important;
+  color: #1a4e8a !important;
+  border-color: #1a4e8a !important;
+}
+
+/* Keep active state consistent and visible - ensure active class overrides other rules */
+.side-nav .nav-menu a.active,
+.side-nav .nav-menu li:nth-child(-n+3) > a.active {
+  background-color: #ff7b00 !important;
+  color: #fff !important;
+  border-color: #ff7b00 !important;
+  box-shadow: 0 3px 8px rgba(255,123,0,0.18) !important;
+}
+
+/* Mobile: maintain the same logic but reduce spacing and ensure visibility */
+@media (max-width:768px){
+  .side-nav .nav-menu li:nth-child(-n+3) > a,
+  .side-nav .nav-menu li:nth-child(n+4) > a {
+    min-width: 72px;
+    padding: 0.65rem 0.8rem;
+    font-size: 0.98rem;
+    border-width: 2px;
+  }
+}
+
+/* Safety: remove any previous generic rules that forcibly color every link orange.
+   (This is defensive; it only applies when a more generic rule is present earlier.)
+   We scope it low-specificity so it doesn't break anything else. */
+.side-nav .nav-menu > li > a[style] {
+  /* keep inline style if intentionally present by author; don't override. */
+}
+
+

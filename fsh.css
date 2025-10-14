@@ -361,3 +361,58 @@ td {
   box-shadow: 0 6px 24px rgba(41, 128, 185, 0.14);
 }
 
+/* ==========================================
+   Faculty Profile Section – Readability Upgrade
+   ========================================== */
+
+/* Qualification line (Ph.D., Education, etc.) */
+.info-column p {
+  color: #243447; /* dark bluish-grey for high readability */
+  font-size: 1rem;
+  line-height: 1.4; /* tighter line spacing */
+  margin: 0.25rem 0 0.3rem 0; /* compact vertical spacing */
+  padding: 0.35rem 0.6rem;
+  background: #f9fbfd; /* subtle contrast background */
+  border-left: 4px solid #1f4e79; /* IIT-H blue accent */
+  border-radius: 4px;
+  display: inline-block;
+  max-width: fit-content;
+}
+
+/* Designation (e.g., Professor and Head) */
+.designation {
+  color: #0d4e8c;
+  font-size: 1.05rem;
+  font-weight: 700;
+  background: #eef6ff;
+  padding: 0.25rem 0.6rem;
+  border-radius: 5px;
+  margin-top: 0.3rem;
+  display: inline-block;
+}
+
+/* Research Areas header */
+.info-column strong {
+  color: #0a1a44;
+  font-weight: 700;
+  font-size: 1.05rem;
+}
+
+/* Research area and description text */
+.research-areas,
+.member-description {
+  color: #1a1a1a;
+  line-height: 1.55; /* slightly compact but still readable */
+  font-size: 0.98rem;
+  margin-top: 0.3rem;
+  margin-bottom: 0.4rem;
+}
+
+/* Subtle background to separate profile sections visually */
+.member-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.05);
+  padding: 1.8rem 2rem 2rem;
+  border-radius: 12px;
+}

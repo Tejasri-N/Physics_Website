@@ -17,6 +17,58 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       });
 
+      /* =========================================================
+   Faculty Alphabetical Filter – IIT Hyderabad Physics Dept
+   ========================================================= */
+document.addEventListener("DOMContentLoaded", () => {
+  const alphaBar = document.getElementById("alphaBar");
+  const noMatches = document.getElementById("alphaNoMatches");
+  if (!alphaBar) return;
+
+  const buttons = alphaBar.querySelectorAll(".alpha-btn");
+  const cards = document.querySelectorAll(".member-card");
+
+  function getInitialLetter(card) {
+    const name = card.querySelector(".member-name");
+    return name ? name.textContent.trim().charAt(0).toUpperCase() : "";
+  }
+
+  // Count initials to disable letters with no matches
+  const counts = {};
+  cards.forEach((card) => {
+    const letter = getInitialLetter(card);
+    counts[letter] = (counts[letter] || 0) + 1;
+  });
+
+  buttons.forEach((btn) => {
+    const letter = btn.dataset.letter.toUpperCase();
+    if (letter !== "ALL" && !counts[letter]) {
+      btn.classList.add("disabled");
+      btn.disabled = true;
+    }
+
+    btn.addEventListener("click", () => {
+      if (btn.classList.contains("disabled")) return;
+      buttons.forEach((b) => b.setAttribute("aria-pressed", "false"));
+      btn.setAttribute("aria-pressed", "true");
+
+      const filter = btn.dataset.letter;
+      let visibleCount = 0;
+
+      cards.forEach((card) => {
+        const initial = getInitialLetter(card);
+        const show = filter === "all" || initial === filter.toUpperCase();
+        card.style.display = show ? "" : "none";
+        if (show) visibleCount++;
+      });
+
+      noMatches.hidden = visibleCount > 0;
+      window.scrollTo({ top: alphaBar.offsetTop - 20, behavior: "smooth" });
+    });
+  });
+});
+
+
       // Toggle current dropdown
       button.setAttribute("aria-expanded", !isExpanded);
       dropdown.classList.toggle("active", !isExpanded);

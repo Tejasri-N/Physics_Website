@@ -361,58 +361,90 @@ td {
   box-shadow: 0 6px 24px rgba(41, 128, 185, 0.14);
 }
 
-/* ==========================================
-   Faculty Profile Section – Readability Upgrade
-   ========================================== */
+/* ================================
+   Faculty Profile — MAE-like alignment
+   Compact, accessible, high-contrast
+   ================================ */
 
-/* Qualification line (Ph.D., Education, etc.) */
-.info-column p {
-  color: #243447; /* dark bluish-grey for high readability */
-  font-size: 1rem;
-  line-height: 1.4; /* tighter line spacing */
-  margin: 0.25rem 0 0.3rem 0; /* compact vertical spacing */
-  padding: 0.35rem 0.6rem;
-  background: #f9fbfd; /* subtle contrast background */
-  border-left: 4px solid #1f4e79; /* IIT-H blue accent */
-  border-radius: 4px;
-  display: inline-block;
-  max-width: fit-content;
+/* Ensure grid keeps image left and text aligned to top */
+.card-grid {
+  grid-template-columns: 140px 1fr 1px 220px; /* keep original layout */
+  align-items: start;                         /* align everything to top */
 }
 
-/* Designation (e.g., Professor and Head) */
+/* Name: prominent and close to the qualification line */
+.member-name {
+  font-size: 1.45rem;
+  color: #1f3a4d;   /* darker, slightly bluish */
+  font-weight: 800;
+  margin: 0 0 0.18rem 0; /* small gap to qualification line */
+  line-height: 1.08;
+}
+
+/* Qualification line (Ph.D., Institute) — tight & bold, placed right under name */
+.member-name + p,
+.info-column p.qualification,
+.info-column p.degree {
+  color: #17384f;            /* dark navy for high contrast */
+  font-weight: 700;          /* bold but not oversized */
+  font-size: 0.98rem;
+  margin: 0 0 0.22rem 0;     /* compact vertical spacing */
+  line-height: 1.25;         /* tight but readable */
+  display: block;
+  background: transparent;   /* no background box — MAE look */
+  border-left: none;         /* remove previous left accent for cleaner inline look */
+  padding: 0;                /* no padding so it sits close to name */
+}
+
+/* Small tertiary line style fallback for pages where qualification is last or different */
+.info-column .member-sub {
+  color: #3a4f62;
+  font-weight: 600;
+  font-size: 0.95rem;
+  margin: 0 0 0.25rem 0;
+  line-height: 1.3;
+}
+
+/* Keep designation visible but compact (Professor and Head) */
 .designation {
   color: #0d4e8c;
-  font-size: 1.05rem;
   font-weight: 700;
-  background: #eef6ff;
-  padding: 0.25rem 0.6rem;
-  border-radius: 5px;
-  margin-top: 0.3rem;
+  font-size: 1.02rem;
+  margin: 0 0 0.25rem 0;
   display: inline-block;
+  background: transparent;   /* MAE uses plain text, not pill — keep subtle */
+  padding: 0;                /* compact */
 }
 
-/* Research Areas header */
-.info-column strong {
-  color: #0a1a44;
-  font-weight: 700;
-  font-size: 1.05rem;
-}
-
-/* Research area and description text */
+/* Research areas and descriptions — slightly tighter spacing */
 .research-areas,
 .member-description {
-  color: #1a1a1a;
-  line-height: 1.55; /* slightly compact but still readable */
+  color: #1d2430;
   font-size: 0.98rem;
-  margin-top: 0.3rem;
-  margin-bottom: 0.4rem;
+  line-height: 1.45;
+  margin-top: 0.35rem;
+  margin-bottom: 0.45rem;
 }
 
-/* Subtle background to separate profile sections visually */
-.member-card {
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
-  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.05);
-  padding: 1.8rem 2rem 2rem;
-  border-radius: 12px;
+/* Make sure contact column vertical divider still looks good */
+.vertical-divider { 
+  margin: 0 0.75rem;
+}
+
+/* Slight layout tweak for very small screens to preserve compactness */
+@media (max-width: 900px) {
+  .member-name { font-size: 1.3rem; }
+  .member-name + p,
+  .info-column p.qualification,
+  .info-column p.degree { font-size: 0.95rem; }
+  .designation { font-size: 0.98rem; }
+}
+
+/* Elder-friendly display mode (optional): slightly larger text on wide screens */
+@media (min-width: 1600px) {
+  .member-name { font-size: 1.55rem; }
+  .member-name + p,
+  .info-column p.qualification,
+  .info-column p.degree { font-size: 1.05rem; }
+  .research-areas, .member-description { font-size: 1.02rem; line-height: 1.5; }
 }

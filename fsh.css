@@ -627,3 +627,35 @@ td {
   padding: 0.25rem;
 }
 
+/* Faculty card dropdown arrow styling */
+.toggle-arrow {
+  display: block;
+  margin: 0.6rem auto 0.3rem auto !important; /* center horizontally */
+  width: 28px !important;
+  height: 28px !important;
+  border: 2px solid transparent;
+  border-radius: 50%;
+  color: #000 !important; /* solid black */
+  font-size: 1.6rem !important; /* slightly larger */
+  text-align: center;
+  cursor: pointer;
+  background: none !important;
+  transition: all 0.25s ease-in-out;
+}
+
+/* On hover, give it subtle background + shadow like MAE site */
+.toggle-arrow:hover {
+  color: #fff !important;
+  background-color: #000 !important;  /* invert colors for visibility */
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+  transform: scale(1.15);
+}
+
+/* Optional: arrow icon adjustment if it uses <i> or similar */
+.toggle-arrow i,
+.toggle-arrow svg {
+  vertical-align: middle;
+  line-height: 1;
+  display: inline-block;
+}
+

@@ -694,3 +694,8 @@ td {
   transform: scale(1.2);
   color: #111;
 }
+/* Remove duplicate dropdown arrow if two appear */
+.member-card .dropdown-toggle * {
+  display: none !important;
+}
+

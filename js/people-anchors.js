@@ -529,3 +529,37 @@
   };
 
 })();
+
+(function addStableIdsToMemberCards() {
+  function slugifyForId(name) {
+    if (!name) return '';
+    const titles = /\b(dr|prof|professor|mr|mrs|ms|miss|associate|assistant|student)\b\.?/gi;
+    const cleaned = name
+      .normalize('NFKD').replace(/[\u0300-\u036f]/g, '')
+      .replace(titles, '')
+      .replace(/[^a-zA-Z0-9]+/g, '-')
+      .replace(/(^-|-$)/g, '')
+      .toLowerCase();
+    return 'section-' + cleaned;
+  }
+
+  const cards = document.querySelectorAll('.member-card, .faculty-card, .profile-card');
+  cards.forEach(card => {
+    // pick the canonical name from visible node or data-name attribute
+    const nameNode = card.querySelector('.member-name, .faculty-name, .profile-name') || card.querySelector('h2, h3, .name');
+    let rawName = card.getAttribute('data-name') || (nameNode && nameNode.textContent) || '';
+    rawName = (rawName || '').trim();
+    if (!rawName) return;
+
+    const candidateId = slugifyForId(rawName);
+    // ensure uniqueness
+    let id = candidateId, i = 1;
+    while (document.getElementById(id)) {
+      id = candidateId + '-' + (i++);
+    }
+    if (!card.id) card.id = id;
+    // also ensure data-name exists so search click handler can use it
+    card.setAttribute('data-name', rawName);
+  });
+})();
+

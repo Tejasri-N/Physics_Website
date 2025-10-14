@@ -582,6 +582,7 @@ td {
   margin-top: 0.1rem !important;
   margin-bottom: 0.25rem !important;
   font-size: 1rem !important;
+  line-height: 1.4;
 }
 
 /* Enlarge only "Head" in the designation */
@@ -592,9 +593,13 @@ td {
   letter-spacing: 0.3px;
 }
 /* Optional: smooth size transition on hover (aesthetic detail) */
-.designation .head-role:hover {
-  transform: scale(1.05);
-  transition: transform 0.15s ease;
+
+/* Emphasize only the word "Head" — slightly larger, same color */
+.designation .head-role {
+  font-size: 1.1rem !important;      /* slightly larger for subtle prominence */
+  font-weight: 900 !important;
+  color: inherit !important;         /* same color as other text */
+  letter-spacing: 0.2px;
 }
 
 /* 3️⃣ Improve dropdown arrow visibility and spacing */

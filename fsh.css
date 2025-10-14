@@ -572,17 +572,30 @@ td {
 
 .designation,
 .member-card .designation {
-  color: #0b4fa3 !important; /* strong institutional blue */
+  color: #0b4fa3 !important;
   font-weight: 800 !important;
-  background: none !important; /* remove blue background */
+  background: none !important;
   padding: 2px 6px !important;
-  border-left: 4px solid #ff7b00 !important; /* keep orange line */
+  border-left: 4px solid #ff7b00 !important;
   border-radius: 3px;
   display: inline-block;
   margin-top: 0.1rem !important;
   margin-bottom: 0.25rem !important;
+  font-size: 1rem !important;
 }
 
+/* Enlarge only "Head" in the designation */
+.designation .head-role {
+  font-size: 1.1rem !important;      /* slightly larger */
+  font-weight: 900 !important;       /* bolder emphasis */
+  color: #ff7b00 !important;         /* same orange tone for distinction */
+  letter-spacing: 0.3px;
+}
+/* Optional: smooth size transition on hover (aesthetic detail) */
+.designation .head-role:hover {
+  transform: scale(1.05);
+  transition: transform 0.15s ease;
+}
 
 /* 3️⃣ Improve dropdown arrow visibility and spacing */
 .dropdown-toggle i,

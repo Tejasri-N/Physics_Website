@@ -443,3 +443,66 @@ table, th, td {
 .nav-menu a{ transition: background-color 0.25s ease, color 0.25s ease, box-shadow 0.25s ease; }
 
 /* End of consolidated fsh.css */
+
+/* ============================================================
+   ADDITIONAL CUSTOM RESTORED STYLES (From previous version)
+   ============================================================ */
+
+/* 1️⃣ Sidebar: Differentiate top 3 vs bottom 2 buttons */
+.nav-menu a:nth-child(-n+3) {
+  background-color: #ff7b00 !important; /* strong orange for Faculty/HOD/Staff */
+  color: #ffffff !important;
+  border-color: #ff7b00 !important;
+  font-weight: 600;
+}
+
+.nav-menu a:nth-child(-n+3):hover {
+  background-color: #e86f00 !important;
+  color: #fff !important;
+  border-color: #e86f00 !important;
+}
+
+/* Students and Alumni (below top 3) - subtle blue accent */
+.nav-menu a:nth-child(n+4) {
+  background-color: #f4f9ff !important;
+  color: #0a1a44 !important;
+  border-color: #b9d1ec !important;
+}
+
+.nav-menu a:nth-child(n+4):hover {
+  background-color: #eaf5ff !important;
+  color: #1a4e8a !important;
+  border-color: #1a4e8a !important;
+}
+
+/* 2️⃣ "Head" text emphasis in designation line */
+.designation .head-role {
+  font-size: 1.12rem;
+  font-weight: 800;
+  color: #004d99;
+}
+
+/* You can wrap in HTML as:
+   <span class="designation">Professor and <span class="head-role">Head</span></span>
+*/
+
+/* 3️⃣ Biography text readability enhancement */
+.dropdown-section p {
+  color: #333 !important;
+  line-height: 1.7 !important;
+  font-size: 0.99rem !important;
+  font-weight: 400;
+  letter-spacing: 0.01em;
+}
+.dropdown-section h3,
+.dropdown-section h4 {
+  color: #1a3855;
+  font-weight: 700;
+}
+
+/* Ensure dropdown background subtly contrasts for readability */
+.dropdown-content {
+  background-color: #f9fcff !important;
+  border-top: 1px solid #e0e8f0;
+}
+

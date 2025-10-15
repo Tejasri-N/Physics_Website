@@ -458,19 +458,66 @@
     return { key:'page', label:'Page' };
   }
 
-  function sortForNameQuery(items, q){
-    const nq = norm(q);
-    const pri = { faculty:3, staff:3, student:3, spotlight:1, announce:1, section:0, download:0, link:0, page:0 };
-    const score = it => {
-      const t = getType(it).key;
-      let s = pri[t] || 0;
-      const tl = it.title_lc || '';
-      if (tl === nq) s += 3;
-      else if (tl.startsWith(nq)) s += 2;
-      return s;
-    };
-    return items.slice().sort((a,b) => score(b) - score(a));
+function sortForNameQuery(items, q) {
+  if (!Array.isArray(items) || !q) return items || [];
+  const nq = norm(q);
+
+  // Priority weights (higher is better)
+  const priBase = { faculty: 3, staff: 3, student: 3, spotlight: 1, announce: 1, section: 0, download: 0, link: 0, page: 0 };
+
+  // stable sort helper that preserves original order for ties
+  function stableSort(arr, cmp) {
+    return arr
+      .map((v, i) => ({ v, i }))
+      .sort((a, b) => {
+        const r = cmp(a.v, b.v);
+        return r === 0 ? a.i - b.i : r;
+      })
+      .map(x => x.v);
   }
+
+  // compute score for an item
+  function scoreItem(it) {
+    const tkey = getType(it).key;
+    let score = priBase[tkey] || 0;
+
+    const tl = (it.title_lc || '').trim();
+    if (!tl) return score;
+
+    // exact title match (best)
+    if (tl === nq) score += 6;
+
+    // starts-with match (strong)
+    else if (tl.startsWith(nq)) score += 4;
+
+    // token match inside title (bonus)
+    else if (tl.includes(nq)) score += 2;
+
+    // prefer entries that actually have an anchor (deep-linkable)
+    if (it.hasAnchor || (it.url || '').indexOf('#') !== -1) score += 3;
+
+    // prefer faculty/staff/student types for name-like queries
+    return score;
+  }
+
+  // if query looks like a person-name (isNameish) we emphasize nameish scoring,
+  // otherwise we keep items roughly as-is
+  const nameish = isNameish(q, { allowSingle: true });
+
+  // clone to avoid mutating original
+  const arr = (items || []).slice();
+
+  // compute score map
+  const scored = arr.map(it => ({ it, s: nameish ? scoreItem(it) : 0 }));
+
+  // stable sort by score descending
+  const sorted = stableSort(scored, (a, b) => {
+    return b.s - a.s;
+  }).map(x => x.it);
+
+  return sorted;
+}
+
 
   function hasAnchorFlag(item){ return !!(item && (item.hasAnchor || ((item.url||'').indexOf('#') !== -1))); }
 

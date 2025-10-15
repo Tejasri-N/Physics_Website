@@ -76,6 +76,32 @@
     return false;
   }
 
+  // --- helper: build students.html?enroll=... when possible ---
+function studentHrefForItem(item) {
+  if (!item || !(item.title || item.url || item.snippet || item.content)) return item && item.url ? item.url : '';
+  // Only attempt for student-type items (safe to try for others too)
+  const typeKey = getType(item).key || '';
+  // Combine places where enroll might be present
+  const hay = ((item.snippet||'') + ' ' + (item.content||'') + ' ' + (item.title||'')).trim();
+  // Common enrollment patterns: EP..., PH..., maybe uppercase + digits and letters
+  const re = /\b(EP|PH|PHR|PHM|EPH|EP[0-9]{0,2}|PH[0-9]{0,2})[A-Z0-9\-]{4,20}\b/i;
+  const m = hay.match(re);
+  if (m && m[0]) {
+    const enroll = m[0].replace(/\s+/g,'').replace(/[#:]/g,'');
+    return `students.html?enroll=${encodeURIComponent(enroll)}`;
+  }
+  // if the item.url already points to students.html and has an id fragment, keep it
+  try {
+    if (String(item.url || '').toLowerCase().includes('students.html')) return item.url;
+  } catch(e) {}
+  // otherwise if item is clearly student, still lead to students.html base
+  if (typeKey === 'student') return 'students.html';
+  // fallback to original url
+  return item.url || 'students.html';
+}
+
+
+  
   function textAfter(el, limit=200) {
     let p = el && el.nextElementSibling;
     while (p && !/^(p|div|section|article)$/i.test(p.tagName)) p = p.nextElementSibling;
@@ -621,25 +647,28 @@ function sortForNameQuery(items, q) {
     return false;
   }
 
-  function renderResultsList(container, items, q) {
-    if (!container) return;
-    if (!items || !items.length) { container.innerHTML = `<p>No results found.</p>`; return; }
-    container.innerHTML = items.map(item => {
-      const s = (item.snippet || item.content || '').slice(0, 180);
-      const { key, label } = getType(item);
-      const jump = hasAnchorFlag(item) ? `<a href="${item.url}" class="srch-pill" style="margin-left:6px" title="Jump to section">Jump ↪</a>` : '';
-      return `<article class="search-result" style="padding:12px 0;border-bottom:1px solid #eee">
-        <div style="display:flex;align-items:flex-start;gap:10px">
-          <span class="srch-badge srch-badge--${key}">${label}</span>
-          <div style="flex:1 1 auto;min-width:0">
-            <h3 style="margin:0 0 6px 0;font-size:18px"><a href="${item.url}">${highlight(item.title, q)}</a>${jump}</h3>
-            <div style="font-size:13px;color:#555">${highlight(s, q)}…</div>
-            <div style="font-size:12px;color:#888">${(item.url || '')}</div>
-          </div>
+ function renderResultsList(container, items, q) {
+  if (!container) return;
+  if (!items || !items.length) { container.innerHTML = `<p>No results found.</p>`; return; }
+  container.innerHTML = items.map(item => {
+    const s = (item.snippet || item.content || '').slice(0, 180);
+    const { key, label } = getType(item);
+    // compute link — prefer enroll-based students link
+    const href = studentHrefForItem(item);
+    const jump = hasAnchorFlag(item) ? `<a href="${item.url}" class="srch-pill" style="margin-left:6px" title="Jump to section">Jump ↪</a>` : '';
+    return `<article class="search-result" style="padding:12px 0;border-bottom:1px solid #eee">
+      <div style="display:flex;align-items:flex-start;gap:10px">
+        <span class="srch-badge srch-badge--${key}">${label}</span>
+        <div style="flex:1 1 auto;min-width:0">
+          <h3 style="margin:0 0 6px 0;font-size:18px"><a href="${href}">${highlight(item.title, q)}</a>${jump}</h3>
+          <div style="font-size:13px;color:#555">${highlight(s, q)}…</div>
+          <div style="font-size:12px;color:#888">${(item.url || '')}</div>
         </div>
-      </article>`;
-    }).join('');
-  }
+      </div>
+    </article>`;
+  }).join('');
+}
+
 
   // ---------- people augmentation ----------
   async function augmentPeopleFromPages(pages = ['faculty.html','staff.html','students.html']) {
@@ -910,7 +939,8 @@ function sortForNameQuery(items, q) {
       topHitHtml = `
         <div class="srch-group">
           <div class="srch-group__title">Top hit</div>
-          <a href="${first.url}" class="srch-suggest-row" role="option" data-href="${first.url}">
+         <a href="${studentHrefForItem(first)}" class="srch-suggest-row" role="option" data-href="${studentHrefForItem(first)}">
+
             <span class="srch-badge srch-badge--${key}">${label}</span>
             <span style="flex:1">
               <div style="font-weight:600;margin-bottom:2px">${highlight(first.title, q)} ${jump}</div>
@@ -927,7 +957,9 @@ function sortForNameQuery(items, q) {
         const s = (it.snippet || it.content || '').slice(0, 110);
         const jump = hasAnchorFlag(it) ? `<span class="srch-pill" title="Jump to section">↪</span>` : '';
         return `
-          <a href="${it.url}" class="srch-suggest-row" role="option" data-href="${it.url}">
+         return `
+  <a href="${studentHrefForItem(it)}" class="srch-suggest-row" role="option" data-href="${studentHrefForItem(it)}">
+
             <span class="srch-badge srch-badge--${k}">${label.replace(/s$/,'')}</span>
             <span style="flex:1">
               <div style="font-weight:600;margin-bottom:2px">${highlight(it.title, q)} ${jump}</div>

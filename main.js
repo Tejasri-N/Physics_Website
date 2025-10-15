@@ -256,8 +256,17 @@ let spotlightTimer = setInterval(() => {
 // Initialize spotlight carousel
 document.addEventListener("DOMContentLoaded", function () {
   showSpotlightSlide(spotlightIndex);
-   document.getElementById("spotlight-prev").addEventListener("click", spotlightPrevSlide);
-  document.getElementById("spotlight-next").addEventListener("click", spotlightNextSlide);
+  // Initialize spotlight carousel safely (only if elements exist)
+document.addEventListener("DOMContentLoaded", function () {
+  showSpotlightSlide(spotlightIndex);
+
+  const prevBtn = document.getElementById("spotlight-prev");
+  const nextBtn = document.getElementById("spotlight-next");
+
+  if (prevBtn) prevBtn.addEventListener("click", spotlightPrevSlide);
+  if (nextBtn) nextBtn.addEventListener("click", spotlightNextSlide);
+});
+
 });
 
 

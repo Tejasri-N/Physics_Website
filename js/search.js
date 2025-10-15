@@ -105,28 +105,6 @@ function studentHrefForItem(item) {
   }
 
   // --- helper: build students.html?enroll=... when possible ---
-function studentHrefForItem(item) {
-  if (!item || !(item.title || item.url || item.snippet || item.content)) return item && item.url ? item.url : '';
-  // Only attempt for student-type items (safe to try for others too)
-  const typeKey = getType(item).key || '';
-  // Combine places where enroll might be present
-  const hay = ((item.snippet||'') + ' ' + (item.content||'') + ' ' + (item.title||'')).trim();
-  // Common enrollment patterns: EP..., PH..., maybe uppercase + digits and letters
-  const re = /\b(EP|PH|PHR|PHM|EPH|EP[0-9]{0,2}|PH[0-9]{0,2})[A-Z0-9\-]{4,20}\b/i;
-  const m = hay.match(re);
-  if (m && m[0]) {
-    const enroll = m[0].replace(/\s+/g,'').replace(/[#:]/g,'');
-    return `students.html?enroll=${encodeURIComponent(enroll)}`;
-  }
-  // if the item.url already points to students.html and has an id fragment, keep it
-  try {
-    if (String(item.url || '').toLowerCase().includes('students.html')) return item.url;
-  } catch(e) {}
-  // otherwise if item is clearly student, still lead to students.html base
-  if (typeKey === 'student') return 'students.html';
-  // fallback to original url
-  return item.url || 'students.html';
-}
 
 
   

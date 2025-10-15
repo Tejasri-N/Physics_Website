@@ -345,7 +345,12 @@ document.addEventListener("DOMContentLoaded", function () {
       }
 
       // ensure visible (best-effort)
-      try { slides[window.spotlightIndex] && slides[window.spotlightIndex].scrollIntoView({ block: 'center' }); } catch(e){}
+    try {
+  if (window.__allowSpotlightAutoScroll) {
+    slides[window.spotlightIndex] && slides[window.spotlightIndex].scrollIntoView({ block: 'center' });
+  }
+} catch(e){}
+
 
       // also attempt to call original implementation (non-destructive):
       if (_origShowSpotlight) {

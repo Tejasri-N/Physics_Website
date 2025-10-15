@@ -1,4 +1,6 @@
 // ---- REPLACE the existing loadHTML + DOMContentLoaded block with this ----
+// disable automatic scroll-by-default; only enable for explicit actions (search/hash)
+window.__allowSpotlightAutoScroll = false;
 
 function loadHTML(selector, url) {
   // return the promise so caller can chain and run code after insertion

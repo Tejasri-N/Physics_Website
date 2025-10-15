@@ -902,14 +902,56 @@
     input && input.setAttribute('aria-expanded', 'true');
 
     const rows = [...suggest.querySelectorAll('.srch-suggest-row')];
-    rows.forEach((row, i) => {
-      row.addEventListener('mouseenter', () => { rows.forEach(n => n.removeAttribute('aria-selected')); row.setAttribute('aria-selected', 'true'); selIdx = i; });
-      row.addEventListener('mouseleave', () => { row.removeAttribute('aria-selected'); selIdx = -1; });
-      row.addEventListener('click', (e) => {
-        const href = row.getAttribute('data-href') || row.getAttribute('href');
-        if (href) { e.preventDefault(); window.location.href = href; }
-      });
-    });
+   row.addEventListener('click', (e) => {
+  e.preventDefault();
+
+  // Try to find a usable link
+  let href =
+    row.getAttribute('data-href') ||
+    row.getAttribute('href') ||
+    (row.querySelector('a[href]') ? row.querySelector('a[href]').getAttribute('href') : '');
+
+  // Extract visible text (for name canonicalization)
+  const visible = (row.textContent || '').trim();
+
+  // If it already includes an anchor hash, go directly
+  if (href && href.includes('#')) {
+    window.location.href = href;
+    return;
+  }
+
+  // Canonicalize to match faculty IDs even if “Dr.” prefixes differ
+  const canonical = (str) =>
+    (str || '')
+      .normalize('NFKD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/\b(dr|prof|professor|mr|mrs|ms)\b\.?/gi, '')
+      .replace(/[^a-z0-9\s]/gi, ' ')
+      .replace(/\s+/g, ' ')
+      .trim()
+      .toLowerCase();
+
+  const domMap = window.__canonicalAnchorMapFromDOM || {};
+  const key = canonical(visible);
+
+  if (key && domMap[key]) {
+    const base = href.split('#')[0] || 'faculty.html';
+    window.location.href = base + domMap[key];
+    return;
+  }
+
+  // Otherwise, fall back to text fragment to highlight
+  if (visible) {
+    const base = href.split('#')[0] || 'faculty.html';
+    const frag = '#:~:text=' + encodeURIComponent(visible.slice(0, 80));
+    window.location.href = base + frag;
+    return;
+  }
+
+  // Final fallback
+  window.location.href = href || 'search.html';
+});
+
   }
 
   function moveSel(delta) {

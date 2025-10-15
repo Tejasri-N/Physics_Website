@@ -1501,5 +1501,39 @@
     <script src="al_students.js"></script>
     <script defer src="js/people-anchors.js"></script>
 
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const params = new URLSearchParams(window.location.search);
+  const enroll = params.get("enroll"); // e.g., EP23BTECH11014 or PH23MSCST11001
+  if (!enroll) return;
+
+  // Infer program type
+  let program = "";
+  if (enroll.includes("BTECH")) program = "btech";
+  else if (enroll.includes("MSC")) program = "msc";
+  else if (enroll.includes("MTECH")) program = "mtech";
+  else if (enroll.includes("RESCH") || enroll.includes("PHD")) program = "phd";
+
+  // Trigger the main course selection
+  const coursePill = document.querySelector(`.course-pill[data-course='${program}']`);
+  if (coursePill) {
+    coursePill.click();
+  }
+
+  // Wait for the table to render and highlight the entry
+  setTimeout(() => {
+    const studentEntry = document.querySelector(`[data-enroll='${enroll}']`);
+    if (studentEntry) {
+      studentEntry.scrollIntoView({ behavior: "smooth", block: "center" });
+      studentEntry.style.backgroundColor = "#fff7e6";
+      studentEntry.style.border = "2px solid orange";
+      studentEntry.style.borderRadius = "8px";
+      studentEntry.style.transition = "0.3s";
+    }
+  }, 1200);
+});
+</script>
+
+    
   </body>
 </html>

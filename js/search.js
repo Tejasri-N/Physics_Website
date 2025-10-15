@@ -81,6 +81,51 @@ function studentHrefForItem(item) {
   }
 }
 
+  (async ()=>{
+  try {
+    const url = [...document.querySelectorAll('script[src]')].map(s=>s.src)
+      .find(u=>/\/js\/search\.js$/i.test(u)) || '/js/search.js';
+    console.log('fetching', url);
+    const txt = await (await fetch(url, {cache:'no-store'})).text();
+
+    // Export lines we append so internal helpers become accessible from window
+    const exports = '\n' +
+`try{
+  window.ensureIndexBuilt = typeof ensureIndexBuilt === 'function' ? ensureIndexBuilt : (window.ensureIndexBuilt||null);
+  window.queryWorker = typeof queryWorker === 'function' ? queryWorker : (window.queryWorker||null);
+  window.studentHrefForItem = typeof studentHrefForItem === 'function' ? studentHrefForItem : (window.studentHrefForItem||null);
+  window.renderResultsList = typeof renderResultsList === 'function' ? renderResultsList : (window.renderResultsList||null);
+} catch(e){ console.warn('export failed', e); }\n`;
+
+    // Evaluate combined script (temporary for debugging)
+    eval(txt + exports);
+    console.log('search.js evaluated and helpers exported (temporary)');
+
+    // now run the index build + sample query
+    if (typeof window.ensureIndexBuilt !== 'function') {
+      console.error('ensureIndexBuilt not exposed — aborting');
+      return;
+    }
+    await window.ensureIndexBuilt();
+    console.log('ensureIndexBuilt done. Index size:', (typeof indexData !== 'undefined' && indexData ? indexData.length : 'no indexData'));
+
+    const items = await window.queryWorker ? await window.queryWorker('ramesh', { limit: 50 }) : (await (typeof queryWorker === 'function' ? queryWorker('ramesh',{limit:50}) : []));
+    console.log('items.length', items.length);
+    if (items.length) {
+      console.log(items.slice(0,10).map(it=>({
+        title: it.title,
+        url: it.url,
+        snippet: it.snippet || (it.content||'').slice(0,120),
+        studentHref: (typeof window.studentHrefForItem === 'function') ? window.studentHrefForItem(it) : (it.url||'')
+      })));
+    } else {
+      console.log('No items returned for "ramesh"');
+    }
+  } catch (e) {
+    console.error('debug-run failed', e);
+  }
+})();
+
   
   // allow single-word proper names (≥3 chars) — ensures “Chengappa”/“Guhan” work
   function isNameish(s, { allowSingle = true } = {}) {

@@ -484,3 +484,147 @@ document.addEventListener("DOMContentLoaded", function () {
 
 })();
 
+/* ===== quick patch: ensure student links include ?enroll=... =====
+   Place this at the end of main.js (or any file loaded after search UI).
+   It gracefully tries to find enrollment codes nearby and rewrites links
+   that point to students.html to include ?enroll=... before navigation. */
+(function () {
+  'use strict';
+
+  // Helper: find enroll string from a node (tries data attributes and text patterns)
+  function findEnrollFromNode(node) {
+    if (!node) return null;
+
+    // 1) dataset attributes commonly used
+    if (node.dataset && node.dataset.enroll) return node.dataset.enroll.trim();
+    if (node.getAttribute && node.getAttribute('data-enroll')) return node.getAttribute('data-enroll').trim();
+
+    // 2) common class names or attributes that might contain the code
+    const selectors = ['[data-enroll]', '.enroll', '.enrollment', '.enroll-code', '.student-enroll'];
+    for (let sel of selectors) {
+      const el = node.querySelector && node.querySelector(sel);
+      if (el) {
+        if (el.dataset && el.dataset.enroll) return el.dataset.enroll.trim();
+        if (el.textContent) {
+          const t = el.textContent.trim();
+          if (t) return t;
+        }
+      }
+    }
+
+    // 3) fallback: search the node's text for likely enrollment patterns e.g. EP23BTECH11014, PH23MSCST11001, etc.
+    // Pattern: starts with letters (PH|EP|PH) followed by digits/letters, common lengths >=6
+    const text = node.textContent || '';
+    // look for common prefixes (EP, PH, PH25..., PH20..., etc.) or generic all-caps with digits
+    const regex = /(EP|PH|PH[0-9]{0,2}|EP[0-9]{0,2}|PHM|PHB)[A-Z0-9\-]{4,20}/ig;
+    const m = text.match(regex);
+    if (m && m.length) {
+      // choose the first candidate that contains a digit
+      for (let cand of m) {
+        if (/\d/.test(cand)) return cand.trim();
+      }
+      return m[0].trim();
+    }
+
+    return null;
+  }
+
+  // Delegated click handler to rewrite students.html links before navigation
+  document.addEventListener('click', function (ev) {
+    try {
+      const a = ev.target.closest && ev.target.closest('a');
+      if (!a) return;
+
+      const href = a.getAttribute('href') || '';
+      // Only interested in links that point to students.html (relative or absolute)
+      if (!/students\.html/i.test(href)) return;
+
+      // If enroll already present, do nothing
+      if (/\?enroll=/.test(href) || /[?&]enroll=/.test(href)) return;
+
+      // Try to find enroll in dataset on the link itself
+      let enroll = findEnrollFromNode(a);
+
+      // If not found, try containing result node (common classes)
+      if (!enroll) {
+        // Look for nearest .search-item, .result, .result-item, li, or parent element
+        const containerCandidates = ['.search-item', '.result', '.result-item', '.result-card', 'li', '.item'];
+        let parent = null;
+        for (let sel of containerCandidates) {
+          parent = a.closest(sel);
+          if (parent) break;
+        }
+        // fallback to immediate parent
+        if (!parent) parent = a.parentElement;
+        enroll = findEnrollFromNode(parent);
+      }
+
+      // Final fallback: look in document for any nearby sibling that looks like enroll
+      if (!enroll && a.nextSibling) {
+        enroll = findEnrollFromNode(a.nextSibling);
+      }
+
+      if (enroll) {
+        // sanitize and encode
+        enroll = enroll.replace(/\s+/g, '').replace(/[#:]/g, '');
+        const newHref = href.split('?')[0] + '?enroll=' + encodeURIComponent(enroll);
+        a.setAttribute('href', newHref);
+        // no need to preventDefault; link will now navigate with param
+        // (This runs right before navigation.)
+      }
+    } catch (e) {
+      // don't break navigation on errors
+      // eslint-disable-next-line no-console
+      console.warn('student-link-rewrite error', e);
+    }
+  }, true);
+
+  // Optional: when results are dynamically inserted, also rewrite existing anchors proactively.
+  // Run once on DOMContentLoaded and any time a search-results container changes (MutationObserver).
+  function rewriteExistingStudentAnchors(rootNode) {
+    try {
+      rootNode = rootNode || document;
+      const anchors = rootNode.querySelectorAll && rootNode.querySelectorAll('a[href*="students.html"]:not([href*="?enroll="])');
+      if (!anchors || !anchors.length) return;
+      anchors.forEach(a => {
+        try {
+          // only rewrite if we can confidently find an enroll code
+          const enroll = findEnrollFromNode(a) || findEnrollFromNode(a.closest('.search-item') || a.parentElement);
+          if (enroll) {
+            const clean = enroll.replace(/\s+/g, '').replace(/[#:]/g, '');
+            a.setAttribute('href', a.getAttribute('href').split('?')[0] + '?enroll=' + encodeURIComponent(clean));
+          }
+        } catch(e){}
+      });
+    } catch(e){}
+  }
+
+  document.addEventListener('DOMContentLoaded', function () {
+    try {
+      rewriteExistingStudentAnchors(document);
+
+      // If your search results get added dynamically, observe changes and rewrite newly added anchors
+      const resultsRootCandidates = ['#searchResults', '.search-results', '.results', '#results'];
+      let observedRoot = null;
+      for (let sel of resultsRootCandidates) {
+        const el = document.querySelector(sel);
+        if (el) { observedRoot = el; break; }
+      }
+      if (!observedRoot) observedRoot = document.body; // fallback
+
+      const mo = new MutationObserver((mutList) => {
+        mutList.forEach(m => {
+          if (m.addedNodes && m.addedNodes.length) {
+            m.addedNodes.forEach(n => {
+              rewriteExistingStudentAnchors(n);
+            });
+          }
+        });
+      });
+      mo.observe(observedRoot, { childList: true, subtree: true });
+    } catch (e) {
+      console.warn('student-anchor-init error', e);
+    }
+  });
+
+})();

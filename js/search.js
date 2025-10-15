@@ -202,14 +202,7 @@ function studentHrefForItem(item) {
       });
     });
 
-    [
-  { name:'input', el: !!document.getElementById('search-input') },
-  { name:'suggest', el: !!document.getElementById('search-suggest') },
-  { name:'outEl', el: !!document.getElementById('srch-out') },
-  { name:'indexData_len', val: (typeof indexData !== 'undefined' && indexData? indexData.length : null) },
-  { name:'fuse_exists', val: !!(typeof fuse !== 'undefined' && fuse) },
-  { name:'workerReady', val: !!(typeof workerReady !== 'undefined' && workerReady) }
-]
+    
 
     // tabs/accordions/cards/spotlight blocks (use id or text fragment)
     doc.querySelectorAll('.tab-pane, [role="tabpanel"], .accordion-item, .accordion-panel, .card, .panel, .tile, #spotlight, section#spotlight, .spotlight, .spotlights, .spotlight-item, .spotlight-card, .spotlight__item')

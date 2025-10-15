@@ -903,135 +903,145 @@ function sortForNameQuery(items, q) {
   // ---------- live suggestions ----------
   let selIdx = -1;
 
-  function renderSuggestion(items) {
-    // guard: never render dropdown on mobile/tablet
-    if (window.matchMedia('(max-width: 900px)').matches) {
-      if (suggest) { suggest.classList.remove('show'); suggest.style.display = 'none'; suggest.innerHTML = ''; }
-      return;
-    }
-    if (!suggest) return;
+function renderSuggestion(items) {
+  // guard: never render dropdown on mobile/tablet
+  if (window.matchMedia('(max-width: 900px)').matches) {
+    if (suggest) { suggest.classList.remove('show'); suggest.style.display = 'none'; suggest.innerHTML = ''; }
+    return;
+  }
+  if (!suggest) return;
 
-    const q = (input && input.value) || '';
-    items = sortForLeaveQuery(items, q);
-    if (isNameish(q, { allowSingle: true })) items = sortForNameQuery(items, q);
+  const q = (input && input.value) || '';
+  items = sortForLeaveQuery(items, q);
+  if (isNameish(q, { allowSingle: true })) items = sortForNameQuery(items, q);
 
-    if (!items.length) {
-      suggest.classList.remove('show');
-      suggest.style.display = 'none';
-      suggest.innerHTML = '';
-      input && input.setAttribute('aria-expanded', 'false');
-      selIdx = -1;
-      return;
-    }
+  if (!items.length) {
+    suggest.classList.remove('show');
+    suggest.style.display = 'none';
+    suggest.innerHTML = '';
+    input && input.setAttribute('aria-expanded', 'false');
+    selIdx = -1;
+    return;
+  }
 
-    const groupsOrder = ['faculty','staff','student','link','section','spotlight','announce','page'];
-    const labelMap = { faculty:'Faculty', staff:'Staff', student:'Students', link:'Links', section:'Sections', spotlight:'Spotlight', announce:'Announcements', page:'Pages' };
-    const groups = {};
-    items.forEach(it => { const k = (getType(it).key || 'page'); (groups[k] = groups[k] || []).push(it); });
+  const groupsOrder = ['faculty','staff','student','link','section','spotlight','announce','page'];
+  const labelMap = { faculty:'Faculty', staff:'Staff', student:'Students', link:'Links', section:'Sections', spotlight:'Spotlight', announce:'Announcements', page:'Pages' };
+  const groups = {};
+  items.forEach(it => { const k = (getType(it).key || 'page'); (groups[k] = groups[k] || []).push(it); });
 
-    // top hit
-    let topHitHtml = '';
-    const first = items[0];
-    if (first && (first.title_lc || '').startsWith(norm(q)) && q.length >= 2) {
-      const { key, label } = getType(first);
-      const s = (first.snippet || first.content || '').slice(0, 120);
-      const jump = hasAnchorFlag(first) ? `<span class="srch-pill" title="Jump to section">↪</span>` : '';
-      topHitHtml = `
-        <div class="srch-group">
-          <div class="srch-group__title">Top hit</div>
-         <a href="${studentHrefForItem(first)}" class="srch-suggest-row" role="option" data-href="${studentHrefForItem(first)}">
-
-            <span class="srch-badge srch-badge--${key}">${label}</span>
-            <span style="flex:1">
-              <div style="font-weight:600;margin-bottom:2px">${highlight(first.title, q)} ${jump}</div>
-              <div style="font-size:12px;color:#666">${highlight(s, q)}…</div>
-            </span>
-          </a>
-        </div>`;
-    }
-
-    const htmlGroups = groupsOrder.map(k => {
-      const arr = groups[k]; if (!arr || !arr.length) return '';
-      const label = labelMap[k] || 'Results';
-      const rows = arr.slice(0, 5).map(it => {
-        const s = (it.snippet || it.content || '').slice(0, 110);
-        const jump = hasAnchorFlag(it) ? `<span class="srch-pill" title="Jump to section">↪</span>` : '';
-        return `
-         return `
-  <a href="${studentHrefForItem(it)}" class="srch-suggest-row" role="option" data-href="${studentHrefForItem(it)}">
-
-            <span class="srch-badge srch-badge--${k}">${label.replace(/s$/,'')}</span>
-            <span style="flex:1">
-              <div style="font-weight:600;margin-bottom:2px">${highlight(it.title, q)} ${jump}</div>
-              <div style="font-size:12px;color:#666">${highlight(s, q)}…</div>
-            </span>
-          </a>`;
-      }).join('');
-      return `<div class="srch-group">
-        <div class="srch-group__title">${label}</div>
-        ${rows}
+  // top hit
+  let topHitHtml = '';
+  const first = items[0];
+  if (first && (first.title_lc || '').startsWith(norm(q)) && q.length >= 2) {
+    const { key, label } = getType(first);
+    const s = (first.snippet || first.content || '').slice(0, 120);
+    const jump = hasAnchorFlag(first) ? `<span class="srch-pill" title="Jump to section">↪</span>` : '';
+    const hrefTop = studentHrefForItem(first);
+    topHitHtml = `
+      <div class="srch-group">
+        <div class="srch-group__title">Top hit</div>
+        <a href="${hrefTop}" class="srch-suggest-row" role="option" data-href="${hrefTop}">
+          <span class="srch-badge srch-badge--${key}">${label}</span>
+          <span style="flex:1">
+            <div style="font-weight:600;margin-bottom:2px">${highlight(first.title, q)} ${jump}</div>
+            <div style="font-size:12px;color:#666">${highlight(s, q)}…</div>
+          </span>
+        </a>
       </div>`;
+  }
+
+  // build other groups
+  const htmlGroups = groupsOrder.map(k => {
+    const arr = groups[k]; if (!arr || !arr.length) return '';
+    const label = labelMap[k] || 'Results';
+    const rows = arr.slice(0, 5).map(it => {
+      const s = (it.snippet || it.content || '').slice(0, 110);
+      const jump = hasAnchorFlag(it) ? `<span class="srch-pill" title="Jump to section">↪</span>` : '';
+      const href = studentHrefForItem(it);
+      return `
+        <a href="${href}" class="srch-suggest-row" role="option" data-href="${href}">
+          <span class="srch-badge srch-badge--${k}">${label.replace(/s$/,'')}</span>
+          <span style="flex:1">
+            <div style="font-weight:600;margin-bottom:2px">${highlight(it.title, q)} ${jump}</div>
+            <div style="font-size:12px;color:#666">${highlight(s, q)}…</div>
+          </span>
+        </a>`;
     }).join('');
+    return `<div class="srch-group">
+      <div class="srch-group__title">${label}</div>
+      ${rows}
+    </div>`;
+  }).join('');
 
-    const footer = `<div class="srch-footer"><a href="search.html?q=${encodeURIComponent(q)}" aria-label="View all results for ${q}">View all results ↵</a></div>`;
+  const footer = `<div class="srch-footer"><a href="search.html?q=${encodeURIComponent(q)}" aria-label="View all results for ${q}">View all results ↵</a></div>`;
 
-    suggest.innerHTML = `${topHitHtml}${htmlGroups}${footer}`;
-    suggest.style.display = 'block';
-    requestAnimationFrame(() => suggest.classList.add('show'));
-    input && input.setAttribute('aria-expanded', 'true');
+  suggest.innerHTML = `${topHitHtml}${htmlGroups}${footer}`;
+  suggest.style.display = 'block';
+  requestAnimationFrame(() => suggest.classList.add('show'));
+  input && input.setAttribute('aria-expanded', 'true');
 
-    const rows = [...suggest.querySelectorAll('.srch-suggest-row')];
-   row.addEventListener('click', (e) => {
-  e.preventDefault();
+  // Attach click handlers to each row (use event listeners per element to keep behavior simple)
+  const rows = Array.from(suggest.querySelectorAll('.srch-suggest-row'));
+  rows.forEach(rowEl => {
+    // ensure no duplicate handlers (remove previous)
+    rowEl.removeEventListener('click', rowEl._srch_click_handler);
+    const handler = function (e) {
+      e.preventDefault();
 
-  // Try to find a usable link
-  let href =
-    row.getAttribute('data-href') ||
-    row.getAttribute('href') ||
-    (row.querySelector('a[href]') ? row.querySelector('a[href]').getAttribute('href') : '');
+      // Try to find a usable link
+      let href =
+        rowEl.getAttribute('data-href') ||
+        rowEl.getAttribute('href') ||
+        (rowEl.querySelector('a[href]') ? rowEl.querySelector('a[href]').getAttribute('href') : '');
 
-  // Extract visible text (for name canonicalization)
-  const visible = (row.textContent || '').trim();
+      // Extract visible text (for name canonicalization)
+      const visible = (rowEl.textContent || '').trim();
 
-  // If it already includes an anchor hash, go directly
-  if (href && href.includes('#')) {
-    window.location.href = href;
-    return;
-  }
+      // If it already includes an anchor hash, go directly
+      if (href && href.includes('#')) {
+        window.location.href = href;
+        return;
+      }
 
-  // Canonicalize to match faculty IDs even if “Dr.” prefixes differ
-  const canonical = (str) =>
-    (str || '')
-      .normalize('NFKD')
-      .replace(/[\u0300-\u036f]/g, '')
-      .replace(/\b(dr|prof|professor|mr|mrs|ms)\b\.?/gi, '')
-      .replace(/[^a-z0-9\s]/gi, ' ')
-      .replace(/\s+/g, ' ')
-      .trim()
-      .toLowerCase();
+      // Canonicalize to match faculty IDs even if “Dr.” prefixes differ
+      const canonical = (str) =>
+        (str || '')
+          .normalize('NFKD')
+          .replace(/[\u0300-\u036f]/g, '')
+          .replace(/\b(dr|prof|professor|mr|mrs|ms)\b\.?/gi, '')
+          .replace(/[^a-z0-9\s]/gi, ' ')
+          .replace(/\s+/g, ' ')
+          .trim()
+          .toLowerCase();
 
-  const domMap = window.__canonicalAnchorMapFromDOM || {};
-  const key = canonical(visible);
+      const domMap = window.__canonicalAnchorMapFromDOM || {};
+      const key = canonical(visible);
 
-  if (key && domMap[key]) {
-    const base = href.split('#')[0] || 'faculty.html';
-    window.location.href = base + domMap[key];
-    return;
-  }
+      if (key && domMap[key]) {
+        const base = (href && href.split('#')[0]) || 'faculty.html';
+        window.location.href = base + domMap[key];
+        return;
+      }
 
-  // Otherwise, fall back to text fragment to highlight
-  if (visible) {
-    const base = href.split('#')[0] || 'faculty.html';
-    const frag = '#:~:text=' + encodeURIComponent(visible.slice(0, 80));
-    window.location.href = base + frag;
-    return;
-  }
+      // Otherwise, fall back to text fragment to highlight
+      if (visible) {
+        const base = (href && href.split('#')[0]) || 'faculty.html';
+        const frag = '#:~:text=' + encodeURIComponent(visible.slice(0, 80));
+        window.location.href = base + frag;
+        return;
+      }
 
-  // Final fallback
-  window.location.href = href || 'search.html';
-});
+      // Final fallback
+      window.location.href = href || 'search.html';
+    };
+    rowEl._srch_click_handler = handler;
+    rowEl.addEventListener('click', handler);
+  });
 
-  }
+  // reset selection index
+  selIdx = -1;
+}
+
 
   function moveSel(delta) {
     if (!suggest || !suggest.children.length) return;

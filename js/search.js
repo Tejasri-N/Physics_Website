@@ -55,31 +55,39 @@
   function nameTokens(name) { const lower = norm(name); const parts = lower.split(/[^a-z0-9]+/).filter(Boolean); return Array.from(new Set([lower, ...parts])); }
 
 // --- helper: build students.html?enroll=... when possible ---
+// --- helper: build students.html?enroll=... when possible ---
 function studentHrefForItem(item) {
   try {
     if (!item) return (item && item.url) || 'students.html';
-    // Combine locations where enroll could appear
-    const hay = ((item.snippet||'') + ' ' + (item.content||'') + ' ' + (item.title||'') + ' ' + (item.url||'')).trim();
-    // Wide-but-safe regex: looks for common prefixes like EP / PH followed by letters/digits
-    const re = /\b(EP|PH|PHR|PHM|EPH|EP[0-9]{0,2}|PH[0-9]{0,2})[A-Z0-9\-]{4,20}\b/i;
-    const m = hay.match(re);
+
+    // 1) Prefer explicit enrollment fields if present
+    const explicit = (item.enroll || item.enrollment || item['data-enroll'] || item['data_enroll'] || '').toString().trim();
+    if (explicit) {
+      return `students.html?enroll=${encodeURIComponent(explicit)}`;
+    }
+
+    // 2) Combine likely text fields where enrollment might appear
+    const hay = [ item.snippet, item.content, item.title, item.url ].filter(Boolean).join(' ').trim();
+
+    // 3) Regex for common enrollment patterns: EP/PH/PHR followed by letters/digits (4+ chars)
+    //    This is intentionally permissive but avoids small words.
+    const re = /\b(?:EP|PH|PHR|PHM|EPH|EP)[\-_]?[A-Z0-9]{4,22}\b/i;
+    const m = String(hay || '').match(re);
     if (m && m[0]) {
-      const enroll = m[0].replace(/\s+/g,'').replace(/[#:]/g,'');
+      const enroll = m[0].replace(/[^A-Za-z0-9\-]/g,'');
       return `students.html?enroll=${encodeURIComponent(enroll)}`;
     }
-    // If item.url already points at students.html, return it
+
+    // 4) If the item.url already points to students.html, return that unchanged
     if (String(item.url || '').toLowerCase().includes('students.html')) return item.url;
-    // If type indicates student (if you have such a type), fallback to base students page
-    try {
-      const t = getType && typeof getType === 'function' ? getType(item) : null;
-      if (t && (t.key === 'student' || (t.label||'').toLowerCase().includes('student'))) return 'students.html';
-    } catch(e){}
-    // fallback
+
+    // 5) last-resort: return item's url or the base students page
     return item.url || 'students.html';
   } catch (e) {
     return (item && item.url) || 'students.html';
   }
 }
+
 
   
   // allow single-word proper names (≥3 chars) — ensures “Chengappa”/“Guhan” work

@@ -88,6 +88,32 @@ function studentHrefForItem(item) {
   }
 }
 
+// small helper to wait for search helpers
+async function waitForSearchHelpers(timeout = 8000, interval = 100) {
+  const start = Date.now();
+  while (Date.now() - start < timeout) {
+    if (typeof window.ensureIndexBuilt === 'function' &&
+        typeof window.queryWorker === 'function' &&
+        typeof window.renderResultsList === 'function') {
+      return true;
+    }
+    await new Promise(r => setTimeout(r, interval));
+  }
+  throw new Error('search helpers did not appear within timeout');
+}
+
+// usage
+(async () => {
+  try {
+    await waitForSearchHelpers(9000, 100);
+    // safe to call:
+    await window.ensureIndexBuilt();
+    const items = await window.queryWorker('ramesh', { limit: 50 });
+    window.renderResultsList(document.getElementById('srch-out'), items, 'ramesh');
+  } catch (e) {
+    console.error('search initialization failed:', e);
+  }
+})();
 
   
   // allow single-word proper names (≥3 chars) — ensures “Chengappa”/“Guhan” work

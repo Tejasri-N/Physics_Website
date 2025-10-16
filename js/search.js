@@ -1450,4 +1450,12 @@ function renderSuggestion(items) {
 
     tick();
   })();
+  // ---- expose a few internals for debugging/embedding (safe) ----
+try {
+  if (typeof ensureIndexBuilt === 'function') window.ensureIndexBuilt = ensureIndexBuilt;
+  if (typeof queryWorker === 'function')    window.queryWorker = queryWorker;
+  if (typeof studentHrefForItem === 'function') window.studentHrefForItem = studentHrefForItem;
+  if (typeof renderResultsList === 'function')  window.renderResultsList = renderResultsList;
+} catch(e) { console.warn('search: export attach failed', e); }
+
 })();

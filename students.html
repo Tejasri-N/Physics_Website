@@ -1509,35 +1509,63 @@
 <script>
 document.addEventListener("DOMContentLoaded", function () {
   const params = new URLSearchParams(window.location.search);
-  const enroll = params.get("enroll"); // e.g., EP23BTECH11014 or PH23MSCST11001
+  const enroll = params.get("enroll");
   if (!enroll) return;
 
-  // Infer program type
+  // infer program
   let program = "";
   if (enroll.includes("BTECH")) program = "btech";
   else if (enroll.includes("MSC")) program = "msc";
   else if (enroll.includes("MTECH")) program = "mtech";
   else if (enroll.includes("RESCH") || enroll.includes("PHD")) program = "phd";
+  if (!program) return;
 
-  // Trigger the main course selection
-  const coursePill = document.querySelector(`.course-pill[data-course='${program}']`);
-  if (coursePill) {
-    coursePill.click();
+  // Try to trigger the UI selection. If it fails, retry until it works or timeout.
+  function trySelect() {
+    const pill = document.querySelector(`.course-pill[data-course='${program}']`);
+    if (!pill) return false;
+
+    // Prefer dispatching a real mouse event (works with delegated handlers too)
+    pill.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+
+    // If the page exposes a function that does the job, call it as fallback.
+    // (use the real function name if different on your page)
+    if (typeof window.showSubcourses === 'function') {
+      try { window.showSubcourses(program, pill); } catch(e) {}
+    }
+
+    // Return true to indicate we performed an action (even if effects are async)
+    return true;
   }
 
-  // Wait for the table to render and highlight the entry
-  setTimeout(() => {
-    const studentEntry = document.querySelector(`[data-enroll='${enroll}']`);
-    if (studentEntry) {
-      studentEntry.scrollIntoView({ behavior: "smooth", block: "center" });
-      studentEntry.style.backgroundColor = "#fff7e6";
-      studentEntry.style.border = "2px solid orange";
-      studentEntry.style.borderRadius = "8px";
-      studentEntry.style.transition = "0.3s";
+  // highlight the student entry after UI has been toggled
+  function highlightEntry() {
+    setTimeout(() => {
+      const studentEntry = document.querySelector(`[data-enroll='${enroll}']`);
+      if (studentEntry) {
+        studentEntry.scrollIntoView({ behavior: "smooth", block: "center" });
+        studentEntry.style.backgroundColor = "#fff7e6";
+        studentEntry.style.border = "2px solid orange";
+        studentEntry.style.borderRadius = "8px";
+      }
+    }, 700); // give UI a short time to render
+  }
+
+  // Try immediate, then retry for up to ~4s
+  if (trySelect()) {
+    highlightEntry();
+    return;
+  }
+  const interval = setInterval(() => {
+    if (trySelect()) {
+      clearInterval(interval);
+      highlightEntry();
     }
-  }, 1200);
+  }, 200);
+  setTimeout(() => clearInterval(interval), 4000);
 });
 </script>
+
 
     
   </body>

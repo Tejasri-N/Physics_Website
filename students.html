@@ -1508,61 +1508,116 @@
 
 <script>
 document.addEventListener("DOMContentLoaded", function () {
-  const params = new URLSearchParams(window.location.search);
+  const params = new URLSearchParams(location.search);
   const enroll = params.get("enroll");
   if (!enroll) return;
 
   // infer program
   let program = "";
-  if (enroll.includes("BTECH")) program = "btech";
-  else if (enroll.includes("MSC")) program = "msc";
-  else if (enroll.includes("MTECH")) program = "mtech";
-  else if (enroll.includes("RESCH") || enroll.includes("PHD")) program = "phd";
+  const U = enroll.toUpperCase();
+  if (U.includes("BTECH")) program = "btech";
+  else if (U.includes("MSC")) program = "msc";
+  else if (U.includes("MTECH")) program = "mtech";
+  else if (U.includes("RESCH") || U.includes("PHD")) program = "phd";
   if (!program) return;
 
-  // Try to trigger the UI selection. If it fails, retry until it works or timeout.
-  function trySelect() {
-    const pill = document.querySelector(`.course-pill[data-course='${program}']`);
-    if (!pill) return false;
-
-    // Prefer dispatching a real mouse event (works with delegated handlers too)
-    pill.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
-
-    // If the page exposes a function that does the job, call it as fallback.
-    // (use the real function name if different on your page)
-    if (typeof window.showSubcourses === 'function') {
-      try { window.showSubcourses(program, pill); } catch(e) {}
-    }
-
-    // Return true to indicate we performed an action (even if effects are async)
+  // helper: dispatch real mouse click
+  function realClick(el){
+    if (!el) return false;
+    el.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
     return true;
   }
 
-  // highlight the student entry after UI has been toggled
-  function highlightEntry() {
-    setTimeout(() => {
-      const studentEntry = document.querySelector(`[data-enroll='${enroll}']`);
+  // try to select course → subcourse → year (retry until UI ready)
+  async function selectFlow() {
+    const start = Date.now();
+    while (Date.now() - start < 4000) { // ~4s total
+      const pill = document.querySelector(`.course-pill[data-course='${program}']`);
+      if (!pill) { await new Promise(r => setTimeout(r, 150)); continue; }
+
+      // click course pill (prefer real click)
+      realClick(pill);
+      // fallback: call showSubcourses if available (keeps UI consistent)
+      if (typeof window.showSubcourses === 'function') {
+        try { window.showSubcourses(program, pill); } catch(e) {}
+      }
+
+      // Wait a tiny bit for subcourse pills to be rendered
+      await new Promise(r => setTimeout(r, 120));
+
+      // If there are subcourses, click the relevant subcourse (or first)
+      const sub = document.querySelector(`.subcourse-pill[data-subcourse]`) || document.querySelector('.subcourse-pill');
+      if (sub) {
+        realClick(sub);
+        // clicking subcourse triggers showYears()
+        await new Promise(r => setTimeout(r, 120));
+      } else {
+        // no subcourses (e.g. phd) — showYears was already called by showSubcourses
+        await new Promise(r => setTimeout(r, 80));
+      }
+
+      // Choose a year: try to find the year containing enroll (best-effort),
+      // otherwise pick the first year-pill.
+      const allYears = Array.from(document.querySelectorAll('.year-pill'));
+      if (allYears.length === 0) {
+        // maybe showYears hasn't populated yet — retry
+        await new Promise(r => setTimeout(r, 150));
+        continue;
+      }
+
+      // If any year-container corresponds to a year that contains that enroll,
+      // try to pick that year. We search the #studentData groups for the matching year.
+      let chosenYearEl = null;
+      // Try to find a dataset year where the enroll exists (fast direct DOM lookup)
+      const groups = Array.from(document.querySelectorAll(`#studentData > div[data-course="${program}"]`));
+      for (const g of groups) {
+        const year = g.dataset.year;
+        if (!year) continue;
+        const found = g.querySelector(`[data-enroll="${enroll}"], [data-enroll="${enroll.toUpperCase()}"], [data-enroll="${enroll.toLowerCase()}"]`);
+        if (found) {
+          chosenYearEl = document.querySelector(`.year-pill:nth-child(${Array.from(allYears).findIndex(y => y.textContent === year)+1})`) || document.querySelector(`.year-pill`);
+          break;
+        }
+      }
+      // fallback to first year pill
+      if (!chosenYearEl) chosenYearEl = allYears[0];
+
+      // click the year pill
+      realClick(chosenYearEl);
+      // also call showStudents directly if available (ensures rendering)
+      if (typeof window.showStudents === 'function') {
+        try {
+          // determine subcourse key if present
+          const subcourseKey = document.querySelector('.subcourse-pill.active')?.dataset?.subcourse || 
+                               document.querySelector('.subcourse-pill')?.dataset?.subcourse || null;
+          const yearText = chosenYearEl.textContent.trim();
+          window.showStudents(program, subcourseKey, yearText);
+        } catch(e){}
+      }
+
+      // short wait for rendering
+      await new Promise(r => setTimeout(r, 250));
+
+      // highlight the student entry if present
+      const studentEntry = document.querySelector(`[data-enroll='${enroll}'], [data-enroll='${enroll.toUpperCase()}'], [data-enroll='${enroll.toLowerCase()}']`);
       if (studentEntry) {
         studentEntry.scrollIntoView({ behavior: "smooth", block: "center" });
         studentEntry.style.backgroundColor = "#fff7e6";
         studentEntry.style.border = "2px solid orange";
         studentEntry.style.borderRadius = "8px";
+        studentEntry.style.transition = "0.3s";
+        return true;
       }
-    }, 700); // give UI a short time to render
+
+      // if we reached here, retry a little; maybe UI still rendering
+      await new Promise(r => setTimeout(r, 150));
+    }
+    return false;
   }
 
-  // Try immediate, then retry for up to ~4s
-  if (trySelect()) {
-    highlightEntry();
-    return;
-  }
-  const interval = setInterval(() => {
-    if (trySelect()) {
-      clearInterval(interval);
-      highlightEntry();
-    }
-  }, 200);
-  setTimeout(() => clearInterval(interval), 4000);
+  selectFlow().then(success => {
+    if (!success) console.warn("Auto-select: couldn't find or render the requested enrolment (tried ~4s).");
+  });
 });
 </script>
 

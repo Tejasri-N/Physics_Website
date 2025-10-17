@@ -1507,119 +1507,109 @@
     <script defer src="js/people-anchors.js"></script>
 
 <script>
-document.addEventListener("DOMContentLoaded", function () {
-  const params = new URLSearchParams(location.search);
-  const enroll = params.get("enroll");
+(async function autoSelectByEnroll() {
+  const params = new URLSearchParams(window.location.search);
+  const enroll = params.get('enroll');
   if (!enroll) return;
 
-  // infer program
-  let program = "";
-  const U = enroll.toUpperCase();
-  if (U.includes("BTECH")) program = "btech";
-  else if (U.includes("MSC")) program = "msc";
-  else if (U.includes("MTECH")) program = "mtech";
-  else if (U.includes("RESCH") || U.includes("PHD")) program = "phd";
-  if (!program) return;
+  const enrollUpper = enroll.toUpperCase().trim();
 
-  // helper: dispatch real mouse click
-  function realClick(el){
-    if (!el) return false;
-    el.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
-    return true;
-  }
-
-  // try to select course → subcourse → year (retry until UI ready)
-  async function selectFlow() {
-    const start = Date.now();
-    while (Date.now() - start < 4000) { // ~4s total
-      const pill = document.querySelector(`.course-pill[data-course='${program}']`);
-      if (!pill) { await new Promise(r => setTimeout(r, 150)); continue; }
-
-      // click course pill (prefer real click)
-      realClick(pill);
-      // fallback: call showSubcourses if available (keeps UI consistent)
-      if (typeof window.showSubcourses === 'function') {
-        try { window.showSubcourses(program, pill); } catch(e) {}
-      }
-
-      // Wait a tiny bit for subcourse pills to be rendered
-      await new Promise(r => setTimeout(r, 120));
-
-      // If there are subcourses, click the relevant subcourse (or first)
-      const sub = document.querySelector(`.subcourse-pill[data-subcourse]`) || document.querySelector('.subcourse-pill');
-      if (sub) {
-        realClick(sub);
-        // clicking subcourse triggers showYears()
-        await new Promise(r => setTimeout(r, 120));
-      } else {
-        // no subcourses (e.g. phd) — showYears was already called by showSubcourses
-        await new Promise(r => setTimeout(r, 80));
-      }
-
-      // Choose a year: try to find the year containing enroll (best-effort),
-      // otherwise pick the first year-pill.
-      const allYears = Array.from(document.querySelectorAll('.year-pill'));
-      if (allYears.length === 0) {
-        // maybe showYears hasn't populated yet — retry
-        await new Promise(r => setTimeout(r, 150));
-        continue;
-      }
-
-      // If any year-container corresponds to a year that contains that enroll,
-      // try to pick that year. We search the #studentData groups for the matching year.
-      let chosenYearEl = null;
-      // Try to find a dataset year where the enroll exists (fast direct DOM lookup)
-      const groups = Array.from(document.querySelectorAll(`#studentData > div[data-course="${program}"]`));
-      for (const g of groups) {
-        const year = g.dataset.year;
-        if (!year) continue;
-        const found = g.querySelector(`[data-enroll="${enroll}"], [data-enroll="${enroll.toUpperCase()}"], [data-enroll="${enroll.toLowerCase()}"]`);
-        if (found) {
-          chosenYearEl = document.querySelector(`.year-pill:nth-child(${Array.from(allYears).findIndex(y => y.textContent === year)+1})`) || document.querySelector(`.year-pill`);
-          break;
-        }
-      }
-      // fallback to first year pill
-      if (!chosenYearEl) chosenYearEl = allYears[0];
-
-      // click the year pill
-      realClick(chosenYearEl);
-      // also call showStudents directly if available (ensures rendering)
-      if (typeof window.showStudents === 'function') {
-        try {
-          // determine subcourse key if present
-          const subcourseKey = document.querySelector('.subcourse-pill.active')?.dataset?.subcourse || 
-                               document.querySelector('.subcourse-pill')?.dataset?.subcourse || null;
-          const yearText = chosenYearEl.textContent.trim();
-          window.showStudents(program, subcourseKey, yearText);
-        } catch(e){}
-      }
-
-      // short wait for rendering
-      await new Promise(r => setTimeout(r, 250));
-
-      // highlight the student entry if present
-      const studentEntry = document.querySelector(`[data-enroll='${enroll}'], [data-enroll='${enroll.toUpperCase()}'], [data-enroll='${enroll.toLowerCase()}']`);
-      if (studentEntry) {
-        studentEntry.scrollIntoView({ behavior: "smooth", block: "center" });
-        studentEntry.style.backgroundColor = "#fff7e6";
-        studentEntry.style.border = "2px solid orange";
-        studentEntry.style.borderRadius = "8px";
-        studentEntry.style.transition = "0.3s";
-        return true;
-      }
-
-      // if we reached here, retry a little; maybe UI still rendering
-      await new Promise(r => setTimeout(r, 150));
+  // Wait for search/index helpers to be ready if available
+  if (typeof window.ensureIndexBuilt === 'function') {
+    console.log('autoSelect: waiting for ensureIndexBuilt()...');
+    try {
+      await window.ensureIndexBuilt();
+      console.log('autoSelect: ensureIndexBuilt() done.');
+    } catch (e) {
+      console.warn('autoSelect: ensureIndexBuilt() rejected:', e);
     }
-    return false;
+  } else {
+    // small delay if ensureIndexBuilt not present
+    await new Promise(r => setTimeout(r, 250));
   }
 
-  selectFlow().then(success => {
-    if (!success) console.warn("Auto-select: couldn't find or render the requested enrolment (tried ~4s).");
-  });
-});
+  // helper: wait for an element matching a predicate (MutationObserver + timeout)
+  function waitForElementByPredicate(predicate, timeout = 5000) {
+    return new Promise((resolve, reject) => {
+      // check immediately
+      const found = predicate();
+      if (found) return resolve(found);
+
+      const mo = new MutationObserver(() => {
+        const f = predicate();
+        if (f) {
+          mo.disconnect();
+          resolve(f);
+        }
+      });
+      mo.observe(document.documentElement || document.body, { childList: true, subtree: true });
+
+      const to = setTimeout(() => {
+        mo.disconnect();
+        reject(new Error('timeout'));
+      }, timeout);
+    });
+  }
+
+  // Determine program by simple substring checks (keeps your original mapping)
+  let program = '';
+  if (enrollUpper.includes('BTECH')) program = 'btech';
+  else if (enrollUpper.includes('MSC')) program = 'msc';
+  else if (enrollUpper.includes('MTECH')) program = 'mtech';
+  else if (enrollUpper.includes('RESCH') || enrollUpper.includes('PHD')) program = 'phd';
+
+  console.log('autoSelect: enroll=', enrollUpper, 'program=', program || '(unknown)');
+
+  // Click the course pill (or call showSubcourses) to make the section visible
+  const pill = document.querySelector(`.course-pill[data-course='${program}']`);
+  if (pill) {
+    console.log('autoSelect: clicking course pill:', pill.textContent?.trim());
+    try { pill.click(); } catch (e) { console.warn('autoSelect: pill.click() failed', e); }
+    // also call showSubcourses if your code exposes it
+    if (typeof window.showSubcourses === 'function') {
+      try {
+        window.showSubcourses(program);
+        console.log('autoSelect: called window.showSubcourses()');
+      } catch (e) { console.warn('autoSelect: showSubcourses() error', e); }
+    }
+  } else {
+    console.warn('autoSelect: course pill not found for program:', program);
+  }
+
+  // Wait for the student entry to appear. Use case-insensitive match on data-enroll.
+  const predicate = () => {
+    const nodes = Array.from(document.querySelectorAll('[data-enroll]'));
+    return nodes.find(n => (n.getAttribute('data-enroll') || '').toUpperCase().trim() === enrollUpper) || null;
+  };
+
+  try {
+    const studentEl = await waitForElementByPredicate(predicate, 5000);
+    console.log('autoSelect: student element found:', studentEl);
+    // scroll and highlight
+    studentEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    studentEl.classList.add('auto-select-highlight');
+    // also add inline fallback styles so it's visible even if CSS not loaded
+    studentEl.style.transition = 'box-shadow 0.25s, background-color 0.25s';
+    studentEl.style.boxShadow = '0 0 0 3px rgba(255,165,0,0.95)';
+    studentEl.style.backgroundColor = '#fff7e6';
+  } catch (err) {
+    console.warn('autoSelect: student element did not appear within timeout. Try increasing timeout or check selectors.', err);
+    // For debugging: list all enroll attributes present
+    const allEnrolls = Array.from(document.querySelectorAll('[data-enroll]')).map(n => n.getAttribute('data-enroll'));
+    console.log('autoSelect: enroll attributes currently present:', allEnrolls);
+  }
+})();
 </script>
+
+<style>
+/* Add this CSS in your page (either stylesheet or inside <style>) */
+.auto-select-highlight {
+  background: #fff7e6 !important;
+  border: 2px solid orange !important;
+  border-radius: 8px !important;
+}
+</style>
+
 
 
     

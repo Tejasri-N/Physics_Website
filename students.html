@@ -1610,6 +1610,131 @@
 }
 </style>
 
+<script>
+(async function autoSelectByEnroll() {
+  const params = new URLSearchParams(window.location.search);
+  const enroll = params.get('enroll');
+  if (!enroll) return;
+  const enrollUpper = enroll.toUpperCase().trim();
+  console.log('autoSelect: start for', enrollUpper);
+
+  // wait for optional ensureIndexBuilt helper (if present)
+  if (typeof window.ensureIndexBuilt === 'function') {
+    try { await window.ensureIndexBuilt(); console.log('autoSelect: ensureIndexBuilt done'); }
+    catch (e) { console.warn('autoSelect: ensureIndexBuilt rejected', e); }
+  } else {
+    // small breathing room if nothing to wait for
+    await new Promise(r => setTimeout(r, 250));
+  }
+
+  // determine program from enroll string
+  let program = '';
+  if (enrollUpper.includes('BTECH')) program = 'btech';
+  else if (enrollUpper.includes('MSC')) program = 'msc';
+  else if (enrollUpper.includes('MTECH')) program = 'mtech';
+  else if (enrollUpper.includes('RESCH') || enrollUpper.includes('PHD')) program = 'phd';
+  console.log('autoSelect: program=', program || '(unknown)');
+
+  // try clicking course pill to open the correct section
+  const pill = document.querySelector(`.course-pill[data-course='${program}']`);
+  if (pill) {
+    try { pill.click(); console.log('autoSelect: clicked course pill'); }
+    catch(e){ console.warn('autoSelect: pill click failed', e); }
+  }
+
+  // robust helper to find the target student node (case-insensitive)
+  const findStudent = () => {
+    return Array.from(document.querySelectorAll('[data-enroll]'))
+      .find(n => (n.getAttribute('data-enroll') || '').toUpperCase().trim() === enrollUpper) || null;
+  };
+
+  // wait up to X ms for the node to appear (and for UI to make it visible)
+  const timeout = 10000;
+  const start = Date.now();
+  let studentEl = findStudent();
+  while (!studentEl && Date.now() - start < timeout) {
+    await new Promise(r => setTimeout(r, 150));
+    studentEl = findStudent();
+  }
+  if (!studentEl) {
+    console.warn('autoSelect: student element not found within timeout. Present enrolls:', Array.from(document.querySelectorAll('[data-enroll]')).map(n=>n.getAttribute('data-enroll')));
+    return;
+  }
+  console.log('autoSelect: student element found (may be hidden):', studentEl);
+
+  // If it's hidden, try the UI-reveal strategy:
+  function isVisible(el){
+    if (!el) return false;
+    const rect = el.getBoundingClientRect();
+    return (el.offsetParent !== null) || (rect.width > 0 && rect.height > 0);
+  }
+
+  if (!isVisible(studentEl)) {
+    console.log('autoSelect: element hidden — attempting to reveal it via subcourse/year controls');
+
+    // 1) try clicking a matching subcourse pill (if your UI creates them with data-subcourse)
+    const subcourse = studentEl.closest('[data-subcourse]')?.getAttribute('data-subcourse');
+    if (subcourse) {
+      const sc = document.querySelector(`.subcourse-pill[data-subcourse="${subcourse}"], #subcourseNav [data-subcourse="${subcourse}"]`);
+      if (sc) { try { sc.click(); console.log('autoSelect: clicked subcourse pill', subcourse); } catch(e){console.warn(e);} }
+    }
+
+    // 2) try clicking the year-pill if exists (year controls are commonly used)
+    const year = studentEl.closest('[data-year]')?.getAttribute('data-year');
+    if (year) {
+      const ybtn = document.querySelector(`.year-pill[data-year="${year}"], .year-container .year-pill[data-year="${year}"]`);
+      if (ybtn) { try { ybtn.click(); console.log('autoSelect: clicked year pill', year); } catch(e){console.warn(e);} }
+    }
+
+    // 3) attempt to call your UI helpers in a safe way (guarded)
+    if (typeof window.showSubcourses === 'function') {
+      try { window.showSubcourses(program); console.log('autoSelect: called showSubcourses()'); } catch(e){ console.warn('autoSelect: showSubcourses failed', e); }
+    }
+    if (typeof window.showStudents === 'function') {
+      try { window.showStudents(enrollUpper); console.log('autoSelect: called showStudents()'); } catch(e){ console.warn('autoSelect: showStudents failed', e); }
+    }
+
+    // 4) as last resort — remove obvious "hidden" classes from known containers so element becomes visible
+    const safeUnhide = (id) => {
+      const el = document.getElementById(id);
+      if (el && el.classList.contains('hidden')) {
+        el.classList.remove('hidden');
+        console.log('autoSelect: removed .hidden from #'+id);
+      }
+    };
+    // names from your HTML: subcourseNav, tableContainer, yearScrollWrapper
+    ['subcourseNav','tableContainer','yearScrollWrapper'].forEach(safeUnhide);
+
+    // small delay for UI to reveal
+    await new Promise(r => setTimeout(r, 350));
+  }
+
+  // final check and then scroll + highlight
+  try {
+    studentEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  } catch(e){ console.warn('autoSelect: scrollIntoView failed', e); }
+  studentEl.classList.add('auto-select-highlight');
+  studentEl.style.transition = 'box-shadow 0.25s, background-color 0.25s';
+  studentEl.style.boxShadow = '0 0 0 3px rgba(255,165,0,0.95)';
+  studentEl.style.backgroundColor = '#fff7e6';
+  console.log('autoSelect: highlighted; visible?', (studentEl.offsetParent !== null));
+
+  // optionally dispatch a click if the UI expects a click on the row
+  try {
+    const clickable = studentEl.querySelector('a, button') || studentEl;
+    clickable.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+    console.log('autoSelect: dispatched click on', clickable);
+  } catch(e) { console.warn('autoSelect: click dispatch failed', e); }
+})();
+</script>
+
+<style>
+.auto-select-highlight {
+  background: #fff7e6 !important;
+  border: 2px solid orange !important;
+  border-radius: 6px !important;
+}
+</style>
 
 
     

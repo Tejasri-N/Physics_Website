@@ -1143,7 +1143,7 @@ function renderSuggestion(items) {
         const el = document.createElement('div');
         el.className = 'search-result';
         el.innerHTML = `
-          <h3><a href="${it.url}">${highlight(it.title || '', q)}</a></h3>
+          <h3><a href="${studentHrefForItem(item) || it.url || 'students.html'}"> ... </a></h3>
           <div>${highlight(it.snippet || '', q)}</div>
           <div class="search-url">${it.url}</div>
         `;

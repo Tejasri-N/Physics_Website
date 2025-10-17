@@ -1138,17 +1138,19 @@ function renderSuggestion(items) {
     function renderChunk() {
       if (!outEl) return;
       const stop = Math.min(i + batch, items.length);
-      for (; i < stop; i++) {
-        const it = items[i];
-        const el = document.createElement('div');
-        el.className = 'search-result';
-        el.innerHTML = `
-          <h3><a href="${studentHrefForItem(item) || it.url || 'students.html'}"> ... </a></h3>
-          <div>${highlight(it.snippet || '', q)}</div>
-          <div class="search-url">${it.url}</div>
-        `;
-        outEl.appendChild(el);
-      }
+     for (; i < stop; i++) {
+  const it = items[i];
+  const el = document.createElement('div');
+  el.className = 'search-result';
+  const href = studentHrefForItem(it) || it.url || 'students.html';
+  el.innerHTML = `
+    <h3><a href="${href}">${highlight(it.title || it.name || '', q)}</a></h3>
+    <div>${highlight(it.snippet || it.content || '', q)}</div>
+    <div class="search-url">${it.url || ''}</div>
+  `;
+  outEl.appendChild(el);
+}
+
       if (i < items.length) {
         if ('requestIdleCallback' in window) requestIdleCallback(renderChunk, { timeout: 300 });
         else setTimeout(renderChunk, 0);

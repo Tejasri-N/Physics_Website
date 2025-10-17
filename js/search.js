@@ -756,7 +756,8 @@ function renderResultsList(container, items, q) {
 
     // 1) Try prebuilt static index for instant results
     try {
-      const res = await fetch('searchIndex.json', { cache: 'no-store' });
+    const res = await fetch('Physics_Website/searchIndex.json', { cache: 'no-store' });
+
       if (res.ok) {
         const pages = await res.json();
         indexData = pages.map(it => ({

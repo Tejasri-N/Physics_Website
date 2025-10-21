@@ -28,16 +28,20 @@ document.querySelectorAll(".course-pill").forEach((pill) => {
   });
 });
 
-function showSubcourses(course, element) {
-  document
-    .querySelectorAll(".course-pill")
-    .forEach((p) => p.classList.remove("active"));
-  element.classList.add("active");
+function showSubcourses(course, element = null) {
+  // Handle missing element (when called programmatically)
+  const activeCourse = document.querySelector(`.course-pill[data-course="${course}"]`);
+  if (!element) element = activeCourse;
+
+  // Clear all active pills
+  document.querySelectorAll(".course-pill").forEach((p) => p.classList.remove("active"));
+  if (element && element.classList) element.classList.add("active");
 
   const subnav = document.getElementById("subcourseNav");
   subnav.innerHTML = "";
 
-  if (courses[course].subcourses) {
+  // Build subcourses dynamically
+  if (courses[course] && courses[course].subcourses) {
     subnav.classList.remove("hidden");
     Object.entries(courses[course].subcourses).forEach(([key, name]) => {
       const subPill = document.createElement("div");
@@ -54,12 +58,12 @@ function showSubcourses(course, element) {
       subnav.appendChild(subPill);
     });
 
-    // ⬇️ Hide years + table only for courses WITH subcourses
+    // Hide years + table for multi-subcourse programs
     document.getElementById("yearScrollWrapper").style.display = "none";
     document.getElementById("tableContainer").classList.add("hidden");
   } else {
     subnav.classList.add("hidden");
-    showYears(course, null); // ⬅️ Directly show year scroll for PhD
+    showYears(course, null); // For PhD or direct course
   }
 }
 

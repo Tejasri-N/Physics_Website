@@ -773,7 +773,6 @@ const GH_PAGES_BASE = (function () {
 
 // 1) Try prebuilt static index for instant results
 try {
-  // --- Build an index URL that works for both local root and GitHub Pages subfolder deployment ---
   const indexUrlCandidates = [
     GH_PAGES_BASE + '/searchIndex.json',
     'searchIndex.json',
@@ -781,6 +780,7 @@ try {
   ];
 
   let res = null;
+
   for (const candidate of indexUrlCandidates) {
     try {
       res = await fetch(candidate, { cache: 'no-store' });
@@ -790,13 +790,14 @@ try {
       } else {
         res = null;
       }
-    } catch (e) {
+    } catch (innerErr) {
+      console.warn('Attempt failed for', candidate, innerErr);
       res = null;
     }
   }
 
   if (!res) {
-    console.warn('⚠️ No search index found at any candidate URL. Tried:', indexUrlCandidates);
+    console.warn('⚠️ No search index found. Tried:', indexUrlCandidates);
   } else {
     const pages = await res.json();
     indexData = pages.map(it => ({
@@ -811,55 +812,6 @@ try {
 } catch (err) {
   console.error('❌ Failed loading search index:', err);
 }
-
-        // Build worker too
-        if (worker) worker.postMessage({
-          type: 'BUILD',
-          pages: indexData,
-          fuseConfig: { keys: ['title_lc','content','tags'] }
-        });
-
-        // --- Augment with people so single-token names (e.g., "Chengappa") are findable
-        try {
-          const people = await augmentPeopleFromPages(['faculty.html','staff.html','students.html']);
-          if (people && people.length) {
-            const seen = new Set(indexData.map(it => (it.url||'') + '|' + (it.title||'')));
-            for (const it of people) {
-              const key = (it.url||'') + '|' + (it.title||'');
-              if (!seen.has(key)) { seen.add(key); indexData.push(it); }
-            }
-
-            // Rebuild local Fuse with people included
-            fuse = new FuseCtor(indexData, {
-              includeScore: true,
-              minMatchCharLength: 2,
-              threshold: 0.45,
-              ignoreLocation: true,
-              keys: [
-                { name: 'title_lc', weight: 0.5 },
-                { name: 'content',  weight: 0.35 },
-                { name: 'tags',     weight: 0.15 }
-              ]
-            });
-
-            // Notify worker and cache augmented index
-            if (worker) worker.postMessage({
-              type: 'BUILD',
-              pages: indexData,
-              fuseConfig: { keys: ['title_lc','content','tags'] }
-            });
-            try {
-              localStorage.setItem('siteSearchIndex',
-                JSON.stringify({ v: '1.0.6+people', ts: Date.now(), index: indexData }));
-            } catch(_) {}
-          }
-        } catch(_) {}
-
-        showStatus('');
-        setProgress(0);
-        return indexData;
-      }
-    } catch (_) {}
 
     // 2) Slow path: crawl + extract
     showStatus('Indexing site… this can take a moment');

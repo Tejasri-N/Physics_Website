@@ -747,6 +747,23 @@ function renderResultsList(container, items, q) {
     return added;
   }
 
+// --- BEGIN: GitHub-Pages / subfolder base detection -------------------
+// Purpose: compute a safe base path for GitHub Pages deployed under a repo subpath.
+// If your site is at https://<user>.github.io/Physics_Website/... this will return '/Physics_Website'.
+// Otherwise it falls back to '' (root).
+const GH_PAGES_BASE = (function () {
+  try {
+    // example pathname: "/Physics_Website/students.html"
+    const parts = location.pathname.split('/').filter(Boolean); // removes empty segments
+    if (parts.length && parts[0].toLowerCase().includes('physics')) {
+      return '/' + parts[0];
+    }
+  } catch (e) {}
+  return '';
+})();
+// --- END ---------------------------------------------------------------
+
+  
   // ---------- build index (lazy; tries prebuilt JSON, else crawl) ----------
   async function ensureIndexBuilt() {
     if (indexData) return indexData;
@@ -755,32 +772,51 @@ function renderResultsList(container, items, q) {
     setProgress(8);
 
     // 1) Try prebuilt static index for instant results
-    try {
-    const res = await fetch('Physics_Website/searchIndex.json', { cache: 'no-store' });
+   // Build an index URL that works for both local root and GitHub Pages subfolder deployment
+const indexUrlCandidates = [
+  // canonical: GH_PAGES_BASE + '/searchIndex.json'
+  GH_PAGES_BASE + '/searchIndex.json',
+  // some existing code may use a relative path without leading slash
+  'searchIndex.json',
+  // older wrong attempts we saw: try folder with underscore just in case
+  '/Physics_Website/searchIndex.json',
+  // also try with space (defensive), although repo should not have spaces
+  '/Physics Website/searchIndex.json'
+];
 
-      if (res.ok) {
-        const pages = await res.json();
-        indexData = pages.map(it => ({
-          title: it.title,
-          url: it.url,
-          snippet: it.snippet || '',
-          title_lc: (it.title || '').toLowerCase(),
-          tags: it.tags || [],
-          content: (it.content || '').toLowerCase()
-        }));
+// Try candidates in order until one returns ok (200)
+let res = null;
+for (const candidate of indexUrlCandidates) {
+  try {
+    // console.debug('Trying search index URL:', candidate);
+    res = await fetch(candidate, { cache: 'no-store' });
+    if (res && res.ok) {
+      console.log('Loaded search index via:', candidate);
+      break;
+    } else {
+      // keep trying if 404/other
+      res = null;
+    }
+  } catch (e) {
+    res = null;
+  }
+}
 
-        // Local Fuse
-        fuse = new FuseCtor(indexData, {
-          includeScore: true,
-          minMatchCharLength: 2,
-          threshold: 0.45,
-          ignoreLocation: true,
-          keys: [
-            { name: 'title_lc', weight: 0.5 },
-            { name: 'content',  weight: 0.35 },
-            { name: 'tags',     weight: 0.15 }
-          ]
-        });
+if (!res) {
+  console.warn('No search index found at any candidate URL. Tried:', indexUrlCandidates);
+} else {
+  const pages = await res.json();
+  indexData = pages.map(it => ({
+    title: it.title,
+    url: it.url,
+    snippet: it.snippet || '',
+    title_lc: (it.title || '').toLowerCase(),
+    tags: it.tags || [],
+    content: (it.content || '').toLowerCase()
+  }));
+  // continue with the function's existing logic...
+}
+
 
         // Build worker too
         if (worker) worker.postMessage({

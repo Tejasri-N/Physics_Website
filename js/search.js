@@ -771,52 +771,46 @@ const GH_PAGES_BASE = (function () {
     showStatus('Preparing search index…');
     setProgress(8);
 
-    // 1) Try prebuilt static index for instant results
-   // Build an index URL that works for both local root and GitHub Pages subfolder deployment
-const indexUrlCandidates = [
-  // canonical: GH_PAGES_BASE + '/searchIndex.json'
-  GH_PAGES_BASE + '/searchIndex.json',
-  // some existing code may use a relative path without leading slash
-  'searchIndex.json',
-  // older wrong attempts we saw: try folder with underscore just in case
-  '/Physics_Website/searchIndex.json',
-  // also try with space (defensive), although repo should not have spaces
-  '/Physics Website/searchIndex.json'
-];
+// 1) Try prebuilt static index for instant results
+try {
+  // --- Build an index URL that works for both local root and GitHub Pages subfolder deployment ---
+  const indexUrlCandidates = [
+    GH_PAGES_BASE + '/searchIndex.json',
+    'searchIndex.json',
+    '/Physics_Website/searchIndex.json'
+  ];
 
-// Try candidates in order until one returns ok (200)
-let res = null;
-for (const candidate of indexUrlCandidates) {
-  try {
-    // console.debug('Trying search index URL:', candidate);
-    res = await fetch(candidate, { cache: 'no-store' });
-    if (res && res.ok) {
-      console.log('Loaded search index via:', candidate);
-      break;
-    } else {
-      // keep trying if 404/other
+  let res = null;
+  for (const candidate of indexUrlCandidates) {
+    try {
+      res = await fetch(candidate, { cache: 'no-store' });
+      if (res && res.ok) {
+        console.log('✅ Loaded search index via:', candidate);
+        break;
+      } else {
+        res = null;
+      }
+    } catch (e) {
       res = null;
     }
-  } catch (e) {
-    res = null;
   }
-}
 
-if (!res) {
-  console.warn('No search index found at any candidate URL. Tried:', indexUrlCandidates);
-} else {
-  const pages = await res.json();
-  indexData = pages.map(it => ({
-    title: it.title,
-    url: it.url,
-    snippet: it.snippet || '',
-    title_lc: (it.title || '').toLowerCase(),
-    tags: it.tags || [],
-    content: (it.content || '').toLowerCase()
-  }));
-  // continue with the function's existing logic...
+  if (!res) {
+    console.warn('⚠️ No search index found at any candidate URL. Tried:', indexUrlCandidates);
+  } else {
+    const pages = await res.json();
+    indexData = pages.map(it => ({
+      title: it.title,
+      url: it.url,
+      snippet: it.snippet || '',
+      title_lc: (it.title || '').toLowerCase(),
+      tags: it.tags || [],
+      content: (it.content || '').toLowerCase()
+    }));
+  }
+} catch (err) {
+  console.error('❌ Failed loading search index:', err);
 }
-
 
         // Build worker too
         if (worker) worker.postMessage({

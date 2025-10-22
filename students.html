@@ -1641,12 +1641,18 @@
     } else console.warn('autoSelect: no course pill for', program);
 
     // call page helpers if present (safe)
-    if (typeof window.showSubcourses === 'function') {
-      try { window.showSubcourses(program); } catch(e){ console.warn('showSubcourses error', e); }
-    }
-    if (typeof window.showStudents === 'function') {
-      try { window.showStudents(enroll); } catch(e){ /* not all showStudents signatures accept enroll */ }
-    }
+   // safe call to showSubcourses (do not assume it exists or succeeds)
+if (typeof window.showSubcourses === 'function') {
+  try {
+    window.showSubcourses(program);
+    console.log('autoSelect: called showSubcourses()');
+  } catch (e) {
+    console.warn('autoSelect: showSubcourses() threw', e);
+  }
+} else {
+  console.warn('autoSelect: showSubcourses not available yet');
+}
+
 
     // Helper: find student node by data-enroll (case-insensitive)
     const findStudentNode = () => {

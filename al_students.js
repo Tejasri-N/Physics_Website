@@ -22,11 +22,17 @@ const courses = {
   },
 };
 
+
+
 document.querySelectorAll(".course-pill").forEach((pill) => {
   pill.addEventListener("click", function () {
     showSubcourses(this.dataset.course, this);
   });
 });
+
+// make courses globally visible so other scripts can reference it
+// (place this right after your `const courses = { ... }` block)
+window.courses = courses;
 
 // Robust showSubcourses: safe when called programmatically (element may be null/missing)
 function showSubcourses(course, element = null) {

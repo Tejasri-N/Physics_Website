@@ -1769,6 +1769,46 @@
   border-radius: 8px !important;
 }
 </style>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const hash = decodeURIComponent(window.location.hash);
+    if (hash.startsWith("#--text=")) {
+      const searchText = hash.replace("#--text=", "").trim().toUpperCase();
+      const allStudents = document.querySelectorAll("[data-name]");
+      let match = null;
+
+      allStudents.forEach((student) => {
+        if (student.dataset.name.trim().toUpperCase() === searchText) {
+          match = student;
+        }
+      });
+
+      if (match) {
+        const enroll = match.dataset.enroll;
+        const course = match.closest("[data-course]").dataset.course;
+        const subcourse = match.closest("[data-subcourse]").dataset.subcourse;
+        const year = match.closest("[data-year]").dataset.year;
+
+        // Click the correct course pill
+        const coursePill = document.querySelector(`.course-pill[data-course='${course}']`);
+        if (coursePill) coursePill.click();
+
+        // Wait for content to appear, then show year and highlight
+        setTimeout(() => {
+          const yearDiv = document.querySelector(
+            `[data-course='${course}'][data-subcourse='${subcourse}'][data-year='${year}']`
+          );
+          if (yearDiv) {
+            yearDiv.scrollIntoView({ behavior: "smooth", block: "center" });
+            match.style.backgroundColor = "rgb(255, 247, 200)";
+            match.style.boxShadow = "0 0 8px rgba(255, 200, 0, 0.8)";
+            match.style.borderRadius = "5px";
+          }
+        }, 1000);
+      }
+    }
+  });
+</script>
 
 
 

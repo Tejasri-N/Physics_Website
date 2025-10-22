@@ -28,44 +28,73 @@ document.querySelectorAll(".course-pill").forEach((pill) => {
   });
 });
 
+// Robust showSubcourses: safe when called programmatically (element may be null/missing)
 function showSubcourses(course, element = null) {
-  // Handle missing element (when called programmatically)
-  const activeCourse = document.querySelector(`.course-pill[data-course="${course}"]`);
-  if (!element) element = activeCourse;
+  try {
+    // try to find the course pill if no element passed
+    const activeCourse = document.querySelector(`.course-pill[data-course="${course}"]`);
+    if (!element) element = activeCourse;
 
-  // Clear all active pills
-  document.querySelectorAll(".course-pill").forEach((p) => p.classList.remove("active"));
-  if (element && element.classList) element.classList.add("active");
+    // remove previous active state (safe even if querySelectorAll returns empty)
+    document.querySelectorAll(".course-pill").forEach((p) => p.classList.remove("active"));
+    if (element && element.classList && typeof element.classList.add === "function") {
+      element.classList.add("active");
+    } else if (!element) {
+      console.warn('showSubcourses: no element found for course', course);
+    }
 
-  const subnav = document.getElementById("subcourseNav");
-  subnav.innerHTML = "";
+    // get subcourse container + guard if missing
+    const subnav = document.getElementById("subcourseNav");
+    const yearWrapper = document.getElementById("yearScrollWrapper");
+    const tableContainer = document.getElementById("tableContainer");
 
-  // Build subcourses dynamically
-  if (courses[course] && courses[course].subcourses) {
-    subnav.classList.remove("hidden");
-    Object.entries(courses[course].subcourses).forEach(([key, name]) => {
-      const subPill = document.createElement("div");
-      subPill.className = "subcourse-pill";
-      subPill.textContent = name;
-      subPill.dataset.subcourse = key;
-      subPill.addEventListener("click", function () {
-        document
-          .querySelectorAll(".subcourse-pill")
-          .forEach((p) => p.classList.remove("active"));
-        this.classList.add("active");
-        showYears(course, key);
+    if (!subnav) {
+      console.warn('showSubcourses: #subcourseNav not found in DOM. aborting subcourse build.');
+      // still try to show years if possible
+      showYears(course, null);
+      return;
+    }
+
+    // clear any previous subcourses
+    subnav.innerHTML = "";
+
+    // if this course has subcourses, build them
+    if (window.courses && courses[course] && courses[course].subcourses) {
+      // reveal subnav
+      subnav.classList.remove("hidden");
+
+      Object.entries(courses[course].subcourses).forEach(([key, name]) => {
+        const subPill = document.createElement("div");
+        subPill.className = "subcourse-pill";
+        subPill.textContent = name;
+        subPill.dataset.subcourse = key;
+
+        subPill.addEventListener("click", function () {
+          document
+            .querySelectorAll(".subcourse-pill")
+            .forEach((p) => p.classList.remove("active"));
+          this.classList.add("active");
+          showYears(course, key);
+        });
+
+        subnav.appendChild(subPill);
       });
-      subnav.appendChild(subPill);
-    });
 
-    // Hide years + table for multi-subcourse programs
-    document.getElementById("yearScrollWrapper").style.display = "none";
-    document.getElementById("tableContainer").classList.add("hidden");
-  } else {
-    subnav.classList.add("hidden");
-    showYears(course, null); // For PhD or direct course
+      // Hide years + table for multi-subcourse programs (guard nodes exist)
+      if (yearWrapper) yearWrapper.style.display = "none";
+      if (tableContainer) tableContainer.classList.add("hidden");
+    } else {
+      // No subcourses: hide subnav and show years/table for this course
+      subnav.classList.add("hidden");
+      // showYears will handle missing elements internally; pass null subcourse
+      showYears(course, null);
+    }
+  } catch (err) {
+    // Last-resort safety: don't throw to callers; log the error for debugging
+    console.error('showSubcourses unexpected error:', err);
   }
 }
+
 
 function showYears(course, subcourse = null) {
   const years = [

@@ -1525,6 +1525,276 @@
   border-radius: 8px !important;
 }
 </style>
+
+<script>
+(async function autoSelectByEnroll() {
+  const params = new URLSearchParams(window.location.search);
+  const enroll = params.get('enroll');
+  if (!enroll) return;
+  const enrollUpper = enroll.toUpperCase().trim();
+  console.log('autoSelect: start for', enrollUpper);
+
+  // small helpers
+  const waitMs = ms => new Promise(r => setTimeout(r, ms));
+
+  // waitFor: resolves when predicate(elem) true, or timeout
+  async function waitFor(selectorOrFn, opts = {}) {
+    const { timeout = 10000, root = document } = opts;
+    const start = Date.now();
+
+    // If selectorOrFn is a function, call it repeatedly.
+    if (typeof selectorOrFn === 'function') {
+      while (Date.now() - start < timeout) {
+        const found = selectorOrFn();
+        if (found) return found;
+        await waitMs(120);
+      }
+      return null;
+    }
+
+    // else treat as selector (string)
+    const sel = selectorOrFn;
+    // quick immediate check
+    const immediate = root.querySelector(sel);
+    if (immediate) return immediate;
+
+    return await new Promise((resolve) => {
+      const mo = new MutationObserver(() => {
+        const el = root.querySelector(sel);
+        if (el) {
+          mo.disconnect();
+          resolve(el);
+        }
+        if (Date.now() - start > timeout) {
+          mo.disconnect();
+          resolve(null);
+        }
+      });
+      mo.observe(root, { childList: true, subtree: true, attributes: true });
+      // fallback poll
+      (async function pollFallback() {
+        while (Date.now() - start < timeout) {
+          const el = root.querySelector(sel);
+          if (el) { try { resolve(el); } catch(e){}; return; }
+          await waitMs(150);
+        }
+        resolve(null);
+      })();
+    });
+  }
+
+  // waitForChildren: wait until container has >0 children or timeout
+  async function waitForChildren(containerSel, timeout = 10000) {
+    const container = document.querySelector(containerSel);
+    if (!container) {
+      // wait for container
+      const c = await waitFor(containerSel, { timeout });
+      if (!c) return null;
+      // proceed with c
+      return await waitFor(() => (c.children && c.children.length) ? c : null, { timeout });
+    }
+    if (container.children && container.children.length) return container;
+    return await waitFor(() => (container.children && container.children.length) ? container : null, { timeout });
+  }
+
+  // safeClick: only click when element present and accept missing classList safely
+  function safeClick(el) {
+    if (!el) return false;
+    try {
+      // use pointer events to better simulate user click
+      el.dispatchEvent(new MouseEvent('mousedown', { bubbles: true, cancelable: true }));
+      el.click();
+      el.dispatchEvent(new MouseEvent('mouseup', { bubbles: true, cancelable: true }));
+      return true;
+    } catch (e) {
+      try { el.click(); return true; } catch(e2) { console.warn('safeClick failed', e2); return false; }
+    }
+  }
+
+  // normalized selector / text helpers
+  function normText(s='') { return String(s || '').toLowerCase().trim(); }
+
+  // Wait for index build if provided
+  if (typeof window.ensureIndexBuilt === 'function') {
+    console.log('autoSelect: waiting for ensureIndexBuilt()...');
+    try { await window.ensureIndexBuilt(); console.log('autoSelect: ensureIndexBuilt done'); }
+    catch (e) { console.warn('autoSelect: ensureIndexBuilt rejected', e); }
+  } else {
+    await new Promise(r => setTimeout(r, 300));
+  }
+
+  // Find student element (even if hidden) early — to glean data-subcourse/data-year if present
+  function findStudentNode() {
+    const nodes = Array.from(document.querySelectorAll('[data-enroll]'));
+    for (const n of nodes) {
+      const v = (n.getAttribute('data-enroll') || '').toUpperCase().trim();
+      if (v === enrollUpper) return n;
+    }
+    return null;
+  }
+
+  // attempt initial find (may be created later)
+  let studentEl = findStudentNode();
+  if (!studentEl) {
+    // wait for any node with data-enroll matching
+    studentEl = await waitFor(() => findStudentNode(), { timeout: 10000 });
+  }
+
+  // capture meta from the student node if present
+  const targetSubcourse = studentEl ? (studentEl.getAttribute('data-subcourse') || studentEl.dataset.subcourse || null) : null;
+  const targetYear = studentEl ? (studentEl.closest('[data-year]')?.getAttribute('data-year') || studentEl?.dataset.year || null) : null;
+  console.log('autoSelect: found studentEl?', !!studentEl, 'subcourse=', targetSubcourse, 'year=', targetYear);
+
+  // determine program from enroll like before
+  let program = '';
+  const e = enrollUpper;
+  if (e.includes('BTECH')) program = 'btech';
+  else if (e.includes('MSC')) program = 'msc';
+  else if (e.includes('MTECH')) program = 'mtech';
+  else if (e.includes('RESCH') || e.includes('PHD')) program = 'phd';
+  console.log('autoSelect: program=', program || '(unknown)');
+
+  // 1) click the program pill
+  const pillSelector = `.course-pill[data-course='${program}']`;
+  const pill = await waitFor(pillSelector, { timeout: 5000 });
+  if (pill) {
+    console.log('autoSelect: clicking program pill', pill.textContent?.trim());
+    safeClick(pill);
+    // also add active class if needed
+    try { pill.classList && pill.classList.add('active'); } catch(e){}
+  } else {
+    console.warn('autoSelect: program pill not found for', program);
+  }
+
+  // call exposed showSubcourses if available (some pages rely on JS to populate)
+  if (typeof window.showSubcourses === 'function') {
+    try { window.showSubcourses(program); console.log('autoSelect: called window.showSubcourses()'); }
+    catch(e){ console.warn('autoSelect: showSubcourses call failed', e); }
+  }
+
+  // WAIT: either subcourse nav populates, OR the yearScrollWrapper shows (for single-subcourse pages)
+  const subcourseContainer = await waitForChildren('#subcourseNav', 4000);
+  const yearWrapper = document.getElementById('yearScrollWrapper');
+
+  // choose subcourse pill if exists
+  let chosenSubcoursePill = null;
+  if (subcourseContainer && subcourseContainer.children.length > 0) {
+    // wait small time to allow any CSS population
+    await waitMs(80);
+
+    // prefer a pill with matching data-subcourse if we got it from studentEl
+    if (targetSubcourse) {
+      chosenSubcoursePill = Array.from(subcourseContainer.querySelectorAll('.subcourse-pill'))
+        .find(s => (s.dataset.subcourse || '').toLowerCase() === targetSubcourse.toLowerCase());
+      if (chosenSubcoursePill) {
+        console.log('autoSelect: selecting subcourse by data-subcourse', targetSubcourse);
+      }
+    }
+
+    // if not found, try to match by visible name with student's first name (best-effort)
+    if (!chosenSubcoursePill && studentEl) {
+      const studentName = (studentEl.getAttribute('data-name') || studentEl.dataset.name || '').trim().split(/\s+/)[0].toLowerCase();
+      if (studentName) {
+        chosenSubcoursePill = Array.from(subcourseContainer.querySelectorAll('.subcourse-pill'))
+          .find(s => normText(s.textContent || '').startsWith(studentName));
+        if (chosenSubcoursePill) console.log('autoSelect: matched subcourse by name start', studentName);
+      }
+    }
+
+    // fallback: if there's only one subcourse pill, pick it
+    if (!chosenSubcoursePill && subcourseContainer.children.length === 1) {
+      chosenSubcoursePill = subcourseContainer.children[0];
+      console.log('autoSelect: only one subcourse available — picking it');
+    }
+
+    // as final fallback pick first pill
+    if (!chosenSubcoursePill) {
+      chosenSubcoursePill = subcourseContainer.querySelector('.subcourse-pill');
+      if (chosenSubcoursePill) console.log('autoSelect: fallback pick first subcourse pill');
+    }
+
+    if (chosenSubcoursePill) {
+      try {
+        // remove other actives
+        Array.from(subcourseContainer.querySelectorAll('.subcourse-pill')).forEach(p => p.classList && p.classList.remove('active'));
+        chosenSubcoursePill.classList && chosenSubcoursePill.classList.add('active');
+        safeClick(chosenSubcoursePill);
+      } catch (e) { console.warn('autoSelect: error clicking chosenSubcoursePill', e); }
+    }
+  } else {
+    console.log('autoSelect: no subcourseNav children found (maybe single-subcourse program)');
+  }
+
+  // allow UI to update (years/table)
+  await waitMs(180);
+
+  // If targetYear exists, attempt to click the year pill
+  if (targetYear) {
+    // try data-year selector first
+    const yearBtn = document.querySelector(`.year-pill[data-year='${targetYear}']`) ||
+                    Array.from(document.querySelectorAll('.year-pill')).find(y => (y.textContent||'').trim() === String(targetYear));
+    if (yearBtn) {
+      try {
+        safeClick(yearBtn);
+        yearBtn.classList && yearBtn.classList.add('active');
+        console.log('autoSelect: clicked year pill for', targetYear);
+      } catch(e) { console.warn('autoSelect: year click failed', e); }
+    } else {
+      console.log('autoSelect: year pill for', targetYear, 'not found');
+    }
+  }
+
+  // if showStudents exists, call it with enroll to ensure list populates
+  if (typeof window.showStudents === 'function') {
+    try {
+      // many implementations accept enroll or nothing — call with enrollUpper for safety
+      window.showStudents(enrollUpper);
+      console.log('autoSelect: called showStudents(enrollUpper)');
+    } catch(e) { console.warn('autoSelect: showStudents call error', e); }
+  }
+
+  // Wait for the student element to be visible (or present if already)
+  const timeoutMs = 10000;
+  const start = Date.now();
+  let finalStudentEl = studentEl || null;
+  while (Date.now() - start < timeoutMs) {
+    finalStudentEl = findStudentNode();
+    if (finalStudentEl) {
+      const rect = finalStudentEl.getBoundingClientRect();
+      const visible = (finalStudentEl.offsetParent !== null) || (rect.width > 0 && rect.height > 0);
+      if (visible) break;
+    }
+    await waitMs(200);
+  }
+
+  if (!finalStudentEl) {
+    console.warn('autoSelect: could not find student element after clicks; dumping data-enroll attrs for debugging:');
+    console.log(Array.from(document.querySelectorAll('[data-enroll]')).map(n => n.getAttribute('data-enroll')));
+    return;
+  }
+
+  // Scroll and highlight
+  try {
+    finalStudentEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    finalStudentEl.classList.add('auto-select-highlight');
+    finalStudentEl.style.transition = 'box-shadow 0.25s, background-color 0.25s';
+    finalStudentEl.style.boxShadow = '0 0 0 3px rgba(255,165,0,0.95)';
+    finalStudentEl.style.backgroundColor = '#fff7e6';
+    console.log('autoSelect: scrolled & highlighted');
+  } catch(e) { console.warn('autoSelect: highlight failed', e); }
+
+  // If UI uses a clickable row / anchor, simulate click (safe)
+  try {
+    const clickable = finalStudentEl.querySelector('a, button') || finalStudentEl;
+    clickable.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+    console.log('autoSelect: dispatched click on', clickable);
+  } catch (e) {
+    console.warn('autoSelect: click dispatch failed', e);
+  }
+})();
+</script>
+
+    
 <script>
   document.addEventListener("DOMContentLoaded", function () {
     const hash = decodeURIComponent(window.location.hash);

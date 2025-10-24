@@ -1836,6 +1836,71 @@
   });
 </script>
 
+<script>
+(async function robustAutoSelect() {
+  const TOTAL_TIMEOUT_MS = 10000;
+  const STEP_WAIT_MS = 200;
+  const HIGHLIGHT_DURATION = 6000;
+  const params = new URLSearchParams(location.search);
+  let enroll = params.get('enroll');
+  if (!enroll && location.hash) {
+    const m = location.hash.match(/text=([^&]*)/i);
+    if (m && m[1]) {
+      const nameFromHash = decodeURIComponent(m[1]).replace(/\+/g, ' ').trim();
+      if (nameFromHash) {
+        const nodes = Array.from(document.querySelectorAll('[data-enroll][data-name]'));
+        const match = nodes.find(n => ((n.getAttribute('data-name')||'').toUpperCase().includes(nameFromHash.toUpperCase())));
+        if (match) enroll = match.getAttribute('data-enroll');
+      }
+    }
+  }
+  if (!enroll) return;
+  enroll = enroll.toUpperCase().trim();
+  console.log('autoSelect: target enroll=', enroll);
+
+  if (typeof window.ensureIndexBuilt === 'function') {
+    try { await window.ensureIndexBuilt(); } catch(e){}
+  } else { await new Promise(r => setTimeout(r, 200)); }
+
+  function findStudentEl() {
+    return Array.from(document.querySelectorAll('[data-enroll]'))
+      .find(n => ((n.getAttribute('data-enroll')||'').toUpperCase().trim() === enroll));
+  }
+  function clickIfPresent(selector) {
+    const el = document.querySelector(selector);
+    if (el) { try { el.click(); } catch(e){}; return true; }
+    return false;
+  }
+
+  async function revealUIFor(studentEl) {
+    let prog = '';
+    if (enroll.includes('BTECH')) prog = 'btech';
+    else if (enroll.includes('MSC')) prog = 'msc';
+    else if (enroll.includes('MTECH')) prog = 'mtech';
+    else if (enroll.includes('RESCH') || enroll.includes('PHD')) prog = 'phd';
+    clickIfPresent(`.course-pill[data-course='${prog}']`);
+    await new Promise(r=>setTimeout(r, STEP_WAIT_MS));
+
+    let subcourseVal=null, yearVal=null, node=studentEl;
+    while(node&&node!==document.documentElement){
+      if(!subcourseVal&&node.hasAttribute('data-subcourse'))subcourseVal=node.getAttribute('data-subcourse');
+      if(!yearVal&&node.hasAttribute('data-year'))yearVal=node.getAttribute('data-year');
+      node=node.parentElement;
+    }
+    if(subcourseVal) clickIfPresent(`.subcourse-pill[data-subcourse='${subcourseVal}']`);
+    if(yearVal) clickIfPresent(`.year-pill[data-year='${yearVal}']`);
+    return studentEl;
+  }
+
+  let studentEl=findStudentEl();
+  if(!studentEl){await new Promise(r=>setTimeout(r,1000)); studentEl=findStudentEl();}
+  if(!studentEl)return;
+  studentEl=await revealUIFor(studentEl);
+  studentEl.scrollIntoView({behavior:'smooth',block:'center'});
+  studentEl.classList.add('auto-select-highlight');
+  setTimeout(()=>studentEl.classList.remove('auto-select-highlight'),HIGHLIGHT_DURATION);
+})();
+</script>
 
 
     

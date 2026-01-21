@@ -210,63 +210,60 @@ window.addEventListener("load", initMainCarousel);
 
 // --------------------------- Spotlight Carousel --------------------------- //
 let spotlightIndex = 0;
+let spotlightTimer = null;
 
 function showSpotlightSlide(index) {
-  const spotlightItems = document.querySelectorAll(".spotlight-carousel-item");
-  const spotlightDots = document.querySelectorAll(".spotlight-dot");
+  const items = document.querySelectorAll(".spotlight-carousel-item");
+  const dots  = document.querySelectorAll(".spotlight-dot");
+  if (!items.length) return;
 
-  if (index >= spotlightItems.length) spotlightIndex = 0;
-  if (index < 0) spotlightIndex = spotlightItems.length - 1;
+  spotlightIndex = (index + items.length) % items.length;
 
-  spotlightItems.forEach((item, i) => {
-    item.classList.remove("active");
-    spotlightDots[i]?.classList.remove("active");
-  });
-
-  spotlightItems[spotlightIndex].classList.add("active");
-  spotlightDots[spotlightIndex]?.classList.add("active");
-}
-
-function resetSpotlightTimer() {
-  clearInterval(spotlightTimer);
-  spotlightTimer = setInterval(() => {
-    spotlightNextSlide();
-  }, 4000); // same as your auto-slide interval
+  items.forEach((item, i) =>
+    item.classList.toggle("active", i === spotlightIndex)
+  );
+  dots.forEach((dot, i) =>
+    dot.classList.toggle("active", i === spotlightIndex)
+  );
 }
 
 function spotlightNextSlide() {
-  spotlightIndex++;
-  showSpotlightSlide(spotlightIndex);
-  resetSpotlightTimer(); // resets auto-timer on click
+  showSpotlightSlide(spotlightIndex + 1);
 }
 
 function spotlightPrevSlide() {
-  spotlightIndex--;
-  showSpotlightSlide(spotlightIndex);
-  resetSpotlightTimer(); // resets auto-timer on click
+  showSpotlightSlide(spotlightIndex - 1);
 }
 
+function startSpotlightAuto() {
+  stopSpotlightAuto();
+  spotlightTimer = setInterval(spotlightNextSlide, 4000);
+}
 
+function stopSpotlightAuto() {
+  if (spotlightTimer) {
+    clearInterval(spotlightTimer);
+    spotlightTimer = null;
+  }
+}
 
-let spotlightTimer = setInterval(() => {
-  spotlightNextSlide();
-}, 4000); // auto-slide every 4 seconds
+document.addEventListener("DOMContentLoaded", () => {
+  showSpotlightSlide(0);
+  startSpotlightAuto();
 
+  document
+    .getElementById("spotlight-next")
+    ?.addEventListener("click", () => {
+      spotlightNextSlide();
+      startSpotlightAuto();
+    });
 
-// Initialize spotlight carousel
-document.addEventListener("DOMContentLoaded", function () {
-  showSpotlightSlide(spotlightIndex);
-  // Initialize spotlight carousel safely (only if elements exist)
-document.addEventListener("DOMContentLoaded", function () {
-  showSpotlightSlide(spotlightIndex);
-
-  const prevBtn = document.getElementById("spotlight-prev");
-  const nextBtn = document.getElementById("spotlight-next");
-
-  if (prevBtn) prevBtn.addEventListener("click", spotlightPrevSlide);
-  if (nextBtn) nextBtn.addEventListener("click", spotlightNextSlide);
-});
-
+  document
+    .getElementById("spotlight-prev")
+    ?.addEventListener("click", () => {
+      spotlightPrevSlide();
+      startSpotlightAuto();
+    });
 });
 
 

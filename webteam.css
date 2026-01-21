@@ -1,67 +1,47 @@
-.page-title {
-  text-align: center;
-  margin-top: 30px;
-  color: #1f4e79;
+body {
+  margin: 0;
+  font-family: "Segoe UI", Arial, sans-serif;
 }
 
-.page-intro {
-  max-width: 900px;
-  margin: 10px auto 30px;
-  text-align: center;
-  font-size: 1rem;
+.contact-us-about {
+  margin: 0 100px 0 100px;
 }
-
-.webteam-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 24px;
-  padding: 20px;
+h2 {
+  margin-top: 40px;
+  border-bottom: 2px solid #003366;
+  padding-bottom: 5px;
 }
-
-.webteam-card {
-  background: #ffffff;
-  border: 1px solid #dbe6f3;
-  border-radius: 10px;
-  padding: 16px;
-  text-align: center;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+.person {
+  display: flex;
+  margin-bottom: 30px;
 }
-
-.webteam-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+.person img {
+  width: 150px;
+  height: 160px;
+  object-fit: cover;
+  margin-right: 20px;
+  border-radius: 4px;
 }
-
-.webteam-card img {
-  width: 100%;
-  max-width: 200px;
-  border-radius: 8px;
-  margin-bottom: 12px;
+.person-details {
+  max-width: 600px;
 }
-
-.webteam-card h3 {
-  margin: 6px 0;
-  font-size: 1.05rem;
+.person-details h3 {
+  margin: 0;
+  font-weight: bold;
+  font-size: 1.2em;
 }
-
-.webteam-card .role {
-  font-size: 0.9rem;
-  color: #555;
+.person-details .title {
+  font-style: italic;
+  margin: 5px 0 10px 0;
 }
-
-.social a {
-  margin: 0 6px;
-  font-size: 1.2rem;
-  color: #1f4e79;
+.person-details p {
+  margin: 3px 0;
+  line-height: 1.3em;
 }
-
-.social a:hover {
-  color: #ff7b00;
+.person-details a {
+  color: #003366;
+  text-decoration: none;
 }
-
-.committee-contact {
-  text-align: center;
-  margin: 30px 0;
-  font-size: 0.95rem;
+.person-details a:hover {
+  text-decoration: underline;
 }
-

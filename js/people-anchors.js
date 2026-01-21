@@ -214,11 +214,41 @@
         debugLog("record: multiple substring candidates", candidates.length);
 
         // tie-breaker A: enroll fragment present in URL or hash (digits)
-        const urlDigits = (String(location.href).match(/\d{3,}/g) || []).join('');
-        if (urlDigits) {
-          const byDigits = candidates.find(n => (String(n.getAttribute('data-enroll')||'').replace(/\D/g,'')).includes(urlDigits));
-          if (byDigits) { debugLog("record: by url digits tiebreaker"); return byDigits; }
-        }
+       // tie-breaker A: enroll fragment present in hash (preferred) or URL digit groups (safer)
+let enrollHint = "";
+
+// 1) Prefer explicit enroll-like tail in the student-... hash (e.g. #student-name-PH25RESCH04001)
+const hash = (location.hash || "").replace(/^#/, "");
+if (hash.startsWith("student-")) {
+  const parts = hash.replace(/^student-/, "").split("-");
+  const last = parts[parts.length - 1] || "";
+  if (/\d/.test(last) && last.length >= 4) {
+    enrollHint = normalizeEnroll(last);
+  }
+}
+
+// 2) Fallback: extract contiguous digit groups from URL and pick the longest (most specific) group
+if (!enrollHint) {
+  const groups = (String(location.href).match(/\d{3,}/g) || []);
+  if (groups.length) {
+    // prefer the longest group (less likely to be accidental small numbers), tie-breaker: last
+    groups.sort((a,b) => b.length - a.length);
+    enrollHint = groups[0];
+  }
+}
+
+// 3) Use enrollHint to find a candidate (use normalized enroll values)
+if (enrollHint) {
+  const byDigits = candidates.find(n => {
+    const recEnroll = normalizeEnroll(n.getAttribute('data-enroll') || '');
+    return recEnroll && recEnroll.includes(enrollHint);
+  });
+  if (byDigits) {
+    debugLog("record: by enrollHint tiebreaker", enrollHint, byDigits.getAttribute('data-enroll'));
+    return byDigits;
+  }
+}
+
 
         // tie-breaker B: hash tail enroll
         const hash = (location.hash || "").replace(/^#/, "");

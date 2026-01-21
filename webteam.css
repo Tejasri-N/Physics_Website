@@ -1,1 +1,67 @@
+.page-title {
+  text-align: center;
+  margin-top: 30px;
+  color: #1f4e79;
+}
+
+.page-intro {
+  max-width: 900px;
+  margin: 10px auto 30px;
+  text-align: center;
+  font-size: 1rem;
+}
+
+.webteam-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 24px;
+  padding: 20px;
+}
+
+.webteam-card {
+  background: #ffffff;
+  border: 1px solid #dbe6f3;
+  border-radius: 10px;
+  padding: 16px;
+  text-align: center;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.webteam-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+}
+
+.webteam-card img {
+  width: 100%;
+  max-width: 200px;
+  border-radius: 8px;
+  margin-bottom: 12px;
+}
+
+.webteam-card h3 {
+  margin: 6px 0;
+  font-size: 1.05rem;
+}
+
+.webteam-card .role {
+  font-size: 0.9rem;
+  color: #555;
+}
+
+.social a {
+  margin: 0 6px;
+  font-size: 1.2rem;
+  color: #1f4e79;
+}
+
+.social a:hover {
+  color: #ff7b00;
+}
+
+.committee-contact {
+  text-align: center;
+  margin: 30px 0;
+  font-size: 0.95rem;
+}
 

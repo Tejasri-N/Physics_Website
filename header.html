@@ -43,21 +43,18 @@
   <div id="search-suggest" role="listbox" aria-live="polite" aria-label="Search suggestions"></div>
 </form>
 
-<!-- Keep your current Fuse and search logic scripts; add search-ui.js for UX bits -->
+<!-- Fuse (only once) -->
 <script src="https://cdn.jsdelivr.net/npm/fuse.js@7.0.0"></script>
+
+<!-- Core search -->
 <script src="js/search.js" defer></script>
 <script src="js/search-ui.js" defer></script>
-<script src="/js/merge-links-from-html.js"></script>
 
-<!-- ============================================================================================== -->
+<!-- Merge links from links.html into search -->
+<script src="js/merge-links-from-html.js" defer></script>
+
 
 </div>
-
-<!-- keep your scripts as-is -->
-<script src="https://cdn.jsdelivr.net/npm/fuse.js@7.0.0"></script>
-<script src="js/search.js" defer></script>
-
-
 
 
     

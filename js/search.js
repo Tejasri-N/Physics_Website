@@ -449,7 +449,14 @@ const res = await fetch(
     return new Promise(resolve => {
       const iframe = document.createElement('iframe');
       iframe.style.display = 'none';
-    iframe.src = GH_PAGES_BASE + '/' + url + (url.includes('?') ? '&' : '?') + 't=' + Date.now();
+  const cleanUrl = url
+  .replace(/^\/+/, '')
+  .replace(/^Physics_Website\//i, '');
+
+iframe.src =
+  GH_PAGES_BASE + '/' + cleanUrl +
+  (cleanUrl.includes('?') ? '&' : '?') + 't=' + Date.now();
+
 
 
       const start = Date.now();
@@ -478,7 +485,15 @@ const res = await fetch(
 
   async function loadStaticPage(url) {
     const bust = url + (url.includes('?') ? '&' : '?') + 't=' + Date.now();
-    const res = await fetch(GH_PAGES_BASE + '/' + bust.replace(/^\/+/, ''), { cache: 'no-store' });
+  const cleanBust = bust
+  .replace(/^\/+/, '')
+  .replace(/^Physics_Website\//i, '');
+
+const res = await fetch(
+  GH_PAGES_BASE + '/' + cleanBust,
+  { cache: 'no-store' }
+);
+
 
     if (!res.ok) throw new Error(`Failed ${url}: ${res.status}`);
     const html = await res.text();

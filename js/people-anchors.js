@@ -73,8 +73,9 @@
           return { name: String(after || "").trim(), enroll: "" };
         } catch { /* fallback */ }
       }
-      const hash = (window.location.hash || "").replace(/^#/, "");
-      if (hash.startsWith("student-")) {
+     const urlHash = (window.location.hash || "").replace(/^#/, "");
+
+      if (urlHash.startsWith("student-")) {
         const slugged = hash.replace(/^student-/, "");
         const parts = slugged.split("-");
         const last = parts[parts.length - 1] || "";
@@ -130,10 +131,12 @@
   // ---------- scroll to direct hash id if present ----------
   function scrollToHashIfPossible() {
     try {
-    var hash = window.location.hash;
+    var scrollHash = window.location.hash;
 
-      if (!hash) return;
-      const el = document.getElementById(hash);
+
+     if (!scrollHash) return;
+const el = document.getElementById(scrollHash.replace(/^#/, ""));
+
       if (el) smoothScrollIntoView(el);
     } catch {}
   }
@@ -219,8 +222,9 @@
 let enrollHint = "";
 
 // 1) Prefer explicit enroll-like tail in the student-... hash (e.g. #student-name-PH25RESCH04001)
-const hash = (location.hash || "").replace(/^#/, "");
-if (hash.startsWith("student-")) {
+const studentHash = (location.hash || "").replace(/^#/, "");
+
+if (studentHash.startsWith("student-")) {
   const parts = hash.replace(/^student-/, "").split("-");
   const last = parts[parts.length - 1] || "";
   if (/\d/.test(last) && last.length >= 4) {

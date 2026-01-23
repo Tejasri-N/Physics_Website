@@ -1,7 +1,7 @@
 // merge-links-from-html.js
 // Place AFTER your search scripts so it can merge into your running search instance.
 (function(){
-  const LINKS_PAGE = '/links.html'; // path to your page that lists the links
+  const LINKS_PAGE = '/Physics_Website/links.html';
   const LOCAL_CACHE_KEY = 'siteSearchIndex'; // change if your site uses another key
 
   // parse an HTML string and extract link items (matches links.html structure)
@@ -85,14 +85,41 @@ items.push({
         }
         const desc = (tds[0] && tds[0].textContent || '').trim();
         if (!title && !url) return;
-        items.push({
-          id: `link-${sidx}-${ridx}`,
-          title: title || url,
-          url: url || '',
-          section: section,
-          description: desc,
-          source: 'links'
-        });
+      const ACRONYM_MAP = {
+  cpda: 'career professional development allowance',
+  erp: 'enterprise resource planning',
+  noc: 'no objection certificate',
+  hr: 'human resources',
+  ta: 'travel allowance',
+  da: 'dearness allowance'
+};
+
+const expanded = [];
+Object.keys(ACRONYM_MAP).forEach(k => {
+  if (title && title.toLowerCase().includes(k)) {
+    expanded.push(ACRONYM_MAP[k]);
+  }
+});
+
+const keywords = [
+  title,
+  section,
+  desc,
+  url,
+  title && title.toLowerCase(),
+  ...expanded
+].filter(Boolean).join(' ');
+
+items.push({
+  id: `link-${sidx}-${ridx}`,
+  title: title || url,
+  url: url || '',
+  section: section,
+  description: desc,
+  content: keywords,   // 🔥 REQUIRED FOR SEARCH
+  source: 'links'
+});
+
       });
     });
     return items;

@@ -69,17 +69,18 @@ function studentHrefForItem(item) {
     // 2) Combine likely text fields where enrollment might appear
     const hay = [ item.snippet, item.content, item.title, item.url ].filter(Boolean).join(' ').trim();
 
-    // 3) Regex for common enrollment patterns: EP/PH/PHR followed by letters/digits (4+ chars)
-    //    This is intentionally permissive but avoids small words.
- // 3) Regex for common enrollment patterns — permissive but avoids short words.
-//    matches examples like: PH24RESCH11009, EP25BTECH11001, MP25MSCST14001, PH24-RESCH-11009
-const re = /\b(?:EP|PH|MP|MPH|PHR|EPH|MP)(?:[-_]?[A-Z]{2,6})?[-_]?([0-9]{2})([A-Z0-9\-]{4,22})\b/i;
-// fallback permissive pattern (catches many department prefixes + year + id)
-const m = String(hay || '').match(re) || String(hay || '').match(/\b([A-Z]{1,3})[-_]?([0-9]{2})([A-Z0-9\-]{3,22})\b/i);
-if (m && m[0]) {
-  const enroll = m[0].replace(/[^A-Za-z0-9\-]/g,'');
+// 3) Regex for common enrollment patterns (SAFE, single definition)
+const enrollRegex =
+  /\b(?:EP|PH|MP|MPH|PHR|EPH)(?:[-_]?[A-Z]{2,6})?[-_]?\d{2}[A-Z0-9\-]{4,22}\b/i;
+
+const hayText = String(hay || '');
+const match = hayText.match(enrollRegex);
+
+if (match && match[0]) {
+  const enroll = match[0].replace(/[^A-Za-z0-9\-]/g, '');
   return `students.html?enroll=${encodeURIComponent(enroll)}`;
 }
+
 
     // 4) If the item.url already points to students.html, return that unchanged
     if (String(item.url || '').toLowerCase().includes('students.html')) return item.url;

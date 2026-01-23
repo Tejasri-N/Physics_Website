@@ -421,7 +421,7 @@ async function waitForSearchHelpers(timeout = 8000, interval = 100) {
       const path = queue.shift();
       out.push(path);
       try {
-        const res = await fetch('/' + path, { cache: 'no-store' });
+       const res = await fetch(GH_PAGES_BASE + '/' + path, { cache: 'no-store' });
         if (!res.ok) continue;
         const html = await res.text();
         const doc = new DOMParser().parseFromString(html, 'text/html');
@@ -441,7 +441,8 @@ async function waitForSearchHelpers(timeout = 8000, interval = 100) {
     return new Promise(resolve => {
       const iframe = document.createElement('iframe');
       iframe.style.display = 'none';
-      iframe.src = url + (url.includes('?') ? '&' : '?') + 't=' + Date.now();
+    iframe.src = GH_PAGES_BASE + '/' + url + (url.includes('?') ? '&' : '?') + 't=' + Date.now();
+
 
       const start = Date.now();
       function done(result) { try { requestAnimationFrame(() => iframe.remove()); } catch(_) {} resolve(result); }
@@ -469,7 +470,8 @@ async function waitForSearchHelpers(timeout = 8000, interval = 100) {
 
   async function loadStaticPage(url) {
     const bust = url + (url.includes('?') ? '&' : '?') + 't=' + Date.now();
-    const res = await fetch(bust, { cache: 'no-store' });
+    const res = await fetch(GH_PAGES_BASE + '/' + bust.replace(/^\/+/, ''), { cache: 'no-store' });
+
     if (!res.ok) throw new Error(`Failed ${url}: ${res.status}`);
     const html = await res.text();
     const doc = new DOMParser().parseFromString(html, 'text/html');

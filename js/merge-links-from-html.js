@@ -24,16 +24,31 @@
         }
         const desc = (tds[0] && tds[0].textContent || '').trim();
         if (!title && !url) return;
+const ACRONYM_MAP = {
+  cpda: 'career professional development allowance',
+  erp: 'enterprise resource planning',
+  noc: 'no objection certificate',
+  hr: 'human resources',
+  ta: 'travel allowance',
+  da: 'dearness allowance'
+};
+
+const expanded = [];
+Object.keys(ACRONYM_MAP).forEach(k => {
+  if (title && title.toLowerCase().includes(k)) {
+    expanded.push(ACRONYM_MAP[k]);
+  }
+});
+
 const keywords = [
   title,
   section,
   desc,
   url,
-  // derived keywords
   title && title.toLowerCase(),
-  section && section.toLowerCase(),
-  title && title.replace(/[^a-zA-Z]/g, ' ').toLowerCase()
+  ...expanded            // 🔥 THIS is the key
 ].filter(Boolean).join(' ');
+
 
 items.push({
   id: `link-${sidx}-${ridx}`,

@@ -130,7 +130,8 @@
   // ---------- scroll to direct hash id if present ----------
   function scrollToHashIfPossible() {
     try {
-      const hash = (location.hash || "").replace(/^#/, "");
+    var hash = window.location.hash;
+
       if (!hash) return;
       const el = document.getElementById(hash);
       if (el) smoothScrollIntoView(el);

@@ -143,10 +143,12 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // 4. Default to "Admission" if nothing else
-  if (!tabId) {
-    tabId = "Admission";
-    sessionStorage.setItem("lastResearchTab", tabId);
-  }
+  // 4. Default to "Research__areas" if nothing else
+if (!tabId) {
+  tabId = "Research__areas";
+  sessionStorage.setItem("lastResearchTab", tabId);
+}
+
 
   openTab(tabId);
 });
@@ -159,3 +161,4 @@ window.addEventListener("beforeunload", function (e) {
     sessionStorage.removeItem("lastResearchTab");
   }
 });
+

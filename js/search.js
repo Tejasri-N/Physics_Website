@@ -421,7 +421,15 @@ async function waitForSearchHelpers(timeout = 8000, interval = 100) {
       const path = queue.shift();
       out.push(path);
       try {
-       const res = await fetch(GH_PAGES_BASE + '/' + path, { cache: 'no-store' });
+      const cleanPath = path
+  .replace(/^\/+/, '')
+  .replace(/^Physics_Website\//i, '');
+
+const res = await fetch(
+  GH_PAGES_BASE + '/' + cleanPath,
+  { cache: 'no-store' }
+);
+
         if (!res.ok) continue;
         const html = await res.text();
         const doc = new DOMParser().parseFromString(html, 'text/html');

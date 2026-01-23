@@ -24,14 +24,28 @@
         }
         const desc = (tds[0] && tds[0].textContent || '').trim();
         if (!title && !url) return;
-        items.push({
-          id: `link-${sidx}-${ridx}`,
-          title: title || url,
-          url: url || '',
-          section: section,
-          description: desc,
-          source: 'links'
-        });
+const keywords = [
+  title,
+  section,
+  desc,
+  url,
+  // derived keywords
+  title && title.toLowerCase(),
+  section && section.toLowerCase(),
+  title && title.replace(/[^a-zA-Z]/g, ' ').toLowerCase()
+].filter(Boolean).join(' ');
+
+items.push({
+  id: `link-${sidx}-${ridx}`,
+  title: title || url,
+  url: url || '',
+  section: section,
+  description: desc,
+  content: keywords,   // 🔥 THIS is what search actually matches
+  source: 'links'
+});
+
+        
       });
     });
     return items;

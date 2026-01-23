@@ -529,6 +529,12 @@ async function waitForSearchHelpers(timeout = 8000, interval = 100) {
     return { key:'page', label:'Page' };
   }
 
+function extractPersonName(it) {
+  const t = (it.title || '').replace(/^(faculty|staff|student)\s*:\s*/i, '').trim();
+  return norm(t);
+}
+
+  
 function sortForNameQuery(items, q) {
   if (!Array.isArray(items) || !q) return items || [];
   const nq = norm(q);
@@ -552,17 +558,21 @@ function sortForNameQuery(items, q) {
     const tkey = getType(it).key;
     let score = priBase[tkey] || 0;
 
-    const tl = (it.title_lc || '').trim();
-    if (!tl) return score;
+  const pname = extractPersonName(it);
+if (!pname) return score;
 
-    // exact title match (best)
-    if (tl === nq) score += 6;
+// exact name match
+if (pname === nq) score += 8;
 
-    // starts-with match (strong)
-    else if (tl.startsWith(nq)) score += 4;
+// name starts with query (Man → Manish)
+else if (pname.startsWith(nq)) score += 6;
 
-    // token match inside title (bonus)
-    else if (tl.includes(nq)) score += 2;
+// token match (Manish Kumar)
+else if (pname.split(' ').includes(nq)) score += 4;
+
+// substring fallback
+else if (pname.includes(nq)) score += 2;
+
 
     // prefer entries that actually have an anchor (deep-linkable)
     if (it.hasAnchor || (it.url || '').indexOf('#') !== -1) score += 3;

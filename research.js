@@ -1,3 +1,9 @@
+if (!document.querySelector(".research__content")) {
+  // Not a research page → exit silently
+  return;
+}
+
+
 // Open tab and set sessionStorage
 function openTab(tabId) {
   sessionStorage.setItem("lastResearchTab", tabId);
@@ -161,4 +167,5 @@ window.addEventListener("beforeunload", function (e) {
     sessionStorage.removeItem("lastResearchTab");
   }
 });
+
 

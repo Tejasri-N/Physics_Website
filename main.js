@@ -114,18 +114,24 @@ window.onclick = function (event) {
 };
 
 // ------------------------------------- Sticky Navbar ------------------------------------- //
-window.onscroll = function () {
-  stickyNavbar();
-};
-function stickyNavbar() {
-  var navbar = document.querySelector(".navbar");
-  var sticky = navbar.offsetTop;
-  if (window.pageYOffset > sticky) {
-    navbar.classList.add("sticky");
-  } else {
-    navbar.classList.remove("sticky");
+// ------------------------------------- Sticky Navbar (SAFE) ------------------------------------- //
+(function () {
+  const navbar = document.querySelector(".navbar");
+  if (!navbar) return; // ⛔ navbar not on this page
+
+  const sticky = navbar.offsetTop;
+
+  function stickyNavbar() {
+    if (window.pageYOffset > sticky) {
+      navbar.classList.add("sticky");
+    } else {
+      navbar.classList.remove("sticky");
+    }
   }
-}
+
+  window.addEventListener("scroll", stickyNavbar);
+})();
+
 
 // Hamburger menu for mobile
 function toggleResponsiveNav() {

@@ -258,18 +258,20 @@ document.addEventListener("DOMContentLoaded", () => {
   startSpotlightAuto();
 
   document
-    .getElementById("spotlight-next")
-    ?.addEventListener("click", () => {
-      spotlightNextSlide();
-      startSpotlightAuto();
-    });
+  .getElementById("spotlight-next")
+  ?.addEventListener("click", () => {
+    stopSpotlightAuto();        // 🔴 ADD THIS
+    spotlightNextSlide();       // one step
+    startSpotlightAuto();       // restart timer
+  });
 
-  document
-    .getElementById("spotlight-prev")
-    ?.addEventListener("click", () => {
-      spotlightPrevSlide();
-      startSpotlightAuto();
-    });
+document
+  .getElementById("spotlight-prev")
+  ?.addEventListener("click", () => {
+    stopSpotlightAuto();        // 🔴 ADD THIS
+    spotlightPrevSlide();
+    startSpotlightAuto();
+  });
 });
 
 

@@ -734,19 +734,24 @@ hr {
 .latest-publications-list a:hover {
     color: #000;
 
-  .new-badge {
-    background: #f57c00;
-    color: white;
-    font-size: 10px;
-    font-weight: 600;
-    padding: 2px 6px;
-    border-radius: 10px;
-    margin-left: 6px;
-    vertical-align: middle;
+}
+.new-badge{
+    background:#ff9800;
+    color:#fff;
+    font-size:10px;
+    font-weight:700;
+    padding:2px 6px;
+    border-radius:12px;
+    margin-left:5px;
 }
 
-.hidden-announcement {
-    display: none;
+.recent-badge{
+    background:#1976d2;
+    color:#fff;
+    font-size:10px;
+    font-weight:700;
+    padding:2px 6px;
+    border-radius:12px;
+    margin-left:5px;
+    display:none;
 }
-}
-

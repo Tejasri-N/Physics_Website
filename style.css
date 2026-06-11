@@ -738,9 +738,9 @@ hr {
 .new-badge{
     background:#ff9800;
     color:#fff;
-    font-size:10px;
+    font-size:9px;
     font-weight:700;
-    padding:2px 6px;
+    padding:1px 5px;
     border-radius:12px;
     margin-left:5px;
 }
@@ -748,9 +748,9 @@ hr {
 .recent-badge{
     background:#1976d2;
     color:#fff;
-    font-size:10px;
+    font-size:9px;
     font-weight:700;
-    padding:2px 6px;
+    padding:1px 5px;
     border-radius:12px;
     margin-left:5px;
     display:none;

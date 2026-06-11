@@ -277,49 +277,78 @@ document
 
 document.addEventListener("DOMContentLoaded", function () {
 
-    const today = new Date();
+```
+const today = new Date();
 
-    document.querySelectorAll(".announcement-item").forEach(item => {
+document.querySelectorAll(".announcement-item").forEach(item => {
 
-        const postDate = new Date(item.dataset.date);
+    const postDate = new Date(item.dataset.date);
+    const ageDays = Math.floor(
+        (today - postDate) / (1000 * 60 * 60 * 24)
+    );
 
-        const ageDays = Math.floor(
-            (today - postDate) /
-            (1000 * 60 * 60 * 24)
-        );
+    const isPriority =
+        item.dataset.priority === "true";
 
-        const newBadge = item.querySelector(".new-badge");
-        const recentBadge = item.querySelector(".recent-badge");
+    const newBadge =
+        item.querySelector(".new-badge");
 
-        // NEW (0-7 days)
-        if (ageDays <= 7) {
-            if (newBadge) newBadge.style.display = "inline-block";
-            if (recentBadge) recentBadge.style.display = "none";
+    const recentBadge =
+        item.querySelector(".recent-badge");
+
+    // IMPORTANT announcements stay forever
+    if (isPriority) {
+
+        if (newBadge) newBadge.style.display = "none";
+        if (recentBadge) recentBadge.style.display = "none";
+
+        return;
+    }
+
+    // NEW (0-7 days)
+    if (ageDays <= 7) {
+
+        if (newBadge)
+            newBadge.style.display = "inline-block";
+
+        if (recentBadge)
+            recentBadge.style.display = "none";
+    }
+
+    // RECENT (8-30 days)
+    else if (ageDays <= 30) {
+
+        if (newBadge)
+            newBadge.style.display = "none";
+
+        if (recentBadge)
+            recentBadge.style.display = "inline-block";
+    }
+
+    // NORMAL (31-180 days)
+    else if (ageDays <= 180) {
+
+        if (newBadge)
+            newBadge.style.display = "none";
+
+        if (recentBadge)
+            recentBadge.style.display = "none";
+    }
+
+    // HIDE (>180 days)
+    else {
+
+        item.style.display = "none";
+
+        const hr = item.nextElementSibling;
+
+        if (hr && hr.tagName === "HR") {
+            hr.style.display = "none";
         }
-
-        // RECENT (8-30 days)
-        else if (ageDays <= 30) {
-            if (newBadge) newBadge.style.display = "none";
-            if (recentBadge) recentBadge.style.display = "inline-block";
-        }
-
-        // NORMAL (31-180 days)
-        else if (ageDays <= 180) {
-            if (newBadge) newBadge.style.display = "none";
-            if (recentBadge) recentBadge.style.display = "none";
-        }
-
-        // HIDE (>180 days)
-        else {
-            item.style.display = "none";
-
-            const hr = item.nextElementSibling;
-
-            if (hr && hr.tagName === "HR") {
-                hr.style.display = "none";
-            }
-        }
-    });
+    }
+});
+```
 
 });
+
 

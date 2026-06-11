@@ -272,6 +272,43 @@ document
     spotlightPrevSlide();
     startSpotlightAuto();
   });
+  document.addEventListener("DOMContentLoaded", function () {
+
+    const today = new Date();
+
+    document.querySelectorAll(".announcement-item").forEach(item => {
+
+        const postDate =
+            new Date(item.dataset.date);
+
+        const ageDays =
+            Math.floor(
+                (today - postDate) /
+                (1000 * 60 * 60 * 24)
+            );
+
+        const badge =
+            item.querySelector(".new-badge");
+
+        // Show NEW only for first 7 days
+        if (ageDays > 7 && badge) {
+            badge.style.display = "none";
+        }
+
+        // Hide announcement after 180 days
+        if (ageDays > 180) {
+
+            item.style.display = "none";
+
+            const hr = item.nextElementSibling;
+
+            if (hr && hr.tagName === "HR") {
+                hr.style.display = "none";
+            }
+        }
+    });
+
+});
 });
 
 

@@ -272,32 +272,45 @@ document
     spotlightPrevSlide();
     startSpotlightAuto();
   });
-  document.addEventListener("DOMContentLoaded", function () {
+
+});
+
+document.addEventListener("DOMContentLoaded", function () {
 
     const today = new Date();
 
     document.querySelectorAll(".announcement-item").forEach(item => {
 
-        const postDate =
-            new Date(item.dataset.date);
+        const postDate = new Date(item.dataset.date);
 
-        const ageDays =
-            Math.floor(
-                (today - postDate) /
-                (1000 * 60 * 60 * 24)
-            );
+        const ageDays = Math.floor(
+            (today - postDate) /
+            (1000 * 60 * 60 * 24)
+        );
 
-        const badge =
-            item.querySelector(".new-badge");
+        const newBadge = item.querySelector(".new-badge");
+        const recentBadge = item.querySelector(".recent-badge");
 
-        // Show NEW only for first 7 days
-        if (ageDays > 7 && badge) {
-            badge.style.display = "none";
+        // NEW (0-7 days)
+        if (ageDays <= 7) {
+            if (newBadge) newBadge.style.display = "inline-block";
+            if (recentBadge) recentBadge.style.display = "none";
         }
 
-        // Hide announcement after 180 days
-        if (ageDays > 180) {
+        // RECENT (8-30 days)
+        else if (ageDays <= 30) {
+            if (newBadge) newBadge.style.display = "none";
+            if (recentBadge) recentBadge.style.display = "inline-block";
+        }
 
+        // NORMAL (31-180 days)
+        else if (ageDays <= 180) {
+            if (newBadge) newBadge.style.display = "none";
+            if (recentBadge) recentBadge.style.display = "none";
+        }
+
+        // HIDE (>180 days)
+        else {
             item.style.display = "none";
 
             const hr = item.nextElementSibling;
@@ -309,7 +322,4 @@ document
     });
 
 });
-});
-
-
 

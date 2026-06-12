@@ -1,7 +1,6 @@
 if (!document.querySelector(".research__content")) {
-  // Not a research page → exit silently
-  return;
-}
+  console.log("Not a research page");
+} else {
 
 
 // Open tab and set sessionStorage
@@ -167,5 +166,5 @@ window.addEventListener("beforeunload", function (e) {
     sessionStorage.removeItem("lastResearchTab");
   }
 });
-
+}
 

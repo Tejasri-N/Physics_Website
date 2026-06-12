@@ -757,4 +757,9 @@ margin-left:5px;
 display:none;
 }
 
-
+.new-badge,
+.recent-badge {
+    white-space: nowrap;
+    display: inline-block;
+    vertical-align: middle;
+}

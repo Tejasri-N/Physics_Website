@@ -283,27 +283,14 @@ const today = new Date();
 document.querySelectorAll(".announcement-item").forEach(item => {
 
     const postDate = new Date(item.dataset.date);
+
     const ageDays = Math.floor(
-        (today - postDate) / (1000 * 60 * 60 * 24)
+        (today - postDate) /
+        (1000 * 60 * 60 * 24)
     );
 
-    const isPriority =
-        item.dataset.priority === "true";
-
-    const newBadge =
-        item.querySelector(".new-badge");
-
-    const recentBadge =
-        item.querySelector(".recent-badge");
-
-    // IMPORTANT announcements stay forever
-    if (isPriority) {
-
-        if (newBadge) newBadge.style.display = "none";
-        if (recentBadge) recentBadge.style.display = "none";
-
-        return;
-    }
+    const newBadge = item.querySelector(".new-badge");
+    const recentBadge = item.querySelector(".recent-badge");
 
     // NEW (0-7 days)
     if (ageDays <= 7) {

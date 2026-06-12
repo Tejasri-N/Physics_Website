@@ -55,7 +55,7 @@ body {
 .carousel-container {
   position: relative;
   width: 100%;
-  max-width: 74%;
+  max-width: 77%;
   height: 430px;  /* Lock height */
   overflow: hidden;
   display: flex;
@@ -177,7 +177,7 @@ body {
 }
 
 .announcements {
-  width: 24%;
+  width: 22%;
   height: 100%;          /* take full height of the carousel container */
   overflow-y: auto;
   padding: 5px;
@@ -195,7 +195,7 @@ body {
 }
 
 .announcement-list {
-  max-height: 430 px;
+  max-height: 430px;
   overflow-y: auto;
   scrollbar-color: #1f4e79 #fff;
   scrollbar-width: auto;

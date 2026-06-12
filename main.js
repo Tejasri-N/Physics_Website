@@ -277,7 +277,6 @@ document
 
 document.addEventListener("DOMContentLoaded", function () {
 
-```
 const today = new Date();
 
 document.querySelectorAll(".announcement-item").forEach(item => {
@@ -334,7 +333,7 @@ document.querySelectorAll(".announcement-item").forEach(item => {
         }
     }
 });
-```
+
 
 });
 

@@ -88,7 +88,7 @@ body {
   width: 100%;
   height: auto;
   object-fit: cover;
-  max-height: 430px;
+  max-height: 550px;
   border-radius: 15px;
   transition: transform 0.4s ease, box-shadow 0.4s ease;
 }

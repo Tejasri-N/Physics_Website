@@ -1,4 +1,136 @@
 /* =========================================================
+   DEPARTMENT LEADERSHIP
+   ========================================================= */
+
+.webteam-page .leadership-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+  align-items: stretch;
+}
+
+.webteam-page .faculty-card {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: 145px 1fr;
+  gap: 26px;
+  align-items: center;
+  min-height: 255px;
+  padding: 28px;
+  border: 1px solid var(--wt-border);
+  border-radius: var(--wt-radius);
+  background: rgba(255, 255, 255, .95);
+  box-shadow: var(--wt-shadow);
+  transition: transform .35s cubic-bezier(.22, 1, .36, 1),
+              box-shadow .35s ease,
+              border-color .35s ease;
+}
+
+.webteam-page .faculty-card::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--wt-navy), #62a2ca, transparent 90%);
+  opacity: .75;
+}
+
+.webteam-page .faculty-card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--wt-shadow-hover);
+  border-color: rgba(0, 83, 140, .20);
+}
+
+.webteam-page .faculty-card-faculty {
+  background: linear-gradient(135deg, #fbfdff, #fff 55%, #f6fafc);
+}
+
+.webteam-page .faculty-photo-wrap {
+  position: relative;
+  display: grid;
+  place-items: center;
+}
+
+.webteam-page .faculty-photo-ring {
+  width: 145px;
+  height: 145px;
+  padding: 5px;
+  border-radius: 50%;
+  background: linear-gradient(145deg, #003366, #5798bf, #dbe9f2);
+  box-shadow: 0 13px 30px rgba(0, 51, 102, .17);
+}
+
+.webteam-page .faculty-photo-ring img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+  border-radius: 50%;
+  background: #eef4f8;
+}
+
+.webteam-page .faculty-badge {
+  position: absolute;
+  right: -2px;
+  bottom: 7px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 7px 10px;
+  color: #fff;
+  border: 3px solid #fff;
+  border-radius: 999px;
+  box-shadow: 0 7px 17px rgba(0, 51, 102, .18);
+  font-size: .62rem;
+  font-weight: 850;
+  letter-spacing: .08em;
+}
+
+.webteam-page .faculty-badge-hod { background: var(--wt-navy); }
+.webteam-page .faculty-badge-faculty { background: var(--wt-blue); }
+
+.webteam-page .faculty-info { min-width: 0; }
+
+.webteam-page .faculty-info h3 {
+  margin: 0;
+  color: var(--wt-ink);
+  font-size: clamp(1.35rem, 2.1vw, 1.85rem);
+  line-height: 1.12;
+  letter-spacing: -.03em;
+}
+
+.webteam-page .faculty-designation {
+  margin: 5px 0 16px;
+  color: var(--wt-blue);
+  font-size: .82rem;
+  font-weight: 750;
+  line-height: 1.42;
+}
+
+.webteam-page .faculty-details {
+  display: grid;
+  gap: 7px;
+  color: var(--wt-text);
+  font-size: .76rem;
+}
+
+.webteam-page .faculty-details span {
+  display: flex;
+  align-items: flex-start;
+  gap: 7px;
+  line-height: 1.38;
+}
+
+.webteam-page .faculty-details i {
+  flex: 0 0 17px;
+  color: var(--wt-blue);
+  font-size: .9rem;
+}
+
+/* =========================================================
    WEBSITE DEVELOPMENT TEAM
    Department of Physics — IIT Hyderabad
 
@@ -1179,6 +1311,14 @@
 
 @media (max-width: 1050px) {
 
+  .webteam-page .leadership-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .webteam-page .faculty-card {
+    grid-template-columns: 165px 1fr;
+  }
+
   .webteam-page .development-grid {
     grid-template-columns:
       minmax(0, 1fr)
@@ -1221,6 +1361,30 @@
    ========================================================= */
 
 @media (max-width: 760px) {
+
+  .webteam-page .leadership-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .webteam-page .faculty-card {
+    grid-template-columns: 1fr;
+    text-align: center;
+    min-height: auto;
+    padding: 28px 21px;
+  }
+
+  .webteam-page .faculty-photo-wrap {
+    margin: 0 auto;
+  }
+
+  .webteam-page .faculty-details {
+    text-align: left;
+  }
+
+  .webteam-page .faculty-card .contact-link {
+    margin-left: auto;
+    margin-right: auto;
+  }
 
   .webteam-page {
     width: min(100% - 28px, 620px);
@@ -1304,6 +1468,15 @@
    ========================================================= */
 
 @media (max-width: 430px) {
+
+  .webteam-page .faculty-card {
+    padding: 24px 16px;
+  }
+
+  .webteam-page .faculty-photo-ring {
+    width: 140px;
+    height: 140px;
+  }
 
   .webteam-page {
     width: min(100% - 20px, 620px);

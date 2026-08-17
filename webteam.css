@@ -2,13 +2,8 @@
    WEBSITE DEVELOPMENT TEAM
    Department of Physics — IIT Hyderabad
 
-   Purpose:
-   A modern, professional and restrained profile-card system
-   for the department website.
-
-   Existing header.css, footer.css and contact.css are not
-   overridden globally. All page-specific styles are scoped
-   under .webteam-page wherever practical.
+   This stylesheet is page-scoped and does not redesign the
+   existing IIT Hyderabad header, navigation or footer.
    ========================================================= */
 
 
@@ -17,28 +12,26 @@
    ========================================================= */
 
 .webteam-page {
-  --webteam-navy: #003366;
-  --webteam-blue: #075985;
-  --webteam-blue-soft: #eaf4fb;
+  --wt-navy: #003366;
+  --wt-blue: #075985;
+  --wt-blue-light: #eaf4fb;
 
-  --webteam-orange: #e77817;
-  --webteam-orange-soft: #fff4e8;
+  --wt-orange: #e77817;
+  --wt-orange-light: #fff4e8;
 
-  --webteam-ink: #142943;
-  --webteam-text: #4f647b;
-  --webteam-muted: #687c91;
+  --wt-ink: #142943;
+  --wt-text: #53687e;
+  --wt-muted: #6c7f92;
 
-  --webteam-border: rgba(15, 51, 88, 0.12);
+  --wt-border: rgba(15, 51, 88, 0.12);
 
-  --webteam-surface: rgba(255, 255, 255, 0.94);
+  --wt-shadow:
+    0 15px 45px rgba(15, 40, 70, 0.08);
 
-  --webteam-shadow:
-    0 18px 55px rgba(15, 40, 70, 0.10);
+  --wt-shadow-hover:
+    0 23px 55px rgba(15, 40, 70, 0.13);
 
-  --webteam-shadow-hover:
-    0 25px 65px rgba(15, 40, 70, 0.14);
-
-  --webteam-radius: 22px;
+  --wt-radius: 20px;
 }
 
 
@@ -47,11 +40,11 @@
    ========================================================= */
 
 .webteam-page {
-  width: min(1380px, calc(100% - 48px));
+  width: min(1320px, calc(100% - 48px));
 
   margin: 0 auto;
 
-  padding: 28px 0 85px;
+  padding: 28px 0 80px;
 }
 
 
@@ -64,149 +57,173 @@
   isolation: isolate;
   overflow: hidden;
 
-  min-height: 225px;
+  min-height: 205px;
 
   display: grid;
   place-items: center;
 
   margin: 8px 0 58px;
-  padding: 45px 40px;
 
-  border-radius: 28px;
+  padding: 40px 35px;
+
+  border:
+    1px solid rgba(0, 51, 102, 0.10);
+
+  border-radius: 26px;
 
   background:
     radial-gradient(
-      circle at 86% 12%,
-      rgba(68, 145, 210, 0.24),
-      transparent 29%
+      circle at 86% 10%,
+      rgba(66, 145, 210, 0.23),
+      transparent 28%
     ),
     radial-gradient(
-      circle at 14% 100%,
-      rgba(0, 51, 102, 0.17),
-      transparent 33%
+      circle at 13% 100%,
+      rgba(0, 51, 102, 0.14),
+      transparent 32%
     ),
     linear-gradient(
       135deg,
       #f8fbfe 0%,
-      #eef5fa 52%,
+      #eef5fa 53%,
       #e8f1f8 100%
     );
 
-  border: 1px solid rgba(0, 51, 102, 0.10);
-
-  box-shadow: var(--webteam-shadow);
+  box-shadow: var(--wt-shadow);
 }
 
 .webteam-page .hero-content {
   position: relative;
   z-index: 2;
 
-  max-width: 820px;
+  max-width: 800px;
 
   text-align: center;
 
   animation:
-    webteam-fade-up
-    0.75s
+    wt-fade-up
+    .7s
     cubic-bezier(.22, 1, .36, 1)
     both;
 }
 
-.webteam-page .eyebrow,
-.webteam-page .section-kicker {
+.webteam-page .eyebrow {
   display: inline-flex;
+
   align-items: center;
+
   gap: 7px;
 
-  color: var(--webteam-blue);
+  padding: 7px 12px;
 
-  font-size: 0.76rem;
-  font-weight: 800;
+  color: var(--wt-blue);
 
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-}
+  border:
+    1px solid rgba(0, 83, 140, 0.13);
 
-.webteam-page .eyebrow {
-  padding: 7px 13px;
-
-  border: 1px solid rgba(0, 83, 140, 0.13);
   border-radius: 999px;
 
-  background: rgba(255, 255, 255, 0.66);
+  background:
+    rgba(255, 255, 255, 0.67);
 
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
+
+  font-size: .72rem;
+  font-weight: 800;
+
+  letter-spacing: .11em;
+
+  text-transform: uppercase;
 }
 
 .webteam-page .webteam-hero h1 {
   margin: 17px 0 10px;
 
-  color: var(--webteam-ink);
+  color: var(--wt-ink);
 
-  font-size: clamp(2.05rem, 4vw, 3.65rem);
+  font-size:
+    clamp(2rem, 4vw, 3.55rem);
+
   line-height: 1.04;
 
-  letter-spacing: -0.045em;
+  letter-spacing: -.045em;
 }
 
 .webteam-page .webteam-hero p {
-  max-width: 700px;
+  max-width: 690px;
 
   margin: 0 auto;
 
-  color: #566c83;
+  color: #5a7087;
 
-  font-size: clamp(0.95rem, 1.35vw, 1.08rem);
-  line-height: 1.65;
+  font-size:
+    clamp(.94rem, 1.3vw, 1.05rem);
+
+  line-height: 1.62;
 }
 
-.webteam-page .hero-glow {
+.webteam-page .hero-orb {
   position: absolute;
-  z-index: 0;
 
-  width: 180px;
+  width: 170px;
   aspect-ratio: 1;
 
   border-radius: 50%;
 
   filter: blur(5px);
-  opacity: 0.45;
+
+  opacity: .45;
 
   animation:
-    webteam-float
+    wt-float
     7s
     ease-in-out
     infinite;
 }
 
-.webteam-page .hero-glow-one {
+.webteam-page .hero-orb-one {
   top: -70px;
-  right: 9%;
+  right: 10%;
 
-  background: rgba(0, 102, 170, 0.12);
+  background:
+    rgba(0, 102, 170, .12);
 }
 
-.webteam-page .hero-glow-two {
-  bottom: -90px;
-  left: 12%;
+.webteam-page .hero-orb-two {
+  left: 11%;
+  bottom: -95px;
 
-  background: rgba(0, 51, 102, 0.10);
+  background:
+    rgba(0, 51, 102, .09);
 
   animation-delay: -3s;
 }
 
 
 /* =========================================================
-   SECTION HEADINGS
+   SECTIONS
    ========================================================= */
 
-.webteam-page .team-section {
-  margin-top: 60px;
+.webteam-page .webteam-section {
+  margin-top: 58px;
 }
 
 .webteam-page .section-heading {
-  margin-bottom: 26px;
+  margin-bottom: 24px;
+}
+
+.webteam-page .section-kicker {
+  display: inline-block;
+
+  color: var(--wt-blue);
+
+  font-size: .70rem;
+  font-weight: 850;
+
+  letter-spacing: .12em;
+
+  text-transform: uppercase;
 }
 
 .webteam-page .section-heading h2 {
@@ -215,17 +232,20 @@
 
   border: 0;
 
-  color: var(--webteam-ink);
+  color: var(--wt-ink);
 
-  font-size: clamp(1.5rem, 2.4vw, 2rem);
+  font-size:
+    clamp(1.5rem, 2.3vw, 2rem);
 
-  letter-spacing: -0.025em;
+  line-height: 1.15;
+
+  letter-spacing: -.025em;
 }
 
 .webteam-page .heading-line {
   display: block;
 
-  width: 55px;
+  width: 54px;
   height: 3px;
 
   border-radius: 99px;
@@ -233,80 +253,21 @@
   background:
     linear-gradient(
       90deg,
-      var(--webteam-navy),
-      #4d93c5
+      var(--wt-navy),
+      #4e94c4
     );
 }
 
 .webteam-page .section-description {
   max-width: 720px;
 
-  margin: 12px 0 0;
+  margin: 11px 0 0;
 
-  color: var(--webteam-muted);
+  color: var(--wt-muted);
+
+  font-size: .90rem;
 
   line-height: 1.62;
-}
-
-
-/* =========================================================
-   COMMON PROFILE CARD
-   ========================================================= */
-
-.webteam-page .profile-card {
-  position: relative;
-  isolation: isolate;
-  overflow: hidden;
-
-  border: 1px solid var(--webteam-border);
-
-  background: var(--webteam-surface);
-
-  box-shadow:
-    0 10px 35px rgba(15, 40, 70, 0.065);
-
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
-
-  transition:
-    transform 0.38s cubic-bezier(.22, 1, .36, 1),
-    box-shadow 0.38s ease,
-    border-color 0.38s ease;
-}
-
-.webteam-page .profile-card::before {
-  content: "";
-
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-
-  background:
-    linear-gradient(
-      120deg,
-      transparent 0%,
-      rgba(255, 255, 255, 0.68) 45%,
-      transparent 72%
-    );
-
-  transform: translateX(-115%);
-
-  transition:
-    transform 0.8s cubic-bezier(.22, 1, .36, 1);
-}
-
-.webteam-page .profile-card:hover::before {
-  transform: translateX(115%);
-}
-
-.webteam-page .profile-card:hover {
-  transform: translateY(-6px);
-
-  border-color:
-    rgba(0, 83, 140, 0.22);
-
-  box-shadow:
-    var(--webteam-shadow-hover);
 }
 
 
@@ -314,43 +275,89 @@
    HOD CARD
    ========================================================= */
 
-.webteam-page .profile-card-featured {
+.webteam-page .hod-card {
+  position: relative;
+  overflow: hidden;
+
   display: grid;
 
-  grid-template-columns: 225px 1fr;
+  grid-template-columns: 210px 1fr;
 
   gap: 38px;
 
   align-items: center;
 
-  min-height: 275px;
+  min-height: 265px;
 
-  padding: 32px 36px;
+  padding: 31px 38px;
 
-  border-radius: var(--webteam-radius);
+  border:
+    1px solid var(--wt-border);
+
+  border-radius: var(--wt-radius);
+
+  background:
+    rgba(255, 255, 255, .95);
+
+  box-shadow: var(--wt-shadow);
 
   animation:
-    webteam-fade-up
-    0.7s
-    0.08s
+    wt-fade-up
+    .65s
+    .05s
     cubic-bezier(.22, 1, .36, 1)
     both;
+
+  transition:
+    transform .35s cubic-bezier(.22, 1, .36, 1),
+    box-shadow .35s ease,
+    border-color .35s ease;
 }
 
-.webteam-page .profile-media {
+.webteam-page .hod-card::after {
+  content: "";
+
+  position: absolute;
+
+  top: 0;
+  left: 0;
+
+  width: 100%;
+  height: 3px;
+
+  background:
+    linear-gradient(
+      90deg,
+      var(--wt-navy),
+      #4f91bd,
+      transparent 85%
+    );
+
+  opacity: .75;
+}
+
+.webteam-page .hod-card:hover {
+  transform: translateY(-5px);
+
+  border-color:
+    rgba(0, 83, 140, .20);
+
+  box-shadow: var(--wt-shadow-hover);
+}
+
+.webteam-page .hod-photo-wrap {
   position: relative;
 
   display: grid;
+
   place-items: center;
 }
 
-.webteam-page .image-ring {
-  position: relative;
+.webteam-page .hod-photo-ring {
+  width: 180px;
+  height: 180px;
 
-  width: 190px;
-  height: 190px;
-
-  padding: 7px;
+  padding: 6px;
 
   border-radius: 50%;
 
@@ -358,40 +365,22 @@
     linear-gradient(
       145deg,
       #003366,
-      #4f92bd,
-      #d9e9f4
+      #5596be,
+      #d9e8f2
     );
 
   box-shadow:
-    0 15px 35px rgba(0, 51, 102, 0.20),
-    inset 0 0 0 1px rgba(255, 255, 255, 0.65);
+    0 14px 32px rgba(0, 51, 102, .18);
 }
 
-.webteam-page .image-ring::after {
-  content: "";
-
-  position: absolute;
-  inset: -8px;
-
-  border:
-    1px solid rgba(0, 83, 140, 0.15);
-
-  border-radius: inherit;
-
-  animation:
-    webteam-pulse
-    3s
-    ease-in-out
-    infinite;
-}
-
-.webteam-page .image-ring img {
+.webteam-page .hod-photo-ring img {
   display: block;
 
   width: 100%;
   height: 100%;
 
   object-fit: cover;
+
   object-position: center top;
 
   border-radius: 50%;
@@ -399,231 +388,327 @@
   background: #eef4f8;
 }
 
-.webteam-page .profile-badge {
+.webteam-page .hod-badge {
   position: absolute;
 
-  right: 0;
-  bottom: 11px;
+  right: 5px;
+  bottom: 8px;
 
   display: inline-flex;
-  align-items: center;
-  gap: 6px;
 
-  padding: 8px 12px;
+  align-items: center;
+
+  gap: 5px;
+
+  padding: 7px 11px;
 
   color: #fff;
 
-  background: var(--webteam-navy);
+  background: var(--wt-navy);
 
   border: 3px solid #fff;
+
   border-radius: 999px;
 
   box-shadow:
-    0 8px 20px rgba(0, 51, 102, 0.20);
+    0 7px 17px rgba(0, 51, 102, .20);
 
-  font-size: 0.70rem;
-  font-weight: 800;
+  font-size: .67rem;
+  font-weight: 850;
 
-  letter-spacing: 0.08em;
+  letter-spacing: .08em;
 }
 
-.webteam-page .profile-topline {
+.webteam-page .card-eyebrow {
   display: flex;
+
   align-items: center;
-  gap: 9px;
 
-  margin-bottom: 8px;
-}
+  gap: 7px;
 
-.webteam-page .profile-label {
-  color: var(--webteam-blue);
+  margin-bottom: 7px;
 
-  font-size: 0.72rem;
-  font-weight: 800;
+  color: var(--wt-blue);
 
-  letter-spacing: 0.11em;
+  font-size: .68rem;
+  font-weight: 850;
+
+  letter-spacing: .10em;
+
   text-transform: uppercase;
 }
 
-.webteam-page .profile-dot {
-  width: 7px;
-  height: 7px;
+.webteam-page .card-eyebrow i {
+  color: #3a9b66;
 
-  border-radius: 50%;
-
-  background: #3a9b66;
-
-  box-shadow:
-    0 0 0 5px rgba(58, 155, 102, 0.10);
+  font-size: .88rem;
 }
 
-.webteam-page .profile-content h3 {
+.webteam-page .hod-info h3 {
   margin: 0;
 
-  color: var(--webteam-ink);
+  color: var(--wt-ink);
 
-  font-size: clamp(1.55rem, 2.8vw, 2.15rem);
+  font-size:
+    clamp(1.55rem, 2.7vw, 2.15rem);
 
-  letter-spacing: -0.025em;
+  letter-spacing: -.03em;
 }
 
-.webteam-page .profile-role {
-  margin: 4px 0 19px;
+.webteam-page .designation {
+  margin: 4px 0 18px;
 
-  color: var(--webteam-muted);
+  color: var(--wt-muted);
 
-  font-size: 0.98rem;
+  font-size: .94rem;
   font-weight: 650;
 }
 
-.webteam-page .profile-details {
+.webteam-page .hod-details {
   display: grid;
+
   gap: 7px;
 
-  color: #52657a;
+  color: var(--wt-text);
 
-  font-size: 0.89rem;
+  font-size: .86rem;
 }
 
-.webteam-page .profile-details p {
+.webteam-page .hod-details span {
   display: flex;
-  align-items: flex-start;
-  gap: 9px;
 
-  margin: 0;
+  align-items: flex-start;
+
+  gap: 8px;
 
   line-height: 1.4;
 }
 
-.webteam-page .profile-details i {
+.webteam-page .hod-details i {
   flex: 0 0 18px;
 
-  color: var(--webteam-blue);
+  color: var(--wt-blue);
 
-  font-size: 1rem;
-
-  margin-top: 1px;
+  font-size: .95rem;
 }
 
-.webteam-page .email-link {
+.webteam-page .contact-link,
+.webteam-page .developer-email {
   display: inline-flex;
+
   align-items: center;
-  gap: 8px;
+
+  gap: 7px;
 
   width: fit-content;
 
-  margin-top: 19px;
-  padding: 9px 13px;
-
-  color: var(--webteam-navy);
-
-  border: 1px solid rgba(0, 51, 102, 0.14);
-  border-radius: 10px;
-
-  background: rgba(0, 51, 102, 0.045);
-
-  font-size: 0.84rem;
-  font-weight: 700;
+  color: var(--wt-navy);
 
   text-decoration: none;
 
-  transition: all 0.25s ease;
-}
+  font-size: .80rem;
+  font-weight: 750;
 
-.webteam-page .email-link .uil-arrow-up-right {
   transition:
-    transform 0.25s ease;
+    color .2s ease,
+    transform .2s ease;
 }
 
-.webteam-page .email-link:hover {
-  color: #fff;
+.webteam-page .contact-link {
+  margin-top: 18px;
 
-  background: var(--webteam-navy);
-  border-color: var(--webteam-navy);
+  padding: 9px 12px;
 
-  transform: translateY(-2px);
+  border:
+    1px solid rgba(0, 51, 102, .13);
+
+  border-radius: 9px;
+
+  background:
+    rgba(0, 51, 102, .035);
 }
 
-.webteam-page .email-link:hover .uil-arrow-up-right {
+.webteam-page .contact-link:hover,
+.webteam-page .developer-email:hover {
+  color: var(--wt-orange);
+
+  transform: translateY(-1px);
+}
+
+.webteam-page .contact-link .uil-arrow-up-right,
+.webteam-page .developer-email .uil-arrow-up-right {
+  transition: transform .2s ease;
+}
+
+.webteam-page .contact-link:hover .uil-arrow-up-right,
+.webteam-page .developer-email:hover .uil-arrow-up-right {
   transform: translate(2px, -2px);
 }
 
 
 /* =========================================================
-   RAMESH — WEBSITE DEVELOPMENT LEAD
+   WEBSITE DEVELOPMENT TEAM
+   Balanced Ramesh + Ranjit pair
    ========================================================= */
 
-.webteam-page .staff-lead-card {
+.webteam-page .development-grid {
+  display: grid;
+
+  grid-template-columns:
+    minmax(0, 1.15fr)
+    minmax(0, .85fr);
+
+  gap: 20px;
+
+  align-items: stretch;
+}
+
+
+/* ---------- Shared developer card ---------- */
+
+.webteam-page .developer-card {
   position: relative;
+  isolation: isolate;
+  overflow: hidden;
 
   display: grid;
 
-  grid-template-columns: 105px 1fr;
+  grid-template-columns: 82px 1fr;
 
-  gap: 25px;
+  gap: 23px;
 
   align-items: center;
 
-  min-height: 235px;
+  min-height: 245px;
 
-  padding: 31px 36px;
+  padding: 30px;
 
-  border-radius: var(--webteam-radius);
+  border:
+    1px solid var(--wt-border);
 
-  border-color:
-    rgba(231, 120, 23, 0.18);
+  border-radius: var(--wt-radius);
+
+  background:
+    rgba(255, 255, 255, .95);
+
+  box-shadow:
+    0 11px 34px rgba(15, 40, 70, .065);
+
+  transition:
+    transform .38s cubic-bezier(.22, 1, .36, 1),
+    box-shadow .38s ease,
+    border-color .38s ease;
+}
+
+.webteam-page .developer-card::before {
+  content: "";
+
+  position: absolute;
+
+  inset: 0;
+
+  z-index: -1;
 
   background:
     linear-gradient(
-      115deg,
-      #fffdf9 0%,
-      #ffffff 46%,
-      #f8fbfd 100%
+      120deg,
+      transparent,
+      rgba(255, 255, 255, .7),
+      transparent
+    );
+
+  transform: translateX(-120%);
+
+  transition:
+    transform .8s cubic-bezier(.22, 1, .36, 1);
+}
+
+.webteam-page .developer-card:hover::before {
+  transform: translateX(120%);
+}
+
+.webteam-page .developer-card:hover {
+  transform: translateY(-6px);
+
+  box-shadow:
+    var(--wt-shadow-hover);
+}
+
+
+/* ---------- Ramesh ---------- */
+
+.webteam-page .developer-card-lead {
+  border-color:
+    rgba(231, 120, 23, .20);
+
+  background:
+    linear-gradient(
+      120deg,
+      #fffdf9,
+      #fff,
+      #f8fbfd
     );
 
   animation:
-    webteam-fade-up
-    0.7s
-    0.05s
+    wt-fade-up
+    .65s
+    .08s
     cubic-bezier(.22, 1, .36, 1)
     both;
 }
 
-.webteam-page .staff-lead-card:hover {
+.webteam-page .developer-card-lead:hover {
   border-color:
-    rgba(231, 120, 23, 0.32);
+    rgba(231, 120, 23, .32);
 }
 
-.webteam-page .staff-lead-accent {
+.webteam-page .developer-accent {
   position: absolute;
 
-  top: 0;
   left: 0;
+  top: 0;
   bottom: 0;
 
-  width: 5px;
+  width: 4px;
 
   background:
     linear-gradient(
       180deg,
-      var(--webteam-orange),
-      #f2a052,
-      var(--webteam-navy)
+      var(--wt-orange),
+      #f0a15c,
+      var(--wt-navy)
     );
 }
 
-.webteam-page .staff-lead-avatar {
+.webteam-page .developer-avatar {
   position: relative;
 
   display: grid;
+
   place-items: center;
 
-  width: 92px;
-  height: 92px;
+  width: 82px;
+  height: 82px;
 
-  border-radius: 24px;
+  border-radius: 21px;
 
-  color: var(--webteam-navy);
+  font-size: 1.35rem;
+  font-weight: 900;
+
+  letter-spacing: -.04em;
+
+  transition:
+    transform .35s cubic-bezier(.22, 1, .36, 1);
+}
+
+.webteam-page .developer-card:hover .developer-avatar {
+  transform:
+    rotate(-3deg)
+    scale(1.04);
+}
+
+.webteam-page .developer-avatar-lead {
+  color: var(--wt-navy);
 
   background:
     linear-gradient(
@@ -633,208 +718,210 @@
     );
 
   border:
-    1px solid rgba(231, 120, 23, 0.22);
+    1px solid rgba(231, 120, 23, .22);
 
   box-shadow:
-    0 12px 30px rgba(130, 78, 25, 0.10);
-
-  font-size: 1.5rem;
-  font-weight: 900;
-
-  letter-spacing: -0.04em;
-
-  transition:
-    transform 0.35s cubic-bezier(.22, 1, .36, 1);
+    0 10px 25px rgba(130, 78, 25, .09);
 }
 
-.webteam-page .staff-lead-card:hover .staff-lead-avatar {
-  transform:
-    rotate(-3deg)
-    scale(1.04);
-}
-
-.webteam-page .staff-lead-avatar > i {
+.webteam-page .developer-avatar-lead i {
   position: absolute;
 
   right: -7px;
   bottom: -7px;
 
   display: grid;
+
   place-items: center;
 
-  width: 28px;
-  height: 28px;
+  width: 27px;
+  height: 27px;
 
   color: #fff;
 
   background: #3a9b66;
 
-  border: 3px solid #fff;
+  border:
+    3px solid #fff;
+
   border-radius: 50%;
 
-  font-size: 0.95rem;
+  font-size: .9rem;
 }
 
-.webteam-page .staff-lead-content {
+
+/* ---------- Ranjit ---------- */
+
+.webteam-page .developer-card-member {
+  background:
+    linear-gradient(
+      135deg,
+      #f8fbfe,
+      #fff 55%,
+      #f4f8fb
+    );
+
+  animation:
+    wt-fade-up
+    .65s
+    .14s
+    cubic-bezier(.22, 1, .36, 1)
+    both;
+}
+
+.webteam-page .developer-card-member:hover {
+  border-color:
+    rgba(0, 83, 140, .24);
+}
+
+.webteam-page .developer-avatar-member {
+  color: var(--wt-navy);
+
+  background:
+    linear-gradient(
+      145deg,
+      #eaf3fa,
+      #dcebf5
+    );
+
+  border:
+    1px solid rgba(0, 83, 140, .12);
+}
+
+.webteam-page .developer-content {
   min-width: 0;
 
   position: relative;
+
   z-index: 2;
 }
 
-.webteam-page .staff-lead-topline {
+.webteam-page .developer-topline {
   display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 10px;
 
-  margin-bottom: 7px;
+  align-items: center;
+
+  flex-wrap: wrap;
+
+  gap: 8px;
+
+  margin-bottom: 8px;
 }
 
-.webteam-page .lead-badge {
+.webteam-page .role-badge {
   display: inline-flex;
+
   align-items: center;
+
   gap: 6px;
 
   padding: 6px 10px;
 
-  color: #9a4b06;
-
-  background: var(--webteam-orange-soft);
-
-  border:
-    1px solid rgba(231, 120, 23, 0.20);
-
   border-radius: 999px;
 
-  font-size: 0.69rem;
+  font-size: .65rem;
   font-weight: 850;
 
-  letter-spacing: 0.09em;
+  letter-spacing: .08em;
+
   text-transform: uppercase;
 }
 
-.webteam-page .lead-status {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
+.webteam-page .role-badge-lead {
+  color: #985009;
 
-  color: var(--webteam-muted);
+  background: var(--wt-orange-light);
 
-  font-size: 0.69rem;
-  font-weight: 700;
-
-  letter-spacing: 0.07em;
-  text-transform: uppercase;
+  border:
+    1px solid rgba(231, 120, 23, .20);
 }
 
-.webteam-page .status-dot {
-  width: 6px;
-  height: 6px;
+.webteam-page .role-badge-member {
+  color: var(--wt-blue);
 
-  border-radius: 50%;
+  background: var(--wt-blue-light);
 
-  background: #3a9b66;
+  border:
+    1px solid rgba(0, 83, 140, .12);
 }
 
-.webteam-page .staff-lead-content h3 {
+.webteam-page .developer-content h3 {
   margin: 0;
 
-  color: var(--webteam-ink);
+  color: var(--wt-ink);
 
-  font-size: clamp(1.65rem, 3vw, 2.25rem);
+  font-size:
+    clamp(1.4rem, 2.5vw, 1.95rem);
 
-  letter-spacing: -0.035em;
+  letter-spacing: -.03em;
 }
 
-.webteam-page .staff-lead-role {
-  margin: 4px 0 11px;
+.webteam-page .developer-designation {
+  margin: 4px 0 10px;
 
-  color: var(--webteam-blue);
+  color: var(--wt-blue);
 
-  font-size: 0.90rem;
+  font-size: .82rem;
   font-weight: 750;
+
+  line-height: 1.4;
 }
 
-.webteam-page .staff-lead-description {
-  max-width: 850px;
+.webteam-page .developer-description {
+  max-width: 620px;
 
   margin: 0;
 
-  color: var(--webteam-text);
+  color: var(--wt-text);
 
-  font-size: 0.92rem;
-  line-height: 1.58;
+  font-size: .84rem;
+
+  line-height: 1.55;
 }
 
-.webteam-page .lead-contribution-list {
+.webteam-page .developer-contributions {
   display: flex;
-  flex-wrap: wrap;
-  gap: 8px 18px;
 
-  margin-top: 15px;
+  flex-wrap: wrap;
+
+  gap: 7px 15px;
+
+  margin-top: 13px;
 }
 
-.webteam-page .lead-contribution-list span {
+.webteam-page .developer-contributions span {
   display: inline-flex;
+
   align-items: center;
+
   gap: 5px;
 
-  color: #566b80;
+  color: #5a6e81;
 
-  font-size: 0.74rem;
+  font-size: .68rem;
   font-weight: 650;
 }
 
-.webteam-page .lead-contribution-list i {
-  color: var(--webteam-blue);
+.webteam-page .developer-contributions i {
+  color: var(--wt-blue);
 
-  font-size: 0.92rem;
+  font-size: .86rem;
 }
 
-.webteam-page .lead-email-link {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-
-  width: fit-content;
-
-  margin-top: 14px;
-
-  color: var(--webteam-navy);
-
-  font-size: 0.82rem;
-  font-weight: 750;
-
-  text-decoration: none;
-
-  transition:
-    color 0.2s ease;
+.webteam-page .developer-email {
+  margin-top: 13px;
 }
 
-.webteam-page .lead-email-link .uil-arrow-up-right {
-  transition:
-    transform 0.2s ease;
-}
-
-.webteam-page .lead-email-link:hover {
-  color: var(--webteam-orange);
-}
-
-.webteam-page .lead-email-link:hover .uil-arrow-up-right {
-  transform:
-    translate(2px, -2px);
-}
-
-.webteam-page .lead-watermark {
+.webteam-page .developer-watermark {
   position: absolute;
 
-  right: 25px;
-  bottom: -30px;
+  right: -5px;
+  bottom: -38px;
 
-  color: rgba(0, 51, 102, 0.035);
+  color:
+    rgba(0, 51, 102, .035);
 
-  font-size: 12rem;
+  font-size: 10rem;
 
   line-height: 1;
 
@@ -846,17 +933,19 @@
    STUDENT WEB TEAM
    ========================================================= */
 
-.webteam-page .team-grid {
+.webteam-page .student-grid {
   display: grid;
 
   grid-template-columns:
-    repeat(4, minmax(0, 1fr));
+    repeat(3, minmax(0, 1fr));
 
   gap: 18px;
 }
 
-.webteam-page .team-card {
-  min-height: 155px;
+.webteam-page .student-card {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
 
   display: grid;
 
@@ -866,117 +955,135 @@
 
   gap: 14px;
 
-  padding: 21px;
+  min-height: 145px;
+
+  padding: 22px;
+
+  border:
+    1px solid var(--wt-border);
 
   border-radius: 18px;
 
+  background:
+    rgba(255, 255, 255, .94);
+
+  box-shadow:
+    0 9px 28px rgba(15, 40, 70, .055);
+
+  transition:
+    transform .35s cubic-bezier(.22, 1, .36, 1),
+    box-shadow .35s ease,
+    border-color .35s ease;
+
   animation:
-    webteam-fade-up
-    0.65s
+    wt-fade-up
+    .6s
     cubic-bezier(.22, 1, .36, 1)
     both;
 }
 
-.webteam-page .team-card:nth-child(2) {
-  animation-delay: 0.06s;
+.webteam-page .student-card:nth-child(2) {
+  animation-delay: .06s;
 }
 
-.webteam-page .team-card:nth-child(3) {
-  animation-delay: 0.12s;
+.webteam-page .student-card:nth-child(3) {
+  animation-delay: .12s;
 }
 
-.webteam-page .team-card:nth-child(4) {
-  animation-delay: 0.18s;
+.webteam-page .student-card:hover {
+  transform: translateY(-5px);
+
+  border-color:
+    rgba(0, 83, 140, .20);
+
+  box-shadow:
+    var(--wt-shadow-hover);
 }
 
-.webteam-page .team-avatar {
+.webteam-page .student-avatar {
   display: grid;
+
   place-items: center;
 
   width: 58px;
   height: 58px;
 
-  border-radius: 17px;
+  border-radius: 16px;
 
-  color: var(--webteam-navy);
-
-  border:
-    1px solid rgba(0, 83, 140, 0.10);
-
-  box-shadow:
-    inset 0 1px 0 rgba(255,255,255,.9);
+  color: var(--wt-navy);
 
   font-size: 1rem;
   font-weight: 850;
 
+  border:
+    1px solid rgba(0, 83, 140, .10);
+
   transition:
-    transform 0.35s cubic-bezier(.22, 1, .36, 1);
+    transform .35s cubic-bezier(.22, 1, .36, 1);
 }
 
-.webteam-page .team-card:hover .team-avatar {
+.webteam-page .student-card:hover .student-avatar {
   transform:
-    rotate(-4deg)
-    scale(1.06);
+    rotate(-3deg)
+    scale(1.05);
 }
 
-.webteam-page .avatar-rk {
-  background:
-    linear-gradient(145deg, #eef4fb, #dce8f5);
-}
-
-.webteam-page .avatar-t {
+.webteam-page .avatar-tejasri {
   background:
     linear-gradient(145deg, #edf7f2, #dceee6);
 }
 
-.webteam-page .avatar-n {
+.webteam-page .avatar-niladri {
   background:
     linear-gradient(145deg, #f1effa, #e5e0f4);
 }
 
-.webteam-page .avatar-ra {
+.webteam-page .avatar-rajaram {
   background:
     linear-gradient(145deg, #faf2e8, #eee1d0);
 }
 
-.webteam-page .team-card-body {
+.webteam-page .student-content {
   min-width: 0;
 }
 
-.webteam-page .team-role {
+.webteam-page .student-role {
   display: block;
 
-  margin-bottom: 4px;
+  margin-bottom: 5px;
 
-  color: var(--webteam-blue);
+  color: var(--wt-blue);
 
-  font-size: 0.62rem;
-  font-weight: 800;
+  font-size: .62rem;
+  font-weight: 850;
 
-  letter-spacing: 0.10em;
+  letter-spacing: .09em;
+
   text-transform: uppercase;
 }
 
-.webteam-page .team-card h3 {
+.webteam-page .student-content h3 {
   margin: 0;
 
-  color: var(--webteam-ink);
+  color: var(--wt-ink);
 
-  font-size: 1.05rem;
+  font-size: 1.08rem;
 
-  letter-spacing: -0.02em;
+  letter-spacing: -.02em;
 }
 
-.webteam-page .team-email {
+.webteam-page .student-email {
   display: flex;
+
   align-items: center;
+
   gap: 5px;
 
   margin-top: 7px;
 
-  color: var(--webteam-muted);
+  color: var(--wt-muted);
 
-  font-size: 0.70rem;
+  font-size: .70rem;
 
   line-height: 1.3;
 
@@ -985,46 +1092,45 @@
   overflow-wrap: anywhere;
 
   transition:
-    color 0.2s ease;
+    color .2s ease;
 }
 
-.webteam-page .team-email i {
-  flex: 0 0 auto;
-
-  color: var(--webteam-blue);
+.webteam-page .student-email i {
+  color: var(--wt-blue);
 }
 
-.webteam-page .team-email:hover {
-  color: var(--webteam-navy);
+.webteam-page .student-email:hover {
+  color: var(--wt-navy);
 }
 
-.webteam-page .card-arrow {
+.webteam-page .student-arrow {
   display: grid;
+
   place-items: center;
 
   width: 34px;
   height: 34px;
 
-  color: var(--webteam-navy);
+  color: var(--wt-navy);
 
   border:
-    1px solid rgba(0, 51, 102, 0.11);
+    1px solid rgba(0, 51, 102, .11);
 
   border-radius: 50%;
 
   background:
-    rgba(255, 255, 255, 0.7);
+    rgba(255, 255, 255, .75);
 
   text-decoration: none;
 
   transition:
-    all 0.28s ease;
+    all .25s ease;
 }
 
-.webteam-page .card-arrow:hover {
+.webteam-page .student-arrow:hover {
   color: #fff;
 
-  background: var(--webteam-navy);
+  background: var(--wt-navy);
 
   transform:
     translate(2px, -2px);
@@ -1032,23 +1138,28 @@
 
 
 /* =========================================================
-   ANIMATIONS
+   ANIMATION
    ========================================================= */
 
-@keyframes webteam-fade-up {
+@keyframes wt-fade-up {
   from {
     opacity: 0;
-    transform: translateY(22px);
+
+    transform:
+      translateY(18px);
   }
 
   to {
     opacity: 1;
-    transform: translateY(0);
+
+    transform:
+      translateY(0);
   }
 }
 
-@keyframes webteam-float {
-  0%, 100% {
+@keyframes wt-float {
+  0%,
+  100% {
     transform:
       translate3d(0, 0, 0)
       scale(1);
@@ -1056,20 +1167,8 @@
 
   50% {
     transform:
-      translate3d(10px, -12px, 0)
+      translate3d(9px, -11px, 0)
       scale(1.05);
-  }
-}
-
-@keyframes webteam-pulse {
-  0%, 100% {
-    opacity: 0.35;
-    transform: scale(1);
-  }
-
-  50% {
-    opacity: 0.75;
-    transform: scale(1.035);
   }
 }
 
@@ -1078,26 +1177,41 @@
    TABLET
    ========================================================= */
 
-@media (max-width: 1100px) {
+@media (max-width: 1050px) {
 
-  .webteam-page .team-grid {
+  .webteam-page .development-grid {
+    grid-template-columns:
+      minmax(0, 1fr)
+      minmax(280px, .78fr);
+  }
+
+  .webteam-page .developer-card {
+    grid-template-columns: 70px 1fr;
+
+    gap: 20px;
+
+    padding: 26px;
+  }
+
+  .webteam-page .developer-avatar {
+    width: 70px;
+    height: 70px;
+  }
+
+  .webteam-page .student-grid {
     grid-template-columns:
       repeat(2, minmax(0, 1fr));
   }
 
-  .webteam-page .profile-card-featured {
-    grid-template-columns: 200px 1fr;
+  .webteam-page .hod-card {
+    grid-template-columns: 185px 1fr;
 
     gap: 30px;
   }
 
-  .webteam-page .image-ring {
-    width: 175px;
-    height: 175px;
-  }
-
-  .webteam-page .staff-lead-card {
-    grid-template-columns: 95px 1fr;
+  .webteam-page .hod-photo-ring {
+    width: 165px;
+    height: 165px;
   }
 }
 
@@ -1116,83 +1230,71 @@
   }
 
   .webteam-page .webteam-hero {
-    min-height: 215px;
+    min-height: 205px;
 
-    margin-bottom: 46px;
+    margin-bottom: 45px;
 
-    padding: 38px 21px;
+    padding: 36px 20px;
 
-    border-radius: 22px;
+    border-radius: 21px;
   }
 
-  .webteam-page .team-section {
+  .webteam-page .webteam-section {
     margin-top: 48px;
   }
 
-  .webteam-page .profile-card-featured {
+  .webteam-page .hod-card {
     grid-template-columns: 1fr;
 
     text-align: center;
 
-    padding: 28px 20px;
+    padding: 28px 21px;
   }
 
-  .webteam-page .profile-media {
+  .webteam-page .hod-photo-wrap {
     margin: 0 auto;
   }
 
-  .webteam-page .profile-topline {
+  .webteam-page .card-eyebrow {
     justify-content: center;
   }
 
-  .webteam-page .profile-details {
+  .webteam-page .hod-details {
     text-align: left;
   }
 
-  .webteam-page .email-link {
+  .webteam-page .contact-link {
     margin-left: auto;
     margin-right: auto;
   }
 
-  .webteam-page .staff-lead-card {
+  .webteam-page .development-grid {
     grid-template-columns: 1fr;
-
-    text-align: center;
-
-    padding: 29px 22px;
   }
 
-  .webteam-page .staff-lead-avatar {
-    margin: 0 auto;
+  .webteam-page .developer-card {
+    grid-template-columns: 70px 1fr;
+
+    min-height: 215px;
+
+    padding: 25px 21px;
   }
 
-  .webteam-page .staff-lead-topline {
-    justify-content: center;
+  .webteam-page .developer-avatar {
+    width: 70px;
+    height: 70px;
   }
 
-  .webteam-page .staff-lead-description {
-    text-align: left;
-  }
-
-  .webteam-page .lead-contribution-list {
-    justify-content: center;
-  }
-
-  .webteam-page .lead-email-link {
-    margin-left: auto;
-    margin-right: auto;
-  }
-
-  .webteam-page .lead-watermark {
+  .webteam-page .developer-watermark {
     display: none;
   }
 
-  .webteam-page .team-grid {
+  .webteam-page .student-grid {
     grid-template-columns: 1fr;
   }
 
-  .webteam-page .team-card {
-    min-height: 142px;
+  .webteam-page .student-card {
+    min-height: 135px;
   }
 }
 
@@ -1208,34 +1310,63 @@
   }
 
   .webteam-page .webteam-hero {
-    padding: 33px 15px;
+    padding: 32px 15px;
 
     border-radius: 18px;
   }
 
   .webteam-page .eyebrow {
-    font-size: 0.64rem;
+    font-size: .61rem;
   }
 
-  .webteam-page .profile-card-featured {
+  .webteam-page .hod-card {
     padding: 24px 16px;
   }
 
-  .webteam-page .image-ring {
-    width: 155px;
-    height: 155px;
+  .webteam-page .hod-photo-ring {
+    width: 150px;
+    height: 150px;
   }
 
-  .webteam-page .profile-badge {
-    right: -2px;
-    bottom: 8px;
+  .webteam-page .developer-card {
+    grid-template-columns: 56px 1fr;
+
+    gap: 14px;
+
+    padding: 22px 16px;
   }
 
-  .webteam-page .staff-lead-card {
-    padding: 25px 17px;
+  .webteam-page .developer-avatar {
+    width: 56px;
+    height: 56px;
+
+    border-radius: 16px;
+
+    font-size: 1rem;
   }
 
-  .webteam-page .team-card {
+  .webteam-page .developer-avatar-lead i {
+    width: 23px;
+    height: 23px;
+
+    font-size: .75rem;
+  }
+
+  .webteam-page .developer-content h3 {
+    font-size: 1.35rem;
+  }
+
+  .webteam-page .developer-description {
+    font-size: .78rem;
+  }
+
+  .webteam-page .developer-contributions {
+    display: grid;
+
+    gap: 5px;
+  }
+
+  .webteam-page .student-card {
     grid-template-columns: 52px 1fr 32px;
 
     gap: 11px;
@@ -1243,21 +1374,21 @@
     padding: 17px 14px;
   }
 
-  .webteam-page .team-avatar {
+  .webteam-page .student-avatar {
     width: 52px;
     height: 52px;
 
     border-radius: 14px;
   }
 
-  .webteam-page .team-email {
-    font-size: 0.68rem;
+  .webteam-page .student-email {
+    font-size: .67rem;
   }
 }
 
 
 /* =========================================================
-   ACCESSIBILITY
+   REDUCED MOTION
    ========================================================= */
 
 @media (prefers-reduced-motion: reduce) {
@@ -1265,9 +1396,9 @@
   .webteam-page *,
   .webteam-page *::before,
   .webteam-page *::after {
-    animation-duration: 0.01ms !important;
+    animation-duration: .01ms !important;
     animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
+    transition-duration: .01ms !important;
     scroll-behavior: auto !important;
   }
 }

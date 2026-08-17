@@ -893,6 +893,9 @@
       #f4f8fb
     );
 
+  border-color:
+    rgba(0, 83, 140, .15);
+
   animation:
     wt-fade-up
     .65s
@@ -951,12 +954,16 @@
 
   border-radius: 999px;
 
+  min-height: 31px;
+
   font-size: .65rem;
   font-weight: 850;
 
-  letter-spacing: .08em;
+  letter-spacing: .06em;
 
   text-transform: uppercase;
+
+  box-sizing: border-box;
 }
 
 .webteam-page .role-badge-lead {

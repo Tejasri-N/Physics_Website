@@ -186,6 +186,15 @@ body {
   margin-top: 0;
 }
 
+/* Keep the announcement border fully clear of the navigation ribbon. */
+@media (min-width: 1051px) {
+  .announcements {
+    position: relative;
+    top: 2px;
+    height: 428px;
+  }
+}
+
 .announcements h2 {
   text-align: center;
   margin: 0;

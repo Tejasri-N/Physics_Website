@@ -599,10 +599,7 @@ hr {
 }
 
 
-@media (max-width: 480px) {
-  body {
-    overflow-x: hidden;
-  }
+@media (max-width: 480px) { .carousel-container { height: 56vw !important; max-height: 430px !important; } .carousel-container .carousel, .carousel-item.active { height: 100% !important; } .carousel-item.active img { width: 100% !important; height: 100% !important; max-height: none !important; object-fit: contain !important; } }
 
   .main-carousel-announcements {
     flex-direction: column;

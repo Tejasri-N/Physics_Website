@@ -615,11 +615,10 @@ hr {
     height: auto !important;
   }
 
-  .carousel-container {
+    .carousel-container {
+    height: 260px !important;
     width: 100% !important;
     max-width: 100% !important;
-    height: auto !important;
-    margin: 0 auto 10px;
   }
 
   .announcements {
@@ -631,14 +630,28 @@ hr {
     border-radius: 8px;
     background-color: #ffffff;
   }
+  .carousel {
+    height: 220px;
+  }
+
 
   .announcement-list {
     max-height: calc(300px - 60px);  /* subtract title area */
     overflow-y: auto;                /* 👈 brings back the scroll inside */
     padding-right: 12px;
   }
+.carousel-item {
+    height: 220px;
+  }
 
- .carousel-item img { width: 100%; height: 350px; object-fit: contain; border-radius: 15px; transition: box-shadow 0.4s ease; }
+  .carousel-item img {
+    width: 100%;
+    height: 220px;
+    max-height: none;
+    object-fit: contain;
+    display: block;
+  }
+
 }
 
 

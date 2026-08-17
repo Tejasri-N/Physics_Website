@@ -597,11 +597,18 @@ hr {
   }
 }
 
-/* Smaller screens: stack the lower content boxes. */
-@media (max-width: 768px) {
+/* Mobile */
+@media (max-width: 480px) {
+  body {
+    overflow-x: hidden;
+  }
+
+  /* Stack the lower content boxes only on phones.
+     Tablet and desktop layouts remain unchanged. */
   .main-columns {
     grid-template-columns: 1fr;
     column-gap: 0;
+    row-gap: 20px;
   }
 
   .spotlight-section {
@@ -613,14 +620,7 @@ hr {
   .latest-publications {
     flex: none;
     width: 100%;
-    margin-bottom: 20px;
-  }
-}
-
-/* Mobile */
-@media (max-width: 480px) {
-  body {
-    overflow-x: hidden;
+    margin-bottom: 0;
   }
 
   .main-carousel-announcements {

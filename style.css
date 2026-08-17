@@ -86,11 +86,10 @@ body {
 /* Subtle zoom + glow when hovering the image itself */
 .carousel-item img {
   width: 100%;
-  height: auto;
-  object-fit: cover;
-  max-height: 550px;
+  height: 430px;
+  object-fit: contain;
   border-radius: 15px;
-  transition: transform 0.4s ease, box-shadow 0.4s ease;
+  transition: box-shadow 0.4s ease;
 }
 
 /* Subtle zoom + professional glow on hover */
